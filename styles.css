@@ -569,3 +569,8 @@ details.notice[open] > summary::after { content: "▴"; }
 .soil-group-rows { display: block; }
 .cmp { display: flex; flex-direction: column; }
 .reg-list { align-items: start; }
+
+/* Soil rows: what the product does, then how long it lasts */
+.soil-fn { flex-basis: 100%; font-size: 14px; color: var(--fg); order: 3; }
+.soil-time { order: 4; color: var(--muted); }
+.soil-fn strong, .soil-time strong { font-weight: 600; color: var(--fg); }
