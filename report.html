@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Research report · Fruit hormones</title>
+<meta name="description" content="Full research report behind the tropical fruit hormone charts: measured values, verification levels, gaps and conflicts.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#19201c" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+.doc { max-width: 72ch; margin-inline: auto; }
+.doc h1 { margin-bottom: 8px; }
+.doc h2 { font-size: 21px; margin: 32px 0 8px; }
+.doc h3 { font-size: 17px; margin: 24px 0 8px; }
+.doc p, .doc li { line-height: 1.6; }
+.doc table { display: block; overflow-x: auto; border-collapse: collapse; font-size: 14px; margin: 12px 0; max-width: 100%; }
+.doc th, .doc td { border-bottom: 1px solid var(--line); padding: 6px 10px 6px 0; text-align: left; vertical-align: top; min-width: 6rem; }
+.doc th { color: var(--muted); font-weight: 600; }
+.doc code { font-size: .9em; background: var(--grid); padding: 1px 4px; border-radius: 4px; overflow-wrap: anywhere; }
+.doc a { overflow-wrap: anywhere; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" defer></script>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-inner">
+    <a class="brand" href="./#overview"><img src="icons/icon-192.png" alt="" width="28" height="28"><span>Fruit hormones</span></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="./#overview">Overview</a>
+      <a href="./#ripening">Ripening</a>
+      <a href="./#flowering">Flowering</a>
+      <a href="./#fruitset">Fruit set</a>
+      <a href="report.html" aria-current="page">Report</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <article class="doc card" id="doc"><p class="note">Loading the report…</p></article>
+</main>
+<nav class="bottom-nav" aria-label="Sections">
+  <a href="./#overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</a>
+  <a href="./#ripening"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c-4 0-7 3-7 7s3 7 7 7 7-3 7-7-3-7-7-7z"/><path d="M12 7c0-2 1-4 4-4"/></svg>Ripening</a>
+  <a href="./#flowering"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="2.5"/><path d="M12 7.5c0-3 3-3 3 0M12 7.5c0-3-3-3-3 0M14.5 10c3 0 3 3 0 3M9.5 10c-3 0-3 3 0 3M12 12.5v8.5"/></svg>Flowering</a>
+  <a href="./#fruitset"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><circle cx="16" cy="14" r="3"/><path d="M8 11c0-3 2-6 6-7M16 11c0-2-1-4-2-7"/></svg>Fruit set</a>
+  <a href="report.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Report</a>
+</nav>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const doc = document.getElementById('doc');
+  fetch('report.md').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(md => {
+    if (window.marked) {
+      doc.innerHTML = marked.parse(md);
+      doc.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+    } else {
+      const pre = document.createElement('pre'); pre.style.whiteSpace = 'pre-wrap'; pre.textContent = md; doc.replaceChildren(pre);
+    }
+  }).catch(() => { doc.innerHTML = '<p class="note">The report could not be loaded. Check your connection and try again.</p>'; });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+});
+</script>
+</body>
+</html>

@@ -5,506 +5,131 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tropical fruit hormone charts</title>
 <meta name="description" content="How gibberellin, cytokinin, ABA, auxin and ethylene change through flowering, fruit set and ripening in 13 tropical fruit crops, with measured values and their sources.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#19201c" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fruit hormones">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap">
-<style>
-:root{
-  --color-fg:#1d2420;--color-fg-muted:#5c6862;--color-bg:#f6f8f6;--color-panel:#ffffff;--color-border-line:#dde4df;
-  --color-warn:#a5620a;--color-bad:#c0392b;
-  --cds-gap-xs:4px;--cds-gap-sm:8px;--cds-gap-md:16px;--cds-gap-lg:24px;--cds-gap-xl:40px;
-  --cds-pad-xs:4px;--cds-pad-sm:8px;--cds-pad-lg:20px;--cds-radius:8px;
-  --cds-font-size-caption:12.5px;--cds-font-size-body:15px;--cds-font-size-heading:17px;--cds-font-size-title:34px;--cds-font-weight-medium:600;
-  --cds-chart-grid:#e9eeea;--cds-chart-axis:#b8c2bc;--cds-chart-reference:#7d8a83;
-  --cds-surface-popover:#ffffff;--cds-border:#d3dbd6;--cds-text-secondary:#5c6862;--cds-shadow-popover:0 4px 16px rgba(20,40,30,.12);
-  --cds-dur-slow:240ms;
-  --font-anthropic-sans:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-anthropic-serif:"Source Serif 4",Georgia,"Times New Roman",serif;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --color-fg:#e4ebe6;--color-fg-muted:#9aa8a0;--color-bg:#121614;--color-panel:#1a201d;--color-border-line:#2c3531;
-  --color-warn:#e0a24a;--color-bad:#ef6f5e;--cds-chart-grid:#252d29;--cds-chart-axis:#45514b;--cds-chart-reference:#8a978f;
-  --cds-surface-popover:#202724;--cds-border:#34403a;--cds-text-secondary:#9aa8a0;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.5);color-scheme:dark}}
-:root[data-theme="dark"]{
-  --color-fg:#e4ebe6;--color-fg-muted:#9aa8a0;--color-bg:#121614;--color-panel:#1a201d;--color-border-line:#2c3531;
-  --color-warn:#e0a24a;--color-bad:#ef6f5e;--cds-chart-grid:#252d29;--cds-chart-axis:#45514b;--cds-chart-reference:#8a978f;
-  --cds-surface-popover:#202724;--cds-border:#34403a;--cds-text-secondary:#9aa8a0;--cds-shadow-popover:0 4px 16px rgba(0,0,0,.5);color-scheme:dark}
-body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans);font-size:var(--cds-font-size-body);line-height:1.5}
-#dash-root{max-width:1100px;margin-inline:auto;padding-block:32px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.dash-skeleton:empty{min-height:180px;border-radius:var(--cds-radius);background:var(--cds-chart-grid)}
-.site-foot{margin-top:var(--cds-gap-xl);padding-top:var(--cds-gap-md);border-top:1px solid var(--color-border-line);color:var(--color-fg-muted);font-size:var(--cds-font-size-caption);display:flex;flex-direction:column;gap:var(--cds-gap-xs)}
-.site-foot a{color:inherit}
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script>
-/* Small stand-in for the dashboard runtime: loads each CSV once and redraws on data and resize. */
-(function(){
-  const FILES = {
-    lifecycle: 'data/lifecycle_direction.csv',
-    ripening: 'data/ripening_ethylene.csv',
-    mango_leaf: 'data/flowering_mango_leaf.csv',
-    longan: 'data/flowering_longan.csv',
-    pbz_change: 'data/flowering_pct_change.csv',
-    fruitset: 'data/fruitset_fold.csv'
-  };
-  const store = {}, fns = [];
-  const run = () => fns.forEach(f => f());
-  Object.entries(FILES).forEach(([id, url]) => {
-    store[id] = {status: 'loading', data: []};
-    fetch(url).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(t => { store[id] = {status: 'ok', data: d3.csvParse(t)}; })
-      .catch(e => { store[id] = {status: 'error', data: [], message: String(e)}; })
-      .finally(run);
-  });
-  let w = innerWidth;
-  addEventListener('resize', () => { if (innerWidth !== w) { w = innerWidth; run(); } });
-  window.dash = {
-    colors: ['#2f6fd0', '#d9722b', '#2a9a6e', '#8a5cd0', '#c4417c', '#7a8580', '#2aa3b8', '#b08a00'],
-    data: id => store[id] || {status: 'missing', data: []},
-    onData: fn => { fns.push(fn); fn(); }
-  };
-})();
-</script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
+<script src="app.js" defer></script>
 </head>
 <body>
-<div id="dash-root">
-<style>
-.th{display:flex;flex-direction:column;gap:var(--cds-gap-xl);font-family:var(--font-anthropic-sans);color:var(--color-fg)}
-.th-head h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);margin:0;text-wrap:balance}
-.th-head p{margin:var(--cds-gap-xs) 0 0;color:var(--color-fg-muted);max-width:72ch}
-.th-section{display:flex;flex-direction:column;gap:var(--cds-gap-md)}
-.th-section>h2{font-size:var(--cds-font-size-heading);font-weight:var(--cds-font-weight-medium);margin:0}
-.th-section>.th-lead{margin:0;color:var(--color-fg-muted);max-width:72ch}
-.th-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:var(--cds-gap-md)}
-.th-card{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);display:flex;flex-direction:column;gap:var(--cds-gap-sm);min-width:0}
-.th-card h3{margin:0;font-size:var(--cds-font-size-heading);font-weight:var(--cds-font-weight-medium)}
-.th-note{margin:0;color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
-.th-chart{position:relative;min-height:180px}
-.th-chart svg{display:block}
-.th-chart text{font-family:var(--font-anthropic-sans);font-size:var(--cds-font-size-caption)}
-.th-fail{display:flex;align-items:center;justify-content:center;gap:var(--cds-gap-xs);min-height:inherit;color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
-.th-dot{width:.375rem;height:.375rem;border-radius:50%;background:var(--color-bad)}
-.th-tip{position:absolute;z-index:5;background:var(--cds-surface-popover);border:1px solid var(--cds-border);border-radius:var(--cds-radius);box-shadow:var(--cds-shadow-popover);padding:var(--cds-pad-xs) var(--cds-pad-sm);font-size:var(--cds-font-size-caption);pointer-events:none;max-width:18rem;display:flex;flex-direction:column;gap:2px}
-.th-tip-h{color:var(--cds-text-secondary)}
-.th-legend{display:flex;flex-wrap:wrap;gap:var(--cds-gap-xs) var(--cds-gap-md);font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
-.th-legend span{display:inline-flex;align-items:center;gap:6px}
-.th-sw{width:10px;height:10px;border-radius:50%;display:inline-block}
-.th-scroll{overflow-x:auto}
-.th-mx{display:grid;grid-template-columns:max-content repeat(15,minmax(1.75rem,1fr));column-gap:2px;row-gap:2px;min-width:34rem;font-size:var(--cds-font-size-caption)}
-.th-mx-stage{grid-column:span 5;text-align:center;font-weight:var(--cds-font-weight-medium);padding-bottom:2px;border-bottom:1px solid var(--color-border-line);margin-left:var(--cds-gap-sm)}
-.th-mx-h{text-align:center;color:var(--color-fg-muted);padding:2px 0}
-.th-mx .first{margin-left:var(--cds-gap-sm)}
-.th-mx-crop{font:inherit;color:var(--color-fg);background:none;border:0;border-radius:var(--cds-radius);text-align:left;padding:2px var(--cds-pad-sm) 2px 4px;cursor:pointer}
-.th-mx-crop:hover{background:var(--cds-chart-grid)}
-.th-mx-crop[aria-pressed="true"]{font-weight:var(--cds-font-weight-medium);background:color-mix(in srgb,var(--th-up) 14%,transparent)}
-.th-mx-crop:focus-visible{outline:2px solid var(--th-up);outline-offset:1px}
-.th-c{display:flex;align-items:center;justify-content:center;height:1.75rem;border-radius:4px;font-size:.8rem;line-height:1}
-.th-c.up{color:var(--th-up);background:color-mix(in srgb,var(--th-up) 14%,transparent)}
-.th-c.peak{color:var(--color-bg);background:var(--th-up)}
-.th-c.down{color:var(--th-down);background:color-mix(in srgb,var(--th-down) 14%,transparent)}
-.th-c.low{color:var(--th-down)}
-.th-c.mix{color:var(--color-warn);background:color-mix(in srgb,var(--color-warn) 14%,transparent)}
-.th-c.nd{color:var(--color-fg-muted)}
-.th-c.inferred{opacity:.55;outline:1px dashed currentColor;outline-offset:-1px}
-.th-key{display:flex;flex-wrap:wrap;gap:var(--cds-gap-xs) var(--cds-gap-md);font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);align-items:center}
-.th-key .th-c{width:1.5rem;height:1.25rem;display:inline-flex}
-.th-key span.k{display:inline-flex;align-items:center;gap:6px}
-.th-table{border-collapse:collapse;width:100%;font-size:var(--cds-font-size-caption);min-width:44rem}
-.th-table th{text-align:left;font-weight:var(--cds-font-weight-medium);color:var(--color-fg-muted);border-bottom:1px solid var(--color-border-line);padding:var(--cds-pad-xs) var(--cds-pad-sm) var(--cds-pad-xs) 0}
-.th-table td{vertical-align:top;border-bottom:1px solid var(--color-border-line);padding:var(--cds-pad-xs) var(--cds-pad-sm) var(--cds-pad-xs) 0}
-.th-table td.n{max-width:28rem;color:var(--color-fg-muted)}
-.th-dir::before{margin-right:4px}
-.th-dir.up::before{content:"▲";color:var(--th-up)}
-.th-dir.peak::before{content:"▲";color:var(--th-up)}
-.th-dir.down::before{content:"▼";color:var(--th-down)}
-.th-dir.low::before{content:"▽";color:var(--th-down)}
-.th-dir.mix::before{content:"◆";color:var(--color-warn)}
-.th-dir.nd{color:var(--color-fg-muted)}
-[data-dash-source-state=refreshing]{opacity:.5;transition:opacity var(--cds-dur-slow)}
-</style>
+<header class="bar">
+  <div class="bar-inner">
+    <a class="brand" href="#overview"><img src="icons/icon-192.png" alt="" width="28" height="28"><span>Fruit hormones</span></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#overview">Overview</a>
+      <a href="#ripening">Ripening</a>
+      <a href="#flowering">Flowering</a>
+      <a href="#fruitset">Fruit set</a>
+      <a href="report.html">Report</a>
+    </nav>
+    <button type="button" id="install" class="install" hidden>Install app</button>
+  </div>
+</header>
 
-<div class="th" id="th">
-  <header class="th-head">
-    <h1>Tropical fruit hormone charts</h1>
-    <p>Across the crops, buds lose gibberellin and gain cytokinin and ABA before flowering. Young fruit that drop show rising ABA and ethylene. At ripening, climacteric fruits show an ethylene peak, and non-climacteric fruits rely on rising ABA. Most crops have only the direction of change, not measured levels.</p>
-  </header>
+<main>
+  <section id="view-overview" class="view" aria-labelledby="overview-title">
+    <h1 id="overview-title">Tropical fruit hormone charts</h1>
+    <p class="lead">Buds lose gibberellin and gain cytokinin and ABA before flowering. Young fruit that drop show rising ABA and ethylene. At ripening, climacteric fruits peak in ethylene and non-climacteric fruits rely on rising ABA. Most crops have only the direction of change, not measured levels.</p>
 
-  <section class="th-section" id="lifecycle-section">
-    <h2>Which hormones rise and fall at each stage</h2>
-    <p class="th-lead">Each row is one crop through flowering, fruit set and ripening. Faded, dashed cells are inferred from the crop's fruit type or general tree physiology, not measured in that crop. Select a crop to read the evidence.</p>
-    <div class="th-card">
-      <div class="th-key">
-        <span class="k"><span class="th-c up">▲</span>Rises</span>
-        <span class="k"><span class="th-c peak">▲</span>Peaks</span>
-        <span class="k"><span class="th-c down">▼</span>Falls</span>
-        <span class="k"><span class="th-c low">▽</span>Stays low</span>
-        <span class="k"><span class="th-c mix">◆</span>Mixed or conflicting</span>
-        <span class="k"><span class="th-c nd">·</span>No data</span>
-        <span class="k"><span class="th-c up inferred">▲</span>Inferred</span>
-      </div>
-      <div class="th-scroll"><div class="th-chart dash-skeleton" id="mx" data-source="lifecycle"></div></div>
-      <p class="th-note">GA gibberellin · CK cytokinin · ABA abscisic acid · IAA auxin · Eth ethylene</p>
+    <div class="card" id="crop-card">
+      <h2 id="crop-title">Through the growth cycle</h2>
+      <div class="chips" id="crop-chips" role="group" aria-label="Crop"></div>
+      <div class="stages" id="crop-stages"></div>
+      <p class="note">Dashed badges are inferred from the crop's fruit type or general tree physiology, not measured in that crop.</p>
     </div>
-    <div class="th-card" id="detail-card">
-      <h3 id="detail-title">Evidence for the selected crop</h3>
-      <div class="th-scroll">
-        <table class="th-table" id="detail" data-source="lifecycle" data-row-key="key">
-          <thead><tr>
-            <th data-field="stage">Stage</th><th data-field="GA">GA</th><th data-field="cytokinin">Cytokinin</th><th data-field="ABA">ABA</th><th data-field="IAA">IAA</th><th data-field="ethylene">Ethylene</th><th data-field="basis">Basis</th><th data-field="note">Evidence</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
+
+    <div class="card">
+      <h2>All crops at a glance</h2>
+      <div class="seg narrow-only" id="stage-seg" role="group" aria-label="Stage">
+        <button type="button" data-stage="Flowering">Flowering</button>
+        <button type="button" data-stage="Fruit set">Fruit set</button>
+        <button type="button" data-stage="Ripening">Ripening</button>
       </div>
+      <div class="key">
+        <span><i class="c up" aria-hidden="true">▲</i>Rises</span>
+        <span><i class="c peak" aria-hidden="true">▲</i>Peaks</span>
+        <span><i class="c down" aria-hidden="true">▼</i>Falls</span>
+        <span><i class="c low" aria-hidden="true">▽</i>Stays low</span>
+        <span><i class="c mix" aria-hidden="true">◆</i>Mixed</span>
+        <span><i class="c nd" aria-hidden="true">·</i>No data</span>
+        <span><i class="c up inferred" aria-hidden="true">▲</i>Inferred</span>
+      </div>
+      <div id="mx"><div class="loading"></div></div>
+      <p class="note">GA gibberellin · CK cytokinin · ABA abscisic acid · IAA auxin · Eth ethylene. Tap a crop or cell to open it above.</p>
     </div>
   </section>
 
-  <section class="th-section" id="ripening-section">
-    <h2>Ripening: ethylene production peaks</h2>
-    <div class="th-card">
-      <h3>Ethylene rate by crop</h3>
-      <p class="th-note">µL C₂H₄ per kg per hour, log scale. Bars are reported ranges; an arrow means "below this value". Colour shows how the value was checked.</p>
-      <div class="th-legend" id="ver-legend"></div>
-      <div class="th-chart dash-skeleton" id="ripe-chart" data-source="ripening"></div>
+  <section id="view-ripening" class="view" aria-labelledby="ripening-title" hidden>
+    <h1 id="ripening-title">Ripening</h1>
+    <p class="lead">Climacteric fruits (mango, durian, papaya, passion fruit, avocado) show an ethylene peak after harvest. Non-climacteric fruits such as rambutan stay low.</p>
+    <div class="card">
+      <h2>Ethylene production by crop</h2>
+      <p class="note">µL C₂H₄ per kg per hour, log scale. Bars are reported ranges; an arrow means "below this value". Colour shows how the value was checked.</p>
+      <div class="key" id="ver-key"></div>
+      <div class="chart" id="ripe-chart"><div class="loading"></div></div>
+      <div class="readout" id="ripe-readout" aria-live="polite"><span class="hint">Tap a row for its details and source.</span></div>
     </div>
   </section>
 
-  <section class="th-section" id="flowering-section">
-    <h2>Flowering: measured levels in buds, leaves and shoots</h2>
-    <div class="th-grid">
-      <div class="th-card">
-        <h3>Mango leaf, girdled vs control</h3>
-        <p class="th-note">ng/g fresh mass, LC-MS/MS, log scale. Alphonso, one month after girdling. The girdled rows in the source table were scrambled, so treat ranges as approximate.</p>
-        <div class="th-legend" id="leaf-legend"></div>
-        <div class="th-chart dash-skeleton" id="leaf-chart" data-source="mango_leaf"></div>
+  <section id="view-flowering" class="view" aria-labelledby="flowering-title" hidden>
+    <h1 id="flowering-title">Flowering</h1>
+    <p class="lead">Measured hormone levels in buds, leaves and shoots before flowering. Units differ between studies, so each chart keeps its own scale.</p>
+    <div class="grid2">
+      <div class="card">
+        <h2>Mango leaf, girdled vs control</h2>
+        <p class="note">ng/g fresh mass, LC-MS/MS, log scale. Alphonso, one month after girdling. Girdled rows in the source table were scrambled, so treat ranges as approximate.</p>
+        <div class="key"><span><i class="sw" style="background:var(--up)"></i>Control</span><span><i class="sw" style="background:var(--down)"></i>Girdled (range)</span></div>
+        <div class="chart" id="leaf-chart"><div class="loading"></div></div>
+        <div class="readout" id="leaf-readout" aria-live="polite"><span class="hint">Tap a hormone for its values.</span></div>
       </div>
-      <div class="th-card">
-        <h3>Longan shoot tips after KClO₃</h3>
-        <p class="th-note">ng/g dry weight, LC-ESI-MS, values read from the abstract. Gibberellins from treated trees; cytokinins from untreated trees.</p>
-        <div class="th-legend" id="longan-legend"></div>
-        <div class="th-chart dash-skeleton" id="longan-chart" data-source="longan"></div>
+      <div class="card">
+        <h2>Longan shoot tips after KClO₃</h2>
+        <p class="note">ng/g dry weight, LC-ESI-MS, read from the abstract. Gibberellins from treated trees; cytokinins from untreated trees.</p>
+        <div class="key"><span><i class="sw" style="background:var(--up)"></i>Gibberellins, treated</span><span><i class="sw" style="background:var(--brand)"></i>Cytokinins, untreated</span></div>
+        <div class="chart" id="longan-chart"><div class="loading"></div></div>
+        <div class="readout" id="longan-readout" aria-live="polite"><span class="hint">Tap a bar for its value.</span></div>
       </div>
     </div>
-    <div class="th-card">
-      <h3>Mango: change with paclobutrazol (PBZ)</h3>
-      <p class="th-note">Percent change, mostly PBZ-treated vs untreated Alphonso trees (Burondkar 2016, from search snippets). The two "untreated" rows compare dates within control trees.</p>
-      <div class="th-chart dash-skeleton" id="pbz-chart" data-source="pbz_change"></div>
+    <div class="card">
+      <h2>Mango: change with paclobutrazol (PBZ)</h2>
+      <p class="note">Percent change, mostly PBZ-treated vs untreated Alphonso trees (Burondkar 2016, from search snippets). The two "untreated" rows compare dates within control trees.</p>
+      <div class="chart" id="pbz-chart"><div class="loading"></div></div>
+      <div class="readout" id="pbz-readout" aria-live="polite"><span class="hint">Tap a row for its details and source.</span></div>
     </div>
   </section>
 
-  <section class="th-section" id="fruitset-section">
-    <h2>Fruit set: changes before fruitlet drop</h2>
-    <div class="th-card">
-      <h3>Fold change vs control or earlier stage</h3>
-      <p class="th-note">Times higher, log scale from 1× (no change). Few absolute fruit-set levels exist for these crops.</p>
-      <div class="th-chart dash-skeleton" id="fold-chart" data-source="fruitset"></div>
+  <section id="view-fruitset" class="view" aria-labelledby="fruitset-title" hidden>
+    <h1 id="fruitset-title">Fruit set</h1>
+    <p class="lead">Before young fruit drop, ABA, ACC and ethylene climb. Few absolute fruit-set levels exist for these crops, so these are fold changes.</p>
+    <div class="card">
+      <h2>Fold change vs control or earlier stage</h2>
+      <p class="note">Times higher, log scale from 1× (no change). Colour shows how the value was checked.</p>
+      <div class="chart" id="fold-chart"><div class="loading"></div></div>
+      <div class="readout" id="fold-readout" aria-live="polite"><span class="hint">Tap a row for its details and source.</span></div>
     </div>
   </section>
-</div>
 
-<script>
-(function(){
-  const C = dash.colors;
-  const root = document.getElementById('th');
-  root.style.setProperty('--th-up', C[0]);
-  root.style.setProperty('--th-down', C[1]);
-  const VER = [['FT','Full text'],['ABS','Abstract'],['SEC','Review or guide'],['SNIP','Search snippet']];
-  const verColor = v => ({FT:C[0],ABS:C[2],SEC:C[3],SNIP:C[4]})[v] || C[5];
-  const verName = v => (VER.find(d => d[0] === v) || [v, v])[1];
-  const fmt = d3.format('~g');
+  <footer class="site-foot">
+    <span>Values compiled from published studies, abstracts, reviews and extension guides. Every value's verification level and source are in the CSV files in the repository's data folder.</span>
+    <span>Full write-up with sources, gaps and conflicts: <a href="report.html">research report</a>.</span>
+  </footer>
+</main>
 
-  function legend(id, items){
-    const el = document.getElementById(id); el.replaceChildren();
-    items.forEach(([label, color]) => {
-      const s = document.createElement('span'); const sw = document.createElement('i');
-      sw.className = 'th-sw'; sw.style.background = color; s.append(sw, document.createTextNode(label)); el.append(s);
-    });
-  }
-  legend('ver-legend', VER.map(([k, n]) => [n, verColor(k)]));
-  legend('leaf-legend', [['Control', C[0]], ['Girdled (range)', C[1]]]);
-  legend('longan-legend', [['Gibberellins, treated', C[0]], ['Cytokinins, untreated', C[2]]]);
-
-  function state(id, box){
-    const d = dash.data(id);
-    box.classList.toggle('dash-skeleton', d.status === 'loading');
-    if (d.status === 'ok') return d.data;
-    box.querySelectorAll('svg,.th-fail,.th-mx').forEach(n => n.remove());
-    if (d.status === 'error' || d.status === 'missing' || d.status === 'connect') {
-      const f = document.createElement('div'); f.className = 'th-fail';
-      const dot = document.createElement('span'); dot.className = 'th-dot';
-      f.append(dot, document.createTextNode('Failed to load')); box.append(f);
-    }
-    return null;
-  }
-
-  function tip(box){
-    let t = box.querySelector(':scope > .th-tip');
-    if (!t) { t = document.createElement('div'); t.className = 'th-tip'; t.hidden = true; box.append(t); }
-    return {
-      show(ev, lines){
-        t.replaceChildren();
-        lines.forEach((l, i) => { const d = document.createElement('div'); d.textContent = l; if (i === 0) d.className = 'th-tip-h'; t.append(d); });
-        t.hidden = false;
-        const r = box.getBoundingClientRect();
-        let x = ev.clientX - r.left + 12, y = ev.clientY - r.top + 12;
-        if (x + t.offsetWidth > r.width) x = Math.max(0, ev.clientX - r.left - t.offsetWidth - 12);
-        t.style.left = x + 'px'; t.style.top = y + 'px';
-      },
-      hide(){ t.hidden = true; }
-    };
-  }
-
-  function fit(sel, maxW){
-    const n = sel.node(); let s = n.textContent;
-    while (n.getComputedTextLength() > maxW && s.length > 4) { s = s.slice(0, -2); n.textContent = s.trimEnd() + '…'; }
-  }
-
-  function newSvg(box, W, H){
-    box.querySelectorAll('svg,.th-fail').forEach(n => n.remove());
-    const svg = d3.select(box).insert('svg', ':first-child').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
-    box.style.minHeight = H + 'px';
-    return svg;
-  }
-
-  function logAxis(svg, x, ticks, y0, y1){
-    const g = svg.append('g');
-    ticks.forEach(t => {
-      g.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', y0).attr('y2', y1).attr('stroke', 'var(--cds-chart-grid)');
-      g.append('text').attr('x', x(t)).attr('y', y1 + 16).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').text(fmt(t));
-    });
-  }
-
-  /* Rows with the label above a track: readable at any width. */
-  function rowChart(box, rows, o){
-    const W = Math.max(280, box.clientWidth), m = {t: 4, r: 16, b: 26, l: 4}, lineH = 15;
-    const maxW = W - m.l - m.r;
-    /* Wrap each label onto as many lines as it needs, measured as drawn. */
-    const probe = d3.select(box).append('svg').attr('width', W).attr('height', 0).append('text');
-    const lines = rows.map(d => {
-      const out = []; let cur = '';
-      o.label(d).split(' ').forEach(w => {
-        const next = cur ? cur + ' ' + w : w;
-        probe.text(next);
-        if (cur && probe.node().getComputedTextLength() > maxW) { out.push(cur); cur = w; } else cur = next;
-      });
-      out.push(cur); return out;
-    });
-    probe.node().ownerSVGElement.remove();
-    const tops = []; let acc = m.t;
-    lines.forEach(ls => { tops.push(acc); acc += 28 + lineH * ls.length; });
-    const H = acc + m.b;
-    const svg = newSvg(box, W, H);
-    const x = o.scale([m.l + 18, W - m.r - (o.padR || 0)]);
-    o.axis(svg, x, m.t, H - m.b);
-    const tt = tip(box);
-    rows.forEach((d, i) => {
-      const y = tops[i], rowH = 28 + lineH * lines[i].length;
-      const g = svg.append('g');
-      const lab = g.append('text').attr('fill', 'var(--color-fg)');
-      lines[i].forEach((l, j) => lab.append('tspan').attr('x', m.l).attr('y', y + 13 + j * lineH).text(l));
-      o.mark(g, d, x, y + 13 + lineH * (lines[i].length - 1) + 14);
-      g.append('rect').attr('x', 0).attr('y', y).attr('width', W).attr('height', rowH).attr('fill', 'transparent')
-        .on('mousemove', ev => tt.show(ev, o.tip(d))).on('mouseleave', () => tt.hide());
-    });
-  }
-
-  function drawRipening(){
-    const box = document.getElementById('ripe-chart');
-    const rows = state('ripening', box); if (!rows) return;
-    const data = rows.map(r => ({...r, lo: Number(r.low), hi: Number(r.high)})).sort((a, b) => b.hi - a.hi);
-    rowChart(box, data, {
-      scale: r => d3.scaleLog([0.01, 1000], r),
-      axis: (svg, x, y0, y1) => logAxis(svg, x, [0.01, 0.1, 1, 10, 100, 1000], y0, y1),
-      label: d => `${d.crop} · ${d.condition}`,
-      padR: 0,
-      mark(g, d, x, y){
-        const c = verColor(d.verification);
-        if (d.bound === 'below') {
-          g.append('line').attr('x1', x(d.hi)).attr('x2', x(d.hi) - 22).attr('y1', y).attr('y2', y).attr('stroke', c).attr('stroke-width', 2);
-          g.append('path').attr('d', `M${x(d.hi) - 22},${y} l6,-4 l0,8 z`).attr('fill', c);
-          g.append('circle').attr('cx', x(d.hi)).attr('cy', y).attr('r', 4.5).attr('fill', 'var(--color-panel)').attr('stroke', c).attr('stroke-width', 2);
-        } else if (d.hi > d.lo) {
-          g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).attr('stroke', c).attr('stroke-width', 8).attr('stroke-linecap', 'round');
-        } else {
-          g.append('circle').attr('cx', x(d.hi)).attr('cy', y).attr('r', 5).attr('fill', c);
-        }
-        const v = d.bound === 'below' ? `< ${fmt(d.hi)}` : d.hi > d.lo ? `${fmt(d.lo)}–${fmt(d.hi)}` : fmt(d.hi);
-        const t = g.append('text').attr('y', y + 4).attr('fill', 'var(--color-fg-muted)').text(v);
-        const tw = t.node().getComputedTextLength(), tx = x(d.hi) + 10;
-        if (tx + tw <= x.range()[1] + 14) t.attr('x', tx);
-        else t.attr('x', x(d.lo) - 10).attr('text-anchor', 'end');
-      },
-      tip: d => [`${d.crop} · ${d.cultivar}`, d.condition,
-        d.bound === 'below' ? `Below ${fmt(d.hi)} µL/kg/h` : d.hi > d.lo ? `${fmt(d.lo)}–${fmt(d.hi)} µL/kg/h` : `${fmt(d.hi)} µL/kg/h`,
-        `${verName(d.verification)} · ${d.source}`]
-    });
-  }
-
-  function drawLeaf(){
-    const box = document.getElementById('leaf-chart');
-    const rows = state('mango_leaf', box); if (!rows) return;
-    const data = rows.map(r => ({h: r.hormone, c: Number(r.control), lo: Number(r.girdled_low), hi: Number(r.girdled_high), src: r.source}));
-    rowChart(box, data, {
-      scale: r => d3.scaleLog([0.05, 500], r),
-      axis: (svg, x, y0, y1) => logAxis(svg, x, [0.1, 1, 10, 100], y0, y1),
-      label: d => d.h,
-      mark(g, d, x, y){
-        g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).attr('stroke', C[1]).attr('stroke-width', 8).attr('stroke-linecap', 'round');
-        g.append('circle').attr('cx', x(d.c)).attr('cy', y).attr('r', 5).attr('fill', C[0]).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5);
-      },
-      tip: d => [d.h, `Control ${fmt(d.c)} ng/g FM`, `Girdled ${fmt(d.lo)}–${fmt(d.hi)} ng/g FM`, `Full text · ${d.src}`]
-    });
-  }
-
-  function drawLongan(){
-    const box = document.getElementById('longan-chart');
-    const rows = state('longan', box); if (!rows) return;
-    const data = rows.map(r => ({h: r.hormone, g: r.group, v: Number(r.value), src: r.source}));
-    const W = Math.max(280, box.clientWidth), H = 220, m = {t: 18, r: 8, b: 26, l: 30};
-    const svg = newSvg(box, W, H);
-    const x = d3.scaleBand(data.map(d => d.h), [m.l, W - m.r]).padding(0.3);
-    const y = d3.scaleLinear([0, 70], [H - m.b, m.t]);
-    [0, 20, 40, 60].forEach(t => {
-      svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(t)).attr('y2', y(t)).attr('stroke', t ? 'var(--cds-chart-grid)' : 'var(--cds-chart-axis)');
-      svg.append('text').attr('x', m.l - 6).attr('y', y(t) + 4).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').text(t);
-    });
-    const tt = tip(box);
-    data.forEach(d => {
-      const col = d.h.startsWith('GA') ? C[0] : C[2];
-      const bw = Math.min(32, x.bandwidth()), bx = x(d.h) + (x.bandwidth() - bw) / 2;
-      svg.append('rect').attr('x', bx).attr('y', y(d.v)).attr('width', bw).attr('height', y(0) - y(d.v)).attr('rx', 4).attr('fill', col)
-        .on('mousemove', ev => tt.show(ev, [d.h, d.g, `About ${fmt(d.v)} ng/g DW`, `Abstract · ${d.src}`])).on('mouseleave', () => tt.hide());
-      svg.append('text').attr('x', x(d.h) + x.bandwidth() / 2).attr('y', y(d.v) - 5).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').text('~' + fmt(d.v));
-      svg.append('text').attr('x', x(d.h) + x.bandwidth() / 2).attr('y', H - m.b + 16).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg)').text(d.h);
-    });
-  }
-
-  function drawPbz(){
-    const box = document.getElementById('pbz-chart');
-    const rows = state('pbz_change', box); if (!rows) return;
-    const data = rows.map(r => ({...r, p: Number(r.pct)}));
-    const sign = v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v)) + '%';
-    rowChart(box, data, {
-      scale: r => d3.scaleLinear([-100, 260], r),
-      axis(svg, x, y0, y1){
-        [-100, -50, 0, 50, 100, 150, 200, 250].forEach(t => {
-          svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', y0).attr('y2', y1).attr('stroke', t ? 'var(--cds-chart-grid)' : 'var(--cds-chart-reference)');
-          svg.append('text').attr('x', x(t)).attr('y', y1 + 16).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').text(t > 0 ? '+' + t : t);
-        });
-      },
-      padR: 46,
-      label: d => `${d.hormone} · ${d.tissue} · ${d.comparison}`,
-      mark(g, d, x, y){
-        const col = d.p >= 0 ? C[0] : C[1];
-        const a = Math.min(x(0), x(d.p)), w = Math.abs(x(d.p) - x(0));
-        g.append('rect').attr('x', a).attr('y', y - 6).attr('width', Math.max(w, 2)).attr('height', 12).attr('rx', 4).attr('fill', col)
-          .attr('opacity', d.verification === 'SEC' ? 0.6 : 1);
-        const txt = (d.qualifier ? d.qualifier + ' ' : '') + sign(d.p);
-        const t = g.append('text').attr('y', y + 4).attr('fill', 'var(--color-fg-muted)').text(txt);
-        const tw = t.node().getComputedTextLength();
-        if (d.p >= 0) t.attr('x', x(d.p) + 6);
-        else if (x(d.p) - 6 - tw >= 0) t.attr('x', x(d.p) - 6).attr('text-anchor', 'end');
-        else t.attr('x', x(0) + 6);
-      },
-      tip: d => [`${d.hormone} · ${d.tissue}`, d.comparison, (d.qualifier ? d.qualifier + ' ' : '') + sign(d.p), `${verName(d.verification)} · ${d.source}`]
-    });
-  }
-
-  function drawFold(){
-    const box = document.getElementById('fold-chart');
-    const rows = state('fruitset', box); if (!rows) return;
-    const data = rows.map(r => ({...r, f: Number(r.fold)})).sort((a, b) => b.f - a.f);
-    rowChart(box, data, {
-      scale: r => d3.scaleLog([1, 30], r),
-      axis(svg, x, y0, y1){
-        [1, 2, 5, 10, 20].forEach(t => {
-          svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', y0).attr('y2', y1).attr('stroke', t === 1 ? 'var(--cds-chart-reference)' : 'var(--cds-chart-grid)');
-          svg.append('text').attr('x', x(t)).attr('y', y1 + 16).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').text(t + '×');
-        });
-      },
-      padR: 70,
-      label: d => `${d.crop} · ${d.hormone} · ${d.comparison}`,
-      mark(g, d, x, y){
-        g.append('rect').attr('x', x(1)).attr('y', y - 6).attr('width', Math.max(2, x(d.f) - x(1))).attr('height', 12).attr('rx', 4).attr('fill', verColor(d.verification));
-        g.append('text').attr('x', x(d.f) + 6).attr('y', y + 4).attr('fill', 'var(--color-fg-muted)').text((d.qualifier ? d.qualifier + ' ' : '') + fmt(d.f) + '×');
-      },
-      tip: d => [`${d.crop} · ${d.cultivar}`, `${d.hormone}: ${d.comparison}`, (d.qualifier ? d.qualifier + ' ' : '') + fmt(d.f) + '×', `${verName(d.verification)} · ${d.source}`]
-    });
-  }
-
-  const STAGES = ['Flowering', 'Fruit set', 'Ripening'];
-  const HORM = [['GA', 'GA'], ['cytokinin', 'CK'], ['ABA', 'ABA'], ['IAA', 'IAA'], ['ethylene', 'Eth']];
-  const GLYPH = {'Up': ['▲', 'up'], 'Down': ['▼', 'down'], 'Peak': ['▲', 'peak'], 'Low': ['▽', 'low'], 'Mixed': ['◆', 'mix'], 'Conflicting': ['◆', 'mix'], 'No data': ['·', 'nd']};
-  const glyph = v => GLYPH[v] || ['◆', 'mix'];
-  let selected = 'Mango';
-
-  function drawMatrix(){
-    const box = document.getElementById('mx');
-    const rows = state('lifecycle', box);
-    drawDetail(rows);
-    if (!rows) return;
-    box.querySelectorAll('.th-mx,.th-fail').forEach(n => n.remove());
-    const crops = [...new Set(rows.map(r => r.crop))];
-    const by = new Map(rows.map(r => [r.crop + '|' + r.stage, r]));
-    const mx = document.createElement('div'); mx.className = 'th-mx';
-    const cell = (cls, text) => { const d = document.createElement('div'); d.className = cls; d.textContent = text; mx.append(d); return d; };
-    cell('', '');
-    STAGES.forEach(s => cell('th-mx-stage', s));
-    cell('', '');
-    STAGES.forEach(() => HORM.forEach(([, ab], i) => cell('th-mx-h' + (i === 0 ? ' first' : ''), ab)));
-    const tt = tip(box);
-    crops.forEach(crop => {
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'th-mx-crop'; b.textContent = crop;
-      b.setAttribute('aria-pressed', crop === selected ? 'true' : 'false');
-      b.addEventListener('click', () => { selected = crop; drawMatrix(); });
-      mx.append(b);
-      STAGES.forEach(s => {
-        const r = by.get(crop + '|' + s);
-        HORM.forEach(([f, ab], i) => {
-          const v = r ? r[f] : 'No data';
-          const [g, cls] = glyph(v);
-          const inferred = r && r.basis === 'Inferred' && cls !== 'nd';
-          const c = cell(`th-c ${cls}${inferred ? ' inferred' : ''}${i === 0 ? ' first' : ''}`, g);
-          c.setAttribute('aria-label', `${crop}, ${s}, ${ab}: ${v}`);
-          c.addEventListener('mousemove', ev => tt.show(ev, [`${crop} · ${s}`, `${f === 'cytokinin' ? 'Cytokinin' : f === 'ethylene' ? 'Ethylene' : f}: ${v}`, r ? r.basis : 'No data']));
-          c.addEventListener('mouseleave', () => tt.hide());
-          c.addEventListener('click', () => { selected = crop; drawMatrix(); });
-        });
-      });
-    });
-    box.prepend(mx);
-  }
-
-  function drawDetail(rows){
-    const tb = document.querySelector('#detail tbody');
-    tb.replaceChildren();
-    if (!rows) return;
-    document.getElementById('detail-title').textContent = `Evidence for ${selected}`;
-    rows.filter(r => r.crop === selected).forEach(r => {
-      const tr = document.createElement('tr'); tr.dataset.key = r.key;
-      [r.stage, r.GA, r.cytokinin, r.ABA, r.IAA, r.ethylene, r.basis, r.note].forEach((v, i) => {
-        const td = document.createElement('td');
-        if (i >= 1 && i <= 5) { const s = document.createElement('span'); s.className = 'th-dir ' + glyph(v)[1]; s.textContent = v; td.append(s); }
-        else { td.textContent = v; if (i === 7) td.className = 'n'; }
-        tr.append(td);
-      });
-      tb.append(tr);
-    });
-  }
-
-  dash.onData(() => {
-    drawMatrix();
-    drawRipening();
-    drawLeaf();
-    drawLongan();
-    drawPbz();
-    drawFold();
-  });
-})();
-</script>
-
-<footer class="site-foot">
-  <span>Values compiled from published studies, abstracts, reviews and extension guides; each value's verification level is in its tooltip and in the CSV files in the repository's data folder.</span>
-  <span>Full write-up with sources, gaps and conflicts: <a href="report.md">report.md</a>.</span>
-</footer>
-</div>
+<nav class="bottom-nav" aria-label="Sections">
+  <a href="#overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</a>
+  <a href="#ripening"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c-4 0-7 3-7 7s3 7 7 7 7-3 7-7-3-7-7-7z"/><path d="M12 7c0-2 1-4 4-4"/></svg>Ripening</a>
+  <a href="#flowering"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="2.5"/><path d="M12 7.5c0-3 3-3 3 0M12 7.5c0-3-3-3-3 0M14.5 10c3 0 3 3 0 3M9.5 10c-3 0-3 3 0 3M12 12.5v8.5"/></svg>Flowering</a>
+  <a href="#fruitset"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><circle cx="16" cy="14" r="3"/><path d="M8 11c0-3 2-6 6-7M16 11c0-2-1-4-2-7"/></svg>Fruit set</a>
+  <a href="report.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Report</a>
+</nav>
 </body>
 </html>
