@@ -39,7 +39,11 @@
   const narrow = () => window.matchMedia('(max-width: 899px)').matches;
 
   const data = {};
-  const state = {crop: 'Durian', stage: 'Flowering', view: 'overview'};
+  const DEFAULT_CROP = 'Durian';
+  const state = {crop: DEFAULT_CROP, stage: 'Flowering', view: 'overview'};
+  /* The default crop first, then the rest alphabetically. */
+  const cropOrder = rows => [...new Set(rows.map(r => r.crop))]
+    .sort((a, b) => (b === DEFAULT_CROP) - (a === DEFAULT_CROP) || a.localeCompare(b));
 
   /* ---------- small DOM helpers ---------- */
   function el(tag, attrs, ...kids) {
@@ -133,7 +137,7 @@
     const grid = document.getElementById('crop-tiles');
     if (rows === null) return failed('crop-tiles');
     if (!rows) return;
-    const crops = [...new Set(rows.map(r => r.crop))];
+    const crops = cropOrder(rows);
     const tiles = crops.map(c => cropTile(rows, c));
     grid.replaceChildren(...tiles);
     const i = crops.indexOf(state.crop);
@@ -159,7 +163,7 @@
     if (rows === null) return failed('mx');
     if (!rows) return;
     document.querySelectorAll('#stage-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === state.stage)));
-    const crops = [...new Set(rows.map(r => r.crop))];
+    const crops = cropOrder(rows);
     const by = new Map(rows.map(r => [r.crop + '|' + r.stage, r]));
     /* One card per hormone; inside, crops grouped by direction, in this order. */
     const ORDER = ['Up', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'No data'];
