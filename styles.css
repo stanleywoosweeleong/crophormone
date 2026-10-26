@@ -564,3 +564,8 @@ details.notice[open] > summary::after { content: "▴"; }
 .soil-group-title { font-size: 16px; }
 .soil-group-rows { margin: 0 0 6px 12px; padding-left: 14px; border-left: 2px solid var(--line); }
 .soil-group-rows .soil-name { font-size: 14px; }
+
+/* Lists of expandable rows are one column, so opening a row never stretches a neighbour */
+.soil-group-rows { display: block; }
+.cmp { display: flex; flex-direction: column; }
+.reg-list { align-items: start; }

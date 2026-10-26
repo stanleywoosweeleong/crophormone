@@ -334,7 +334,7 @@
       const counts = ORDER.filter(k => k !== 'No data' && groups.get(k).length).map(k =>
         el('span', {class: `cnt-chip c ${DIRECTION[k].cls}`, title: DIRECTION[k].word}, el('span', {'aria-hidden': 'true', text: DIRECTION[k].glyph}), String(groups.get(k).length)));
       const noData = groups.get('No data').length;
-      cards.push(el('details', {class: 'cmp-card'},
+      cards.push(el('details', {class: 'cmp-card', name: 'cmp-line'},
         el('summary', {},
           el('span', {class: 'cmp-name', text: h.name}),
           el('span', {class: 'cmp-mine'}, `${state.crop}: `, badge(mine)),
@@ -401,6 +401,11 @@
 
   /* How long each regulator lasts in soil, longest first. */
   const PERSIST_ORDER = {high: 0, mid: 1, low: 2, unknown: 3};
+  const days = v => {
+    if (!v || /not found/i.test(v)) return 'not found';
+    if (/\b(days?|weeks?|months?|years?|yr)\b|\d\s*d\b/i.test(v)) return v;
+    return v.replace(/^([~<>≈]?\s*\d[\d.,\-–\s]*)/, m => m.trim() + ' days ');
+  };
   /* Short, consistent badge text; the full class wording is shown when a row is opened. */
   const PERSIST_LABEL = {high: 'Long-lasting', mid: 'Moderate', low: 'Short-lived', unknown: 'Unknown'};
   const soilBadge = r => r.badge ? el('span', {class: 'persist role', text: r.badge})
@@ -415,13 +420,13 @@
     const NOT_LISTED = new Set(['kno3', 'thiourea']);
     const rows = data.soil.filter(r => used.has(r.key) && !NOT_LISTED.has(r.key))
       .sort((a, b) => PERSIST_ORDER[persistClass(a.persistence_class)] - PERSIST_ORDER[persistClass(b.persistence_class)]);
-    const soilRow = r => el('details', {class: 'soil-row'},
+    const soilRow = r => el('details', {class: 'soil-row', name: 'soil-row'},
       el('summary', {},
         el('span', {class: 'soil-name', text: r.active_ingredient}),
         soilBadge(r),
         el('span', {class: 'soil-time', text: r.time_summary || 'Not found'})),
       el('p', {}, el('strong', {text: 'Persistence class: '}), r.persistence_class || 'Unknown'),
-      el('p', {}, el('strong', {text: 'Soil half-life (DT₅₀): '}), `lab ${r.soil_dt50_lab_days || 'not found'} days (controlled laboratory soil); field ${r.soil_dt50_field_days || 'not found'} days (real fields, usually more relevant)`),
+      el('p', {}, el('strong', {text: 'Soil half-life (DT₅₀): '}), `lab (controlled laboratory soil): ${days(r.soil_dt50_lab_days).trim()}; field (real fields, usually more relevant): ${days(r.soil_dt50_field_days).trim()}`),
       r.approx_time_to_97pct_gone ? el('p', {}, el('strong', {text: 'Time to about 97% gone: '}), r.approx_time_to_97pct_gone) : null,
       r.orchard_field_residues && !/^not found/i.test(r.orchard_field_residues) ? el('p', {}, el('strong', {text: 'Measured in orchards: '}), r.orchard_field_residues) : null,
       r.accumulation_note ? el('p', {}, el('strong', {text: 'Repeated use: '}), r.accumulation_note) : null,
