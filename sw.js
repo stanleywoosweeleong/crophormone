@@ -1,7 +1,8 @@
 /* Offline support and update detection.
    Changes to app or data files are found by fingerprinting their contents, so no version number needs bumping. */
 /* Cache storage is shared by every site on stanleywoosweeleong.github.io, so this app's caches carry its own prefix
-   and only those (plus the unprefixed names this app used before) are ever deleted. */
+   and only those are deleted freely. Unprefixed names this app used before could belong to another app too, so one
+   is deleted only when every entry in it lies under this app's own address. */
 const PREFIX = 'crophormone-';
 const APP_CACHE = PREFIX + 'app-v1';
 const CDN_CACHE = PREFIX + 'cdn-v1';
@@ -28,13 +29,19 @@ self.addEventListener('install', event => {
   ]).then(() => self.skipWaiting()));
 });
 
+async function onlyOurs(name) {
+  const entries = await (await caches.open(name)).keys();
+  return entries.length > 0 && entries.every(req => req.url.startsWith(self.registration.scope));
+}
+
 self.addEventListener('activate', event => {
   const keep = [APP_CACHE, CDN_CACHE, META_CACHE];
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys
-        .filter(k => (k.startsWith(PREFIX) && !keep.includes(k)) || OLD_CACHES.includes(k))
-        .map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.map(async k => {
+        if (k.startsWith(PREFIX) && !keep.includes(k)) return caches.delete(k);
+        if (OLD_CACHES.includes(k) && await onlyOurs(k)) return caches.delete(k);
+      })))
       .then(() => self.clients.claim())
   );
 });

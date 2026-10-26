@@ -209,7 +209,11 @@
     const drops = marks.filter(r => r.direction === 'Up in drop');
     const why = el('div', {class: 'mark-why'},
       drops.length ? el('p', {}, el('span', {class: 'c drop'}, el('span', {'aria-hidden': 'true', text: '▲'}), 'At drop'), ' ',
-        el('strong', {text: `${drops.map(r => HORMONES.find(h => h.key === r.hormone)?.name || r.hormone).join(' and ')} at ${drops[0].stage.toLowerCase()}: `}), drops[0].direction_note) : null,
+        el('strong', {text: `${drops.map(r => HORMONES.find(h => h.key === r.hormone)?.name || r.hormone).join(' and ')} at ${drops[0].stage.toLowerCase()}: `}),
+        /* Inferred cells borrow the pattern from other fruit, so say that before stating it. */
+        drops.every(r => r.basis === 'Inferred') ? el('em', {text: `Inferred general pattern; not measured in ${crop}. `}) : null,
+        (drops.every(r => r.basis === 'Inferred') ? 'In fruit that has been studied, they rise' : drops.length > 1 ? 'Both rise' : 'Rises')
+          + drops[0].direction_note.replace(/^Rises/, '')) : null,
       ...marks.filter(r => r.direction === 'Mixed').map(r => el('p', {},
         el('span', {class: 'c mix'}, el('span', {'aria-hidden': 'true', text: '◆'}), 'Mixed'), ' ',
         el('strong', {text: `${HORMONES.find(h => h.key === r.hormone)?.name || r.hormone} at ${r.stage.toLowerCase()}: `}), r.direction_note)));
@@ -344,7 +348,8 @@
         return el('div', {class: 'grp'},
           el('span', {class: `c ${d.cls}`}, el('span', {'aria-hidden': 'true', text: d.glyph}), d.word),
           k === 'Conflicting' ? el('span', {class: 'why', text: 'Studies disagree. Open the crop and read Evidence and sources for why.'}) : null,
-          k === 'Up in drop' ? el('span', {class: 'why', text: 'Rises in fruitlets the tree sheds, triggering the drop; fruit that stays on does not show this rise.'}) : null,
+          k === 'Up in drop' ? el('span', {class: 'why', text: 'In fruit that has been studied, it rises in fruitlets the tree sheds, triggering the drop; fruit that stays on does not show this rise.'
+            + (groups.get(k).some(g => g.inferred) ? ' Dashed crop names are inferred from this pattern, not measured.' : '')}) : null,
           k === 'Mixed' ? el('span', {class: 'why', text: 'Results go both ways, depending on variety, tissue or study:'}) : null,
           k === 'Mixed' ? el('ul', {class: 'mix-list'}, ...groups.get(k).map(g => el('li', {},
             el('button', {type: 'button', class: 'name' + (g.crop === state.crop ? ' on' : ''), text: g.crop, onclick: () => selectCrop(g.crop)}),
