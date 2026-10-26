@@ -376,6 +376,7 @@
       const name = soil ? soil.active_ingredient : k;
       parts.push(el('h4', {text: name}));
       if (soil && soil.function) parts.push(el('p', {}, el('strong', {text: 'What it does: '}), soil.function));
+      if (soil && soil.concern) parts.push(el('p', {}, el('strong', {text: 'Main concern: '}), soil.concern));
       if (soil) {
         parts.push(el('p', {}, soilBadge(soil),
           ' ', el('strong', {text: 'Time to about 97% gone in soil: '}), soil.time_summary || 'not found',
@@ -426,6 +427,7 @@
         el('span', {class: 'soil-name', text: r.active_ingredient}),
         soilBadge(r),
         r.function ? el('span', {class: 'soil-fn'}, el('strong', {text: 'What it does: '}), r.function) : null,
+        r.concern ? el('span', {class: 'soil-fn soil-concern'}, el('strong', {text: 'Main concern: '}), r.concern) : null,
         el('span', {class: 'soil-time'}, el('strong', {text: 'Lasts in soil: '}), r.time_summary || 'Not found')),
       el('p', {}, el('strong', {text: 'Persistence class: '}), r.persistence_class || 'Unknown'),
       el('p', {}, el('strong', {text: 'Soil half-life (DT₅₀): '}), `lab (controlled laboratory soil): ${days(r.soil_dt50_lab_days).trim()}; field (real fields, usually more relevant): ${days(r.soil_dt50_field_days).trim()}`),

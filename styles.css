@@ -576,3 +576,5 @@ details.notice[open] > summary::after { content: "▴"; }
 
 /* Chart labels: a halo in the card colour so gridlines pass behind the text */
 .chart text.lbl { paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; }
+
+.soil-concern strong { color: var(--bad); }
