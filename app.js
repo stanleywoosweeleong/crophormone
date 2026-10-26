@@ -376,7 +376,7 @@
       const name = soil ? soil.active_ingredient : k;
       parts.push(el('h4', {text: name}));
       if (soil) {
-        parts.push(el('p', {}, el('span', {class: `persist ${persistClass(soil.persistence_class)}`, text: soil.persistence_class.split(/[;(]/)[0].trim() || 'Unknown'}),
+        parts.push(el('p', {}, soilBadge(soil),
           ' ', el('strong', {text: 'Time to about 97% gone in soil: '}), soil.time_summary || 'not found',
           soil.approx_time_to_97pct_gone ? el('span', {class: 'src', text: ` (${soil.approx_time_to_97pct_gone})`}) : null));
         if (soil.orchard_field_residues && !/^not found/i.test(soil.orchard_field_residues)) parts.push(el('p', {}, el('strong', {text: 'Measured in orchards: '}), soil.orchard_field_residues));
@@ -403,6 +403,8 @@
   const PERSIST_ORDER = {high: 0, mid: 1, low: 2, unknown: 3};
   /* Short, consistent badge text; the full class wording is shown when a row is opened. */
   const PERSIST_LABEL = {high: 'Long-lasting', mid: 'Moderate', low: 'Short-lived', unknown: 'Unknown'};
+  const soilBadge = r => r.badge ? el('span', {class: 'persist role', text: r.badge})
+    : el('span', {class: `persist ${persistClass(r.persistence_class)}`, text: PERSIST_LABEL[persistClass(r.persistence_class)]});
   function drawSoilTable() {
     const box = document.getElementById('soil-table');
     if (!box || !data.soil || box.dataset.drawn) return;
@@ -411,7 +413,7 @@
     const soilRow = r => el('details', {class: 'soil-row'},
       el('summary', {},
         el('span', {class: 'soil-name', text: r.active_ingredient}),
-        el('span', {class: `persist ${persistClass(r.persistence_class)}`, text: PERSIST_LABEL[persistClass(r.persistence_class)]}),
+        soilBadge(r),
         el('span', {class: 'soil-time', text: r.time_summary || 'Not found'})),
       el('p', {}, el('strong', {text: 'Persistence class: '}), r.persistence_class || 'Unknown'),
       el('p', {}, el('strong', {text: 'Half-life: '}), `lab ${r.soil_dt50_lab_days || 'not found'}; field ${r.soil_dt50_field_days || 'not found'}`),
@@ -422,18 +424,18 @@
       r.leaching_water_note ? el('p', {}, el('strong', {text: 'Water: '}), r.leaching_water_note) : null,
       r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: 'Restrictions: '}), r.restrictions) : null,
       el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, safeLink(r.source, firstUrl(r.source_url))));
-    /* Long-lasting and moderate products first; short-lived and unknown ones behind a button. */
-    const main = rows.filter(r => ['high', 'mid'].includes(persistClass(r.persistence_class)));
-    const rest = rows.filter(r => !main.includes(r));
-    const more = el('div', {class: 'soil-more', hidden: ''}, ...rest.map(soilRow));
-    const toggle = el('button', {type: 'button', class: 'soil-toggle', 'aria-expanded': 'false', text: `Show ${rest.length} short-lived or unknown products`,
-      onclick: () => {
-        const open = more.hidden;
-        more.hidden = !open;
-        toggle.setAttribute('aria-expanded', String(open));
-        toggle.textContent = open ? 'Show fewer' : `Show ${rest.length} short-lived or unknown products`;
-      }});
-    box.replaceChildren(...main.map(soilRow), more, toggle);
+    /* Three groups so fertilisers and natural compounds are not read as harmful residues; synthetic regulators open first. */
+    const GROUPS = [
+      {key: 'synthetic', title: 'Synthetic growth regulators', note: 'Where real soil residue concerns are. Longest-lasting first.', open: true},
+      {key: 'natural', title: 'Natural hormones and hormone-like compounds', note: 'Compounds plants make themselves; few have formal soil studies.'},
+      {key: 'other', title: 'Fertilisers and other treatments that act on hormones', note: 'Not hormones themselves; each note says what the real concern is.'}
+    ];
+    box.replaceChildren(...GROUPS.map(g => {
+      const items = rows.filter(r => r.category === g.key);
+      return el('details', Object.assign({class: 'soil-group'}, g.open ? {open: ''} : {}),
+        el('summary', {}, el('span', {class: 'soil-group-title', text: `${g.title} (${items.length})`}), el('span', {class: 'note', text: g.note})),
+        el('div', {class: 'soil-group-rows'}, ...items.map(soilRow)));
+    }));
   }
 
   /* ---------- regulators: cause and effect ---------- */
