@@ -507,7 +507,6 @@ details.grp.nd .names { margin-top: 6px; }
 .bottom-nav a svg { padding: 3px 12px; width: 24px; height: 24px; border-radius: 999px; box-sizing: content-box; }
 .bottom-nav a[aria-current="page"] { color: var(--brand); font-weight: 700; }
 .bottom-nav a[aria-current="page"] svg { background: color-mix(in srgb, var(--brand) 16%, transparent); }
-.bottom-nav a[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: var(--brand); }
 .tabs a[aria-current="page"] { color: var(--brand); font-weight: 700; background: color-mix(in srgb, var(--brand) 12%, transparent); }
 
 /* Regulators: one compact filter row and a one-line notice */
