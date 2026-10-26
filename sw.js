@@ -33,7 +33,8 @@ async function networkFirst(request) {
     /* no-cache: revalidate with the server rather than trusting the browser's HTTP cache (Pages caches for 10 minutes).
        A new Request from the URL, because a page navigation request can't be re-sent with changed options. */
     const response = await fetch(new Request(request.url, {cache: 'no-cache', credentials: 'same-origin'}));
-    if (response.ok) cache.put(request, response.clone());
+    /* Store under the address without ?v=…, so each file keeps one offline copy whatever its fingerprint. */
+    if (response.ok) cache.put(request.url.split('?')[0], response.clone());
     return response;
   } catch (err) {
     const cached = await cache.match(request, {ignoreSearch: true});
