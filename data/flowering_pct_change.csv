@@ -1,14 +1,14 @@
-id,hormone,tissue,comparison,pct,qualifier,verification,source,source_url
-ga-15,Total GAs,Shoot,"PBZ vs control, 15 d before bud break",-55.6,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-ga-bb,Total GAs,Shoot,"PBZ vs control, at bud break",-51.71,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-ck-leaf-15,Cytokinins,Leaf,"PBZ vs control, 15 d before bud break",-25.93,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-ck-bud-15,Cytokinins,Bud,"PBZ vs control, 15 d before bud break",-37.54,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-ck-leaf-after,Cytokinins,Leaf,"PBZ vs control, bud break to 15 d after",32,about,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-ck-bud-after,Cytokinins,Bud,"PBZ vs control, bud break to 15 d after",36,about,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-aba-leaf,ABA,Leaf,"PBZ vs control, flowering",59.85,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-aba-bud,ABA,Bud,"PBZ vs control, flowering",41.11,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-iaa-15,IAA,Shoot,"PBZ vs control, 15 d before bud break",-4.3,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-iaa-bb,IAA,Shoot,"PBZ vs control, at bud break",-28.2,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full
-zr-ctrl,Zeatin riboside,Bud,"Untreated trees, 15 d before bud break to bud break",241,,SEC,Cavalcante 2022 review,https://www.mango.org/wp-content/uploads/2022/12/Mango-Flowering-Review_Italo-Cavalcante-atual.pdf
-aba-ctrl,ABA,Bud,"Untreated trees, same window",32.5,,SEC,Cavalcante 2022 review,https://www.mango.org/wp-content/uploads/2022/12/Mango-Flowering-Review_Italo-Cavalcante-atual.pdf
-ga3-carabao,GA3,Shoot,"Carabao cultivar, PBZ vs control",-79,more than,SEC,UPLB record,https://www.ukdr.uplb.edu.ph/journal-articles/2625/
+id,hormone,tissue,comparison,pct,qualifier,verification,source,source_url,doi
+ga-15,Total GAs,Shoot,"PBZ vs control, 15 d before bud break",-55.6,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+ga-bb,Total GAs,Shoot,"PBZ vs control, at bud break",-51.71,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+ck-leaf-15,Cytokinins,Leaf,"PBZ vs control, 15 d before bud break",-25.93,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+ck-bud-15,Cytokinins,Bud,"PBZ vs control, 15 d before bud break",-37.54,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+ck-leaf-after,Cytokinins,Leaf,"PBZ vs control, bud break to 15 d after",32,about,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+ck-bud-after,Cytokinins,Bud,"PBZ vs control, bud break to 15 d after",36,about,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+aba-leaf,ABA,Leaf,"PBZ vs control, flowering",59.85,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+aba-bud,ABA,Bud,"PBZ vs control, flowering",41.11,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+iaa-15,IAA,Shoot,"PBZ vs control, 15 d before bud break",-4.3,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+iaa-bb,IAA,Shoot,"PBZ vs control, at bud break",-28.2,,SNIP,Burondkar et al. 2016,https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full,10.1007/s40502-016-0236-1
+zr-ctrl,Zeatin riboside,Bud,"Untreated trees, 15 d before bud break to bud break",241,,SEC,Cavalcante 2022 review,https://www.mango.org/wp-content/uploads/2022/12/Mango-Flowering-Review_Italo-Cavalcante-atual.pdf,
+aba-ctrl,ABA,Bud,"Untreated trees, same window",32.5,,SEC,Cavalcante 2022 review,https://www.mango.org/wp-content/uploads/2022/12/Mango-Flowering-Review_Italo-Cavalcante-atual.pdf,
+ga3-carabao,GA3,Shoot,"Carabao cultivar, PBZ vs control",-79,more than,SEC,UPLB record,https://www.ukdr.uplb.edu.ph/journal-articles/2625/,

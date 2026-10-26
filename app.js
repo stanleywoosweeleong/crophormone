@@ -73,17 +73,23 @@
     if (url && /^https:\/\//.test(url)) return el('a', {href: url, target: '_blank', rel: 'noopener', text});
     return document.createTextNode(text);
   }
+  /* Source link plus its DOI, shown only for DOIs confirmed at doi.org when the data was built. */
+  function cite(text, url, doi) {
+    const link = safeLink(text, url);
+    if (!doi || !/^10\.\d{4,9}\/\S+$/.test(doi)) return link;
+    return el('span', {}, link, ' · ', el('a', {class: 'doi', href: 'https://doi.org/' + doi, target: '_blank', rel: 'noopener', text: 'DOI ' + doi}));
+  }
   function readout(id, title, lines, source) {
     const box = document.getElementById(id);
     box.replaceChildren(el('span', {class: 't', text: title}));
     lines.forEach(l => box.append(el('span', {text: l})));
-    if (source) box.append(el('span', {class: 'm'}, `${source.level} · `, safeLink(source.name, source.url)));
+    if (source) box.append(el('span', {class: 'm'}, `${source.level} · `, cite(source.name, source.url, source.doi)));
   }
   function readoutList(id, title, items) {
     const box = document.getElementById(id);
     box.replaceChildren(el('span', {class: 't', text: title}));
     items.forEach(it => box.append(el('span', {class: 'ro-item'}, it.text,
-      it.source ? el('span', {class: 'm'}, ` · ${it.source.level} · `, safeLink(it.source.name, it.source.url)) : null)));
+      it.source ? el('span', {class: 'm'}, ` · ${it.source.level} · `, cite(it.source.name, it.source.url, it.source.doi)) : null)));
   }
   function failed(id) {
     document.getElementById(id).replaceChildren(el('div', {class: 'fail', text: 'Failed to load'}));
@@ -145,7 +151,7 @@
     const tag = [r.basis === 'Treatment only' ? 'Applied only' : r.basis, verName(r.verification)].filter(Boolean).join(' · ');
     const value = r.value ? ` (${r.value}${r.units ? ' ' + r.units : ''}${r.tissue ? ', ' + r.tissue : ''})` : '';
     return el('p', {}, el('strong', {text: name + ': '}), (r.note || '') + value, ' ',
-      el('span', {class: 'src'}, `${tag}${r.source ? ' · ' : ''}`, r.source ? safeLink(r.source, r.source_url) : null));
+      el('span', {class: 'src'}, `${tag}${r.source ? ' · ' : ''}`, r.source ? cite(r.source, r.source_url, r.doi) : null));
   }
 
   /* The evidence behind one stage: the shared note for the classic hormones, then each other hormone and signal. */
@@ -366,6 +372,17 @@
   /* Persistence band from the class text; "very persistent" or leading "Persistent" is high, any "moderate" is mid. */
   const persistClass = t => /very persistent/i.test(t) || /^\s*persistent/i.test(t) ? 'high' : /moderate/i.test(t) ? 'mid' : /non-persistent/i.test(t) ? 'low' : 'unknown';
 
+  /* A close button at the end of a long section, so readers need not scroll back up to its heading. */
+  function closer() {
+    return el('button', {type: 'button', class: 'closer', text: 'Close ▴', onclick: e => {
+      const d = e.currentTarget.closest('details');
+      d.open = false;
+      const s = d.querySelector('summary');
+      const bar = document.querySelector('header')?.getBoundingClientRect().bottom || 0;
+      const top = s.getBoundingClientRect().top;
+      if (top < bar || top > innerHeight) s.scrollIntoView({block: 'center'});
+    }});
+  }
   function residueSection(r) {
     const keys = residueKeys(r);
     if (!keys.length || !data.soil) return null;
@@ -386,19 +403,19 @@
         if (soil.effects_on_trees_and_following_crops && !/^no .*found/i.test(soil.effects_on_trees_and_following_crops)) parts.push(el('p', {}, el('strong', {text: 'Effects on trees and later crops: '}), soil.effects_on_trees_and_following_crops));
         if (soil.leaching_water_note) parts.push(el('p', {}, el('strong', {text: 'Water: '}), soil.leaching_water_note));
         if (soil.restrictions && !/^not found/i.test(soil.restrictions)) parts.push(el('p', {}, el('strong', {text: 'Restrictions: '}), soil.restrictions));
-        parts.push(el('p', {class: 'src'}, `${verName(soil.verification) || soil.verification} · `, safeLink(soil.source, firstUrl(soil.source_url))));
+        parts.push(el('p', {class: 'src'}, `${verName(soil.verification) || soil.verification} · `, cite(soil.source, firstUrl(soil.source_url), soil.doi)));
       }
       if (limits.length) {
         parts.push(el('p', {}, el('strong', {text: `Fruit residue limits for ${r.crop}:`})));
         parts.push(el('ul', {class: 'mrl'}, ...limits.map(m => el('li', {},
           `${m.market}: `, el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : 'see note'}),
           `${m.crop && !/^all/i.test(m.crop) ? ` (${m.crop})` : ''}${m.limit_type ? ' · ' + m.limit_type : ''}${m.measured_fruit_residues ? ' · measured: ' + m.measured_fruit_residues : ''} `,
-          el('span', {class: 'src'}, safeLink(m.source || 'source', firstUrl(m.source_url)))))));
+          el('span', {class: 'src'}, cite(m.source || 'source', firstUrl(m.source_url), m.doi))))));
       } else {
         parts.push(el('p', {class: 'none', text: `No fruit residue limit found for ${r.crop} in the markets checked (China, US, EU, Codex, Japan). Where no limit is set, many markets apply a default of 0.01 mg/kg: check your export market.`}));
       }
     });
-    return el('details', {class: 'res'}, el('summary', {text: 'Residues: soil and fruit'}), ...parts);
+    return el('details', {class: 'res'}, el('summary', {text: 'Residues: soil and fruit'}), ...parts, closer());
   }
 
   /* How long each regulator lasts in soil, longest first. */
@@ -437,7 +454,7 @@
       r.effects_on_trees_and_following_crops ? el('p', {}, el('strong', {text: 'Effects on trees and later crops: '}), r.effects_on_trees_and_following_crops) : null,
       r.leaching_water_note ? el('p', {}, el('strong', {text: 'Water: '}), r.leaching_water_note) : null,
       r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: 'Restrictions: '}), r.restrictions) : null,
-      el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, safeLink(r.source, firstUrl(r.source_url))));
+      el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, cite(r.source, firstUrl(r.source_url), r.doi)), closer());
     /* Three groups so fertilisers and natural compounds are not read as harmful residues; synthetic regulators open first. */
     const GROUPS = [
       {key: 'synthetic', title: 'Synthetic growth regulators', note: 'Where real soil residue concerns are. Longest-lasting first.', open: true},
@@ -476,7 +493,7 @@
           chainStep('Aim', r.purpose, 'Not stated'),
           missingText(r.side_effects) ? null : chainStep('Watch for', r.side_effects, '')),
         r.note ? el('p', {text: r.note}) : null,
-        el('p', {class: 'src'}, `${verName(r.verification) || r.verification}${r.source ? ' · ' : ''}`, r.source ? safeLink(r.source, r.source_url) : null)),
+        el('p', {class: 'src'}, `${verName(r.verification) || r.verification}${r.source ? ' · ' : ''}`, r.source ? cite(r.source, r.source_url, r.doi) : null), closer()),
       residueSection(r));
   }
   function drawRegulators() {
@@ -575,7 +592,7 @@
 
   function source(d) {
     const v = VERIFY[d.verification];
-    return {level: v ? v.name : d.verification, name: d.source, url: d.source_url};
+    return {level: v ? v.name : d.verification, name: d.source, url: d.source_url, doi: d.doi};
   }
 
   /* One row per crop: a hollow dot at harvest, filled marks at the ripening peak (one per source, coloured by how

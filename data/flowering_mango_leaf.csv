@@ -1,6 +1,6 @@
-hormone,control,girdled_low,girdled_high,verification,source,source_url
-ABA,102.15,192,282,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf
-IAA,1.09,2.85,3.79,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf
-GA4,1.39,0.74,1.20,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf
-GA3,0.51,0.09,0.31,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf
-Zeatin,2.65,1.1,1.9,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf
+hormone,control,girdled_low,girdled_high,verification,source,source_url,doi
+ABA,102.15,192,282,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf,10.32615/bp.2019.064
+IAA,1.09,2.85,3.79,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf,10.32615/bp.2019.064
+GA4,1.39,0.74,1.20,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf,10.32615/bp.2019.064
+GA3,0.51,0.09,0.31,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf,10.32615/bp.2019.064
+Zeatin,2.65,1.1,1.9,FT,Shivashankara et al. 2019,https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf,10.32615/bp.2019.064

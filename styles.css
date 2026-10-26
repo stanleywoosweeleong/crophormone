@@ -284,6 +284,8 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 .ev-stage p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
 .ev-stage p strong { color: var(--fg); }
 .src { color: var(--muted); font-size: 13px; white-space: normal; }
+a.doi { overflow-wrap: anywhere; }
+.closer { display: block; margin: 8px 0 0 auto; min-height: 32px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 16px; background: transparent; color: var(--up); font: inherit; font-size: 13px; cursor: pointer; }
 .none { color: var(--muted); font-style: italic; }
 
 /* Compare: group headings and per-card counts */
