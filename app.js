@@ -35,6 +35,8 @@
   const cropN = c => L.crop(c);
   const hName = k => L.hormone(k);
   const list = items => items.join(t('sep'));
+  /* A data field in the chosen language (columns such as note_zh), falling back to the English cell. */
+  const F = (r, k) => L.field(r, k);
   const DIRECTION = {
     'Up': {glyph: '▲', cls: 'up', key: 'up'},
     'Up in drop': {glyph: '▲', cls: 'drop', key: 'drop'},
@@ -163,8 +165,8 @@
 
   function evidenceLine(name, r) {
     const tag = [r.basis ? t('basis.' + r.basis) : '', verName(r.verification)].filter(Boolean).join(' · ');
-    const value = r.value ? ` (${r.value}${r.units ? ' ' + r.units : ''}${r.tissue ? ', ' + r.tissue : ''})` : '';
-    return el('p', {}, el('strong', {text: name + t('colon')}), (r.note || '') + value, ' ',
+    const value = r.value ? ` (${r.value}${r.units ? ' ' + r.units : ''}${r.tissue ? ', ' + F(r, 'tissue') : ''})` : '';
+    return el('p', {}, el('strong', {text: name + t('colon')}), F(r, 'note') + value, ' ',
       el('span', {class: 'src'}, `${tag}${r.source ? ' · ' : ''}`, r.source ? cite(r.source, r.source_url, r.doi) : null));
   }
 
@@ -179,7 +181,7 @@
       entry.names.push(h.key);
       byNote.set(r.note, entry);
     });
-    byNote.forEach(({names, r}) => parts.push(byNote.size === 1 ? el('p', {}, el('strong', {text: t('group.Classic hormones') + t('colon')}), r.note)
+    byNote.forEach(({names, r}) => parts.push(byNote.size === 1 ? el('p', {}, el('strong', {text: t('group.Classic hormones') + t('colon')}), F(r, 'note'))
       : evidenceLine(list(names.map(hName)), r)));
     const none = [];
     HORMONES.filter(h => h.group === 'Other hormones').forEach(h => {
@@ -187,7 +189,7 @@
       if (!r || r.basis === 'No data') { none.push(h.key); return; }
       parts.push(evidenceLine(hName(h.key), r));
     });
-    signals(crop, stage).forEach(r => parts.push(evidenceLine(r.hormone, r)));
+    signals(crop, stage).forEach(r => parts.push(evidenceLine(hName(r.hormone), r)));
     if (none.length) parts.push(el('p', {class: 'none', text: t('ev.none', {list: list(none.map(hName))})}));
     return el('section', {class: 'ev-stage'}, ...parts);
   }
@@ -210,7 +212,7 @@
     const c = coverage(crop);
     const summary = el('p', {class: 'cov'},
       el('strong', {text: t('cov.count', {m: c.measured})}), t('cov.rest', {i: c.inferred, a: c.applied, n: c.none}));
-    const ev = el('details', {class: 'ev'}, el('summary', {text: t('ev.summary')}), ...STAGES.map(s => stageEvidence(crop, s)));
+    const ev = el('details', {class: 'ev'}, el('summary', {text: t('ev.summary')}), ...STAGES.map(s => stageEvidence(crop, s)), closer());
     const marks = STAGES.flatMap(s => HORMONES.map(h => cell(crop, s, h.key)))
       .filter(r => r && r.direction_note && ['Mixed', 'Up in drop'].includes(shown(r)));
     /* One line for all At-drop cells (they share a reason), one per Mixed cell. */
@@ -405,21 +407,21 @@
       if (soil) {
         parts.push(el('p', {}, soilBadge(soil),
           ' ', el('strong', {text: t('res.time97')}), L.field(soil, 'time_summary') || t('res.notFound'),
-          soil.approx_time_to_97pct_gone ? el('span', {class: 'src', text: ` (${soil.approx_time_to_97pct_gone})`}) : null));
-        if (soil.orchard_field_residues && !/^not found/i.test(soil.orchard_field_residues)) parts.push(el('p', {}, el('strong', {text: t('res.orchard')}), soil.orchard_field_residues));
-        if (soil.accumulation_note && !/^no data/i.test(soil.accumulation_note)) parts.push(el('p', {}, el('strong', {text: t('res.repeat')}), soil.accumulation_note));
-        if (soil.effects_on_trees_and_following_crops && !/^no .*found/i.test(soil.effects_on_trees_and_following_crops)) parts.push(el('p', {}, el('strong', {text: t('res.effects')}), soil.effects_on_trees_and_following_crops));
-        if (soil.leaching_water_note) parts.push(el('p', {}, el('strong', {text: t('res.water')}), soil.leaching_water_note));
-        if (soil.restrictions && !/^not found/i.test(soil.restrictions)) parts.push(el('p', {}, el('strong', {text: t('res.restrict')}), soil.restrictions));
+          soil.approx_time_to_97pct_gone ? el('span', {class: 'src', text: ` (${F(soil, 'approx_time_to_97pct_gone')})`}) : null));
+        if (soil.orchard_field_residues && !/^not found/i.test(soil.orchard_field_residues)) parts.push(el('p', {}, el('strong', {text: t('res.orchard')}), F(soil, 'orchard_field_residues')));
+        if (soil.accumulation_note && !/^no data/i.test(soil.accumulation_note)) parts.push(el('p', {}, el('strong', {text: t('res.repeat')}), F(soil, 'accumulation_note')));
+        if (soil.effects_on_trees_and_following_crops && !/^no .*found/i.test(soil.effects_on_trees_and_following_crops)) parts.push(el('p', {}, el('strong', {text: t('res.effects')}), F(soil, 'effects_on_trees_and_following_crops')));
+        if (soil.leaching_water_note) parts.push(el('p', {}, el('strong', {text: t('res.water')}), F(soil, 'leaching_water_note')));
+        if (soil.restrictions && !/^not found/i.test(soil.restrictions)) parts.push(el('p', {}, el('strong', {text: t('res.restrict')}), F(soil, 'restrictions')));
         parts.push(el('p', {class: 'src'}, `${verName(soil.verification) || soil.verification} · `, cite(soil.source, firstUrl(soil.source_url), soil.doi)));
       }
       if (limits.length) {
         parts.push(el('p', {}, el('strong', {text: t('res.limits', {crop: cropN(r.crop)})})));
         parts.push(el('ul', {class: 'mrl'}, ...limits.map(m => el('li', {},
-          m.market + t('colon'), el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : m.note ? t('res.seeNote') : t('res.noValue')}),
-          `${m.crop && !/^all/i.test(m.crop) ? ` (${m.crop})` : ''}${m.limit_type ? ' · ' + m.limit_type : ''}${m.measured_fruit_residues ? t('res.measured') + m.measured_fruit_residues : ''}`,
+          F(m, 'market') + t('colon'), el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : m.note ? t('res.seeNote') : t('res.noValue')}),
+          `${m.crop && !/^all/i.test(m.crop) ? ` (${F(m, 'crop')})` : ''}${m.limit_type ? ' · ' + F(m, 'limit_type') : ''}${m.measured_fruit_residues ? t('res.measured') + F(m, 'measured_fruit_residues') : ''}`,
           /* The note carries caveats such as a superseded or unchecked limit, so it is shown with every value. */
-          m.note ? el('span', {class: 'mrl-note', text: m.note}) : null,
+          m.note ? el('span', {class: 'mrl-note', text: F(m, 'note')}) : null,
           el('span', {class: 'src mrl-src'}, `${verName(m.verification) || m.verification}${m.verification ? ' · ' : ''}`, cite(m.source || t('source'), firstUrl(m.source_url), m.doi))))));
       } else {
         parts.push(el('p', {class: 'none', text: t('res.noLimit', {crop: cropN(r.crop)})}));
@@ -430,6 +432,7 @@
 
   /* How long each regulator lasts in soil, longest first. */
   const PERSIST_ORDER = {high: 0, mid: 1, low: 2, unknown: 3};
+  const dt50 = (r, k) => (L.lang !== 'en' && r[k + '_' + L.lang] ? r[k + '_' + L.lang] : days(r[k]));
   const days = v => {
     if (!v || /not found/i.test(v)) return t('res.notFound');
     if (/\b(days?|weeks?|months?|years?|yr)\b|\d\s*d\b/i.test(v)) return v;
@@ -456,14 +459,14 @@
         r.function ? el('span', {class: 'soil-fn'}, el('strong', {text: t('res.does')}), L.field(r, 'function')) : null,
         r.concern ? el('span', {class: 'soil-fn soil-concern'}, el('strong', {text: t('res.concern')}), L.field(r, 'concern')) : null,
         el('span', {class: 'soil-time'}, el('strong', {text: t('soil.lasts')}), L.field(r, 'time_summary') || t('soil.notFound'))),
-      el('p', {}, el('strong', {text: t('soil.class')}), r.persistence_class || t('persist.unknown')),
-      el('p', {}, el('strong', {text: t('soil.dt50')}), t('soil.dt50val', {lab: days(r.soil_dt50_lab_days).trim(), field: days(r.soil_dt50_field_days).trim()})),
-      r.approx_time_to_97pct_gone ? el('p', {}, el('strong', {text: t('soil.97')}), r.approx_time_to_97pct_gone) : null,
-      r.orchard_field_residues && !/^not found/i.test(r.orchard_field_residues) ? el('p', {}, el('strong', {text: t('res.orchard')}), r.orchard_field_residues) : null,
-      r.accumulation_note ? el('p', {}, el('strong', {text: t('res.repeat')}), r.accumulation_note) : null,
-      r.effects_on_trees_and_following_crops ? el('p', {}, el('strong', {text: t('res.effects')}), r.effects_on_trees_and_following_crops) : null,
-      r.leaching_water_note ? el('p', {}, el('strong', {text: t('res.water')}), r.leaching_water_note) : null,
-      r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: t('res.restrict')}), r.restrictions) : null,
+      el('p', {}, el('strong', {text: t('soil.class')}), F(r, 'persistence_class') || t('persist.unknown')),
+      el('p', {}, el('strong', {text: t('soil.dt50')}), t('soil.dt50val', {lab: dt50(r, 'soil_dt50_lab_days').trim(), field: dt50(r, 'soil_dt50_field_days').trim()})),
+      r.approx_time_to_97pct_gone ? el('p', {}, el('strong', {text: t('soil.97')}), F(r, 'approx_time_to_97pct_gone')) : null,
+      r.orchard_field_residues && !/^not found/i.test(r.orchard_field_residues) ? el('p', {}, el('strong', {text: t('res.orchard')}), F(r, 'orchard_field_residues')) : null,
+      r.accumulation_note ? el('p', {}, el('strong', {text: t('res.repeat')}), F(r, 'accumulation_note')) : null,
+      r.effects_on_trees_and_following_crops ? el('p', {}, el('strong', {text: t('res.effects')}), F(r, 'effects_on_trees_and_following_crops')) : null,
+      r.leaching_water_note ? el('p', {}, el('strong', {text: t('res.water')}), F(r, 'leaching_water_note')) : null,
+      r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: t('res.restrict')}), F(r, 'restrictions')) : null,
       el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, cite(r.source, firstUrl(r.source_url), r.doi)), closer());
     /* Three groups so fertilisers and natural compounds are not read as harmful residues; synthetic regulators open first. */
     const GROUPS = [
@@ -480,28 +483,31 @@
   /* ---------- regulators: cause and effect ---------- */
   const EVIDENCE_ORDER = {'Hormones measured': 0, 'Effect only': 1, 'Practice': 2};
   const missingText = t => !t || /^\s*(n\/a|none|unknown)?\s*$/i.test(t) || /^\s*not (retrieved|given|reported|stated|found|available)/i.test(t);
-  function chainStep(label, text, empty) {
+  /* text is the English cell (used to spot "not reported"); shown is what to display. */
+  function chainStep(label, text, empty, shown = text) {
     const missing = missingText(text);
-    return el('li', {class: missing ? 'missing' : ''}, el('strong', {text: label}), el('span', {text: missing ? empty : text}));
+    return el('li', {class: missing ? 'missing' : ''}, el('strong', {text: label}), el('span', {text: missing ? empty : shown}));
   }
   function regulatorCard(r) {
     const evCls = r.evidence === 'Hormones measured' ? 'measured' : r.evidence === 'Practice' ? 'practice' : 'effect';
-    const applied = [r.active_ingredient, r.timing, r.rate].filter(t => !missingText(t)).join(' · ');
+    const appliedKeys = ['active_ingredient', 'timing', 'rate'].filter(k => !missingText(r[k]));
+    const applied = appliedKeys.map(k => r[k]).join(' · ');
+    const appliedShown = appliedKeys.map(k => F(r, k)).join(' · ');
     return el('article', {class: 'reg'},
       el('header', {},
-        el('h3', {text: r.regulator}),
+        el('h3', {text: F(r, 'regulator')}),
         el('span', {class: `act ${(r.action || '').toLowerCase()}`,
           text: [r.action ? t('act.' + r.action) : '', r.target_hormone ? L.hs(r.target_hormone) : ''].filter(Boolean).join(' ')})),
       el('p', {class: 'reg-meta'}, `${cropN(r.crop)} · ${L.stage(r.stage)} `, el('span', {class: `ev-badge ${evCls}`, text: t('ev.' + r.evidence)})),
       el('ol', {class: 'chain'},
-        chainStep(t('reg.hc'), r.hormone_changes, t('reg.hcEmpty')),
-        chainStep(t('reg.see'), r.visible_effect, t('reg.seeEmpty'))),
+        chainStep(t('reg.hc'), r.hormone_changes, t('reg.hcEmpty'), F(r, 'hormone_changes')),
+        chainStep(t('reg.see'), r.visible_effect, t('reg.seeEmpty'), F(r, 'visible_effect'))),
       el('details', {class: 'reg-more'}, el('summary', {text: t('reg.more')}),
         el('ol', {class: 'chain'},
-          chainStep(t('reg.used'), applied, t('reg.usedEmpty')),
-          chainStep(t('reg.aim'), r.purpose, t('reg.notStated')),
-          missingText(r.side_effects) ? null : chainStep(t('reg.watch'), r.side_effects, '')),
-        r.note ? el('p', {text: r.note}) : null,
+          chainStep(t('reg.used'), applied, t('reg.usedEmpty'), appliedShown),
+          chainStep(t('reg.aim'), r.purpose, t('reg.notStated'), F(r, 'purpose')),
+          missingText(r.side_effects) ? null : chainStep(t('reg.watch'), r.side_effects, '', F(r, 'side_effects'))),
+        r.note ? el('p', {text: F(r, 'note')}) : null,
         el('p', {class: 'src'}, `${verName(r.verification) || r.verification}${r.source ? ' · ' : ''}`, r.source ? cite(r.source, r.source_url, r.doi) : null), closer()),
       residueSection(r));
   }
@@ -663,7 +669,7 @@
       },
       select(c) {
         const lines = c.items.map(d => ({
-          text: `${t('role.' + (d.role === 'harvest' || d.role === 'peak' ? d.role : 'other'))}${t('colon')}${value(d)} µL/kg/h — ${d.crop !== c.crop ? cropN(d.crop) + ', ' : ''}${d.condition}${d.cultivar && !/^(not stated|general)$/i.test(d.cultivar) ? ` (${d.cultivar})` : ''}`,
+          text: `${t('role.' + (d.role === 'harvest' || d.role === 'peak' ? d.role : 'other'))}${t('colon')}${value(d)} µL/kg/h — ${d.crop !== c.crop ? cropN(d.crop) + ', ' : ''}${F(d, 'condition')}${d.cultivar && !/^(not stated|general)$/i.test(d.cultivar) ? ` (${F(d, 'cultivar')})` : ''}`,
           source: source(d)
         }));
         readoutList('ripe-readout', cropN(c.crop), lines);
@@ -680,12 +686,12 @@
       title: t('leaf.aria'),
       scale: r => d3.scaleLog([0.05, 500], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, [0.1, 1, 10, 100], y0, y1, fmt),
-      label: d => d.hormone,
+      label: d => F(d, 'hormone'),
       mark(g, d, x, y) {
         g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).style('stroke', 'var(--down)').style('stroke-width', 10).style('stroke-linecap', 'round');
         g.append('circle').attr('cx', x(d.c)).attr('cy', y).attr('r', 6).style('fill', 'var(--up)').style('stroke', 'var(--panel)').style('stroke-width', 2);
       },
-      select: d => readout('leaf-readout', d.hormone, [t('leaf.control', {v: fmt(d.c)}), t('leaf.girdled', {v: `${fmt(d.lo)}–${fmt(d.hi)}`})], source(d))
+      select: d => readout('leaf-readout', F(d, 'hormone'), [t('leaf.control', {v: fmt(d.c)}), t('leaf.girdled', {v: `${fmt(d.lo)}–${fmt(d.hi)}`})], source(d))
     });
   }
 
@@ -708,14 +714,14 @@
     list.forEach(d => {
       const isGA = d.hormone.startsWith('GA');
       const cx = x(d.hormone) + x.bandwidth() / 2, bw = Math.min(36, x.bandwidth());
-      const g = svg.append('g').attr('class', 'row').attr('tabindex', 0).attr('role', 'button').attr('aria-label', t('longan.bar', {h: d.hormone, v: fmt(d.v)}));
+      const g = svg.append('g').attr('class', 'row').attr('tabindex', 0).attr('role', 'button').attr('aria-label', t('longan.bar', {h: F(d, 'hormone'), v: fmt(d.v)}));
       g.append('rect').attr('x', x(d.hormone)).attr('y', m.t).attr('width', x.bandwidth()).attr('height', H - m.b - m.t).style('fill', 'transparent');
       const bar = g.append('rect').attr('x', cx - bw / 2).attr('y', y(d.v)).attr('width', bw).attr('height', y(0) - y(d.v)).attr('rx', 5).style('fill', isGA ? 'var(--up)' : 'var(--brand)');
       muted(g.append('text').attr('x', cx).attr('y', y(d.v) - 6).attr('text-anchor', 'middle').text('~' + fmt(d.v)));
-      g.append('text').attr('x', cx).attr('y', H - m.b + 18).attr('text-anchor', 'middle').style('fill', 'var(--fg)').text(d.hormone);
+      g.append('text').attr('x', cx).attr('y', H - m.b + 18).attr('text-anchor', 'middle').style('fill', 'var(--fg)').text(F(d, 'hormone'));
       const pick = () => {
         bars.forEach(b => b.style('opacity', 0.45)); bar.style('opacity', 1);
-        readout('longan-readout', d.hormone, [d.group, t('longan.about', {v: fmt(d.v)})], source(d));
+        readout('longan-readout', F(d, 'hormone'), [F(d, 'group'), t('longan.about', {v: fmt(d.v)})], source(d));
       };
       g.on('click', () => { tapped['longan-chart'] = d.hormone; pick(); })
         .on('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); tapped['longan-chart'] = d.hormone; pick(); } });
@@ -734,13 +740,13 @@
     if (!rows) return;
     const list = rows.map(r => ({...r, p: +r.pct}));
     const sign = v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v)) + '%';
-    const value = d => (d.qualifier ? d.qualifier + ' ' : '') + sign(d.p);
+    const value = d => (d.qualifier ? F(d, 'qualifier') + ' ' : '') + sign(d.p);
     rowChart('pbz-chart', list, {
       title: t('pbz.aria'),
       scale: r => d3.scaleLinear([-100, 260], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, narrow() ? [-100, 0, 100, 200] : [-100, -50, 0, 50, 100, 150, 200, 250], y0, y1, t => t > 0 ? '+' + t : String(t), 0),
       padR: 40,
-      label: d => `${d.hormone} · ${d.tissue} · ${plainControl(d.comparison)}`,
+      label: d => `${F(d, 'hormone')} · ${F(d, 'tissue')} · ${L.lang === 'en' ? plainControl(d.comparison) : F(d, 'comparison')}`,
       mark(g, d, x, y) {
         const a = Math.min(x(0), x(d.p)), w = Math.max(2, Math.abs(x(d.p) - x(0)));
         g.append('rect').attr('x', a).attr('y', y - 7).attr('width', w).attr('height', 14).attr('rx', 5)
@@ -751,7 +757,7 @@
         else if (x(d.p) - 8 - tw >= 0) t.attr('x', x(d.p) - 8).attr('text-anchor', 'end');
         else t.attr('x', x(0) + 8);
       },
-      select: d => readout('pbz-readout', `${d.hormone} · ${d.tissue}`, [plainControl(d.comparison), value(d)], source(d))
+      select: d => readout('pbz-readout', `${F(d, 'hormone')} · ${F(d, 'tissue')}`, [L.lang === 'en' ? plainControl(d.comparison) : F(d, 'comparison'), value(d)], source(d))
     });
   }
 
@@ -762,7 +768,7 @@
     if (rows === null) return failed('fold-chart');
     if (!rows) return;
     const list = rows.map(r => ({...r, f: +r.fold})).sort((a, b) => b.f - a.f);
-    const value = d => (d.qualifier ? d.qualifier + ' ' : '') + fmt(d.f) + '×';
+    const value = d => (d.qualifier ? F(d, 'qualifier') + ' ' : '') + fmt(d.f) + '×';
     const foldHas = list.some(d => sameCrop(d.crop));
     cropNote('fold-crop-note', foldHas, 'what.fold');
     rowChart('fold-chart', list, {
@@ -771,13 +777,13 @@
       scale: r => d3.scaleLog([1, 30], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, [1, 2, 5, 10, 20], y0, y1, t => t + '×', 1),
       padR: 64,
-      label: d => `${cropN(d.crop)} · ${d.hormone} · ${d.comparison}`,
+      label: d => `${cropN(d.crop)} · ${F(d, 'hormone')} · ${F(d, 'comparison')}`,
       mark(g, d, x, y) {
         g.append('rect').attr('x', x(1)).attr('y', y - 7).attr('width', Math.max(2, x(d.f) - x(1))).attr('height', 14).attr('rx', 5)
           .style('fill', (VERIFY[d.verification] || VERIFY.SNIP).color);
         muted(g.append('text').attr('x', x(d.f) + 8).attr('y', y + 4).text(value(d)));
       },
-      select: d => readout('fold-readout', `${cropN(d.crop)} · ${d.cultivar}`, [`${d.hormone}: ${d.comparison}`, value(d)], source(d))
+      select: d => readout('fold-readout', `${cropN(d.crop)} · ${F(d, 'cultivar')}`, [`${F(d, 'hormone')}${t('colon')}${F(d, 'comparison')}`, value(d)], source(d))
     });
   }
 

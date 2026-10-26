@@ -679,3 +679,8 @@ details.notice[open] > summary::after { content: "▴"; }
 .set-row-go { font-size: 24px; color: var(--muted); line-height: 1; }
 .set-about p { margin: 0 0 8px; font-size: 14px; color: var(--muted); line-height: 1.5; }
 .settings-sheet .sheet-close { margin-top: 4px; }
+/* Text-link sections (evidence, regulator details, residues): the shared ▾/▴ marker after the label. */
+.ev > summary, .reg-more > summary, .res > summary { list-style: none; gap: 6px; }
+.ev > summary::-webkit-details-marker, .reg-more > summary::-webkit-details-marker, .res > summary::-webkit-details-marker { display: none; }
+.ev > summary::after, .reg-more > summary::after, .res > summary::after { content: "▾"; font-size: 12px; }
+.ev[open] > summary::after, .reg-more[open] > summary::after, .res[open] > summary::after { content: "▴"; }

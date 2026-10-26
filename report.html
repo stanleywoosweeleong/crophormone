@@ -30,7 +30,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=2dda0236a6">
+<link rel="stylesheet" href="styles.css?v=6f030f972c">
 <style>
 /* Text keeps a reading width; tables use the full page width on desktop and scroll only on narrow screens. */
 .doc { max-width: 1100px; margin-inline: auto; }
@@ -50,7 +50,7 @@
 .doc a { overflow-wrap: anywhere; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" integrity="sha512-xeUh+KxNyTufZOje++oQHstlMQ8/rpyzPuM+gjMFYK3z5ILJGE7l2NvYL+XfliKURMpBIKKp1XoPN/qswlSMFA==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-<script src="i18n.js?v=9c0dd93d4c" defer></script>
+<script src="i18n.js?v=b5239ee4e0" defer></script>
 <script src="update.js?v=0bbce73020" defer></script>
 <script src="settings.js?v=19d5d1dfa1" defer></script>
 <script src="share.js?v=5796cbb24a" defer></script>
@@ -75,7 +75,7 @@
   </div>
 </header>
 <main>
-  <p class="crop-note report-lang" data-i18n="report.only" data-i18n-hide-en hidden></p>
+  <p class="crop-note report-lang" id="report-lang" hidden></p>
   <article class="doc card" id="doc" lang="en"><p class="note" data-i18n="report.loading">Loading the report…</p></article>
 </main>
 <nav class="bottom-nav" aria-label="Sections, bottom bar" data-i18n-aria="aria.sectionsBottom">
@@ -87,22 +87,37 @@
   <a href="report.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span data-i18n="tab.report">Report</span></a>
 </nav>
 <script>
+/* The report in the chosen language (report.zh.md, report.ms.md), falling back to English with a note. */
 window.addEventListener('DOMContentLoaded', () => {
   const doc = document.getElementById('doc');
-  fetch('report.md').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(md => {
-    if (window.marked) {
-      /* Raw HTML in the markdown is dropped, and only web, mail and in-page links are kept. */
-      marked.use({renderer: {html: () => ''}});
-      doc.innerHTML = marked.parse(md);
-      doc.querySelectorAll('a[href]').forEach(a => { if (!/^(https?:|mailto:|#|\.?\/|[\w-]+\.(html|md))/i.test(a.getAttribute('href'))) a.removeAttribute('href'); });
-      doc.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
-    } else {
-      const pre = document.createElement('pre'); pre.style.whiteSpace = 'pre-wrap'; pre.textContent = md; doc.replaceChildren(pre);
+  const note = document.getElementById('report-lang');
+  const t = k => (window.I18N ? window.I18N.t(k) : k);
+  if (window.marked) marked.use({renderer: {html: () => ''}});
+  const get = f => fetch(f).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); });
+  function show(md, lang) {
+    doc.lang = lang === 'zh' ? 'zh-Hans' : lang;
+    if (!window.marked) {
+      const pre = document.createElement('pre'); pre.style.whiteSpace = 'pre-wrap'; pre.textContent = md; doc.replaceChildren(pre); return;
     }
-  }).catch(() => {
-    const p = document.createElement('p'); p.className = 'note'; p.textContent = window.I18N ? window.I18N.t('report.fail') : 'The report could not be loaded. Check your connection and try again.';
-    doc.replaceChildren(p);
-  });
+    /* Raw HTML in the markdown is dropped, and only web, mail and in-page links are kept. */
+    doc.innerHTML = marked.parse(md);
+    doc.querySelectorAll('a[href]').forEach(a => { if (!/^(https?:|mailto:|#|\.?\/|[\w-]+\.(html|md))/i.test(a.getAttribute('href'))) a.removeAttribute('href'); });
+    doc.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+  }
+  function load() {
+    const lang = window.I18N ? window.I18N.lang : 'en';
+    note.hidden = true;
+    (lang === 'en' ? Promise.reject(new Error('en')) : get(`report.${lang}.md`).then(md => show(md, lang)))
+      .catch(() => get('report.md').then(md => {
+        show(md, 'en');
+        if (lang !== 'en') { note.textContent = t('report.only'); note.hidden = false; }
+      }))
+      .catch(() => {
+        const p = document.createElement('p'); p.className = 'note'; p.textContent = t('report.fail'); doc.replaceChildren(p);
+      });
+  }
+  load();
+  window.addEventListener('langchange', load);
 });
 </script>
 </body>
