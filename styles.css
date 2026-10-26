@@ -439,3 +439,23 @@ details.grp.nd .names { margin-top: 6px; }
 .soil-name, .res h4 { text-transform: none; }
 .soil-name::first-letter, .res h4::first-letter { text-transform: uppercase; }
 .soil-name { display: block; }
+
+/* Soil list: name and badge on one line, time underneath; two columns on wide screens */
+.soil-table { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); column-gap: 28px; }
+.soil-row > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; padding: 8px 0; min-height: 0; }
+.soil-row > summary::-webkit-details-marker { display: none; }
+.soil-row > summary { list-style: none; }
+.soil-name { display: inline; font-size: 15px; }
+.soil-time { flex-basis: 100%; text-align: left; font-size: 14px; color: var(--fg); }
+.soil-row > summary::after { content: "▾"; margin-left: auto; color: var(--muted); font-size: 12px; order: 2; }
+.soil-row[open] > summary::after { content: "▴"; }
+.soil-time { order: 3; }
+@media (max-width: 520px) { .soil-time { grid-column: auto; } }
+.soil-row > summary { position: relative; padding-right: 22px; }
+.soil-row > summary::after { position: absolute; right: 2px; top: 12px; margin: 0; }
+.soil-more { display: contents; }
+.soil-more[hidden] { display: none !important; }
+.soil-toggle {
+  grid-column: 1 / -1; justify-self: start; margin-top: 10px; min-height: 40px; padding: 0 14px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--up); font-weight: 600;
+}

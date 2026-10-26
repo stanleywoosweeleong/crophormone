@@ -395,16 +395,19 @@
 
   /* How long each regulator lasts in soil, longest first. */
   const PERSIST_ORDER = {high: 0, mid: 1, low: 2, unknown: 3};
+  /* Short, consistent badge text; the full class wording is shown when a row is opened. */
+  const PERSIST_LABEL = {high: 'Long-lasting', mid: 'Moderate', low: 'Short-lived', unknown: 'Unknown'};
   function drawSoilTable() {
     const box = document.getElementById('soil-table');
     if (!box || !data.soil || box.dataset.drawn) return;
     box.dataset.drawn = '1';
     const rows = data.soil.slice().sort((a, b) => PERSIST_ORDER[persistClass(a.persistence_class)] - PERSIST_ORDER[persistClass(b.persistence_class)]);
-    box.replaceChildren(...rows.map(r => el('details', {class: 'soil-row'},
+    const soilRow = r => el('details', {class: 'soil-row'},
       el('summary', {},
         el('span', {class: 'soil-name', text: r.active_ingredient}),
-        el('span', {class: `persist ${persistClass(r.persistence_class)}`, text: (r.persistence_class.split(/[;(]/)[0].trim() || 'Unknown')}),
+        el('span', {class: `persist ${persistClass(r.persistence_class)}`, text: PERSIST_LABEL[persistClass(r.persistence_class)]}),
         el('span', {class: 'soil-time', text: r.time_summary || 'Not found'})),
+      el('p', {}, el('strong', {text: 'Persistence class: '}), r.persistence_class || 'Unknown'),
       el('p', {}, el('strong', {text: 'Half-life: '}), `lab ${r.soil_dt50_lab_days || 'not found'}; field ${r.soil_dt50_field_days || 'not found'}`),
       r.approx_time_to_97pct_gone ? el('p', {}, el('strong', {text: 'Time to about 97% gone: '}), r.approx_time_to_97pct_gone) : null,
       r.orchard_field_residues && !/^not found/i.test(r.orchard_field_residues) ? el('p', {}, el('strong', {text: 'Measured in orchards: '}), r.orchard_field_residues) : null,
@@ -412,7 +415,19 @@
       r.effects_on_trees_and_following_crops ? el('p', {}, el('strong', {text: 'Effects on trees and later crops: '}), r.effects_on_trees_and_following_crops) : null,
       r.leaching_water_note ? el('p', {}, el('strong', {text: 'Water: '}), r.leaching_water_note) : null,
       r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: 'Restrictions: '}), r.restrictions) : null,
-      el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, safeLink(r.source, firstUrl(r.source_url))))));
+      el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, safeLink(r.source, firstUrl(r.source_url))));
+    /* Long-lasting and moderate products first; short-lived and unknown ones behind a button. */
+    const main = rows.filter(r => ['high', 'mid'].includes(persistClass(r.persistence_class)));
+    const rest = rows.filter(r => !main.includes(r));
+    const more = el('div', {class: 'soil-more', hidden: ''}, ...rest.map(soilRow));
+    const toggle = el('button', {type: 'button', class: 'soil-toggle', 'aria-expanded': 'false', text: `Show ${rest.length} short-lived or unknown products`,
+      onclick: () => {
+        const open = more.hidden;
+        more.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.textContent = open ? 'Show fewer' : `Show ${rest.length} short-lived or unknown products`;
+      }});
+    box.replaceChildren(...main.map(soilRow), more, toggle);
   }
 
   /* ---------- regulators: cause and effect ---------- */
