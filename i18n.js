@@ -16,8 +16,6 @@
     'app.title': ['Tropical fruit hormone charts', '热带水果激素图表', 'Carta hormon buah tropika'],
     'brand': ['Fruit hormones', '水果激素', 'Hormon buah'],
     'lang.button': ['Language', '语言', 'Bahasa'],
-    'lang.title': ['Choose your language', '选择语言', 'Pilih bahasa'],
-    'lang.note': ['You can change it later with the language button in the top bar.', '以后可以用顶部栏的语言按钮更改。', 'Anda boleh menukarnya kemudian dengan butang bahasa di bar atas.'],
     'lang.dataNote': ['', '研究笔记、数值说明和文献来源保留英文原文。', 'Nota kajian, keterangan nilai dan sumber dikekalkan dalam bahasa Inggeris.'],
     'aria.sections': ['Sections', '栏目', 'Bahagian'],
     'aria.sectionsBottom': ['Sections, bottom bar', '栏目（底部栏）', 'Bahagian, bar bawah'],
@@ -465,27 +463,31 @@
       /* Closing without a choice keeps the current language and does not ask again. */
       d.addEventListener('close', () => { if (!saved()) set(lang); });
     }
+    /* One short title in all three languages, so it reads the same before and after a choice. */
     const h = document.createElement('h2');
     h.id = 'lang-title';
-    /* First open: one line per language, each marked with its own language so it wraps and renders correctly. */
-    const perLang = k => ORDER.map(l => { const sp = document.createElement('span'); sp.lang = LANGS[l].html; sp.textContent = T[k][idx(l)]; return sp; });
-    if (first) h.replaceChildren(...perLang('lang.title')); else h.textContent = t('lang.title');
+    h.textContent = ORDER.map(l => T['lang.button'][idx(l)]).join(' · ');
     const list = document.createElement('div');
     list.className = 'lang-list';
     ORDER.forEach(l => {
+      const on = l === lang && !first;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'lang-opt';
       btn.lang = LANGS[l].html;
-      btn.setAttribute('aria-pressed', String(l === lang && !first));
-      btn.textContent = LANGS[l].label;
+      btn.setAttribute('aria-pressed', String(on));
+      /* The short tag matches the top-bar button, which is where the language is changed later. */
+      const name = document.createElement('span');
+      name.textContent = LANGS[l].label;
+      const tag = document.createElement('span');
+      tag.className = 'lang-tag';
+      tag.setAttribute('aria-hidden', 'true');
+      tag.textContent = on ? '✓' : LANGS[l].short;
+      btn.append(name, tag);
       btn.addEventListener('click', () => { set(l); d.close(); });
       list.append(btn);
     });
-    const note = document.createElement('p');
-    note.className = 'note';
-    if (first) note.replaceChildren(...perLang('lang.note')); else note.textContent = t('lang.note');
-    d.replaceChildren(h, list, note);
+    d.replaceChildren(h, list);
     d.showModal();
     (list.querySelector('[aria-pressed="true"]') || list.firstChild).focus();
   }

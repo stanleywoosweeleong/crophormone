@@ -600,18 +600,20 @@ details.notice[open] > summary::after { content: "▴"; }
   background: var(--panel); color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .lang-btn + .install { margin-left: 8px; }
-.lang-sheet h2 { font-size: 18px; line-height: 1.35; }
-.lang-list { display: grid; gap: 10px; margin: 4px 0 14px; }
+.lang-sheet h2 { font-size: 17px; font-weight: 600; margin-bottom: 14px; }
+.lang-list { display: grid; gap: 8px; margin: 0 0 4px; }
 .lang-opt {
-  min-height: 52px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--fg);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 52px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--fg);
   font: inherit; font-size: 17px; font-weight: 600; text-align: left; cursor: pointer;
 }
-.lang-opt[aria-pressed="true"] { border-color: var(--up); background: color-mix(in srgb, var(--up) 10%, transparent); }
+.lang-opt:hover { border-color: color-mix(in srgb, var(--up) 45%, var(--line)); }
+.lang-tag { min-width: 40px; padding: 2px 8px; border-radius: 999px; background: var(--bg); color: var(--muted); font-size: 13px; font-weight: 600; text-align: center; }
+.lang-opt[aria-pressed="true"] { border-color: var(--up); background: color-mix(in srgb, var(--up) 8%, transparent); }
+.lang-opt[aria-pressed="true"] .lang-tag { background: var(--up); color: var(--panel); }
 .lang-opt:focus-visible { outline: 2px solid var(--up); outline-offset: 2px; }
 .report-lang { margin: 0 0 12px; }
 /* Malay labels are longer: let a bottom-bar label wrap to two short lines instead of being cut off. */
 .bottom-nav a span { text-align: center; line-height: 1.15; max-width: 100%; padding-inline: 2px; overflow-wrap: anywhere; }
 /* Chinese reads better slightly larger at the same pixel size, and without letter-spacing on caps-style labels. */
 :root[data-lang="zh"] .ct-group, :root[data-lang="zh"] .cmp-group, :root[data-lang="zh"] .chain li strong { letter-spacing: 0; }
-.lang-sheet h2 span, .lang-sheet .note span { display: block; }
-.lang-sheet .note span + span { margin-top: 2px; }
