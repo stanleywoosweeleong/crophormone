@@ -27,6 +27,7 @@
 .doc a { overflow-wrap: anywhere; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" defer></script>
+<script src="update.js" defer></script>
 </head>
 <body>
 <header class="bar">
@@ -62,7 +63,6 @@ window.addEventListener('DOMContentLoaded', () => {
       const pre = document.createElement('pre'); pre.style.whiteSpace = 'pre-wrap'; pre.textContent = md; doc.replaceChildren(pre);
     }
   }).catch(() => { doc.innerHTML = '<p class="note">The report could not be loaded. Check your connection and try again.</p>'; });
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 });
 </script>
 </body>

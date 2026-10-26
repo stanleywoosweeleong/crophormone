@@ -185,6 +185,25 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 .readout .t { font-weight: 600; }
 .readout .m { color: var(--muted); }
 .readout .hint { color: var(--muted); margin: auto 0; }
+/* Update toast: above the bottom nav on phones, bottom centre on wide screens. */
+.toast {
+  position: fixed; z-index: 40; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  width: max-content; max-width: calc(100% - 32px);
+  display: flex; align-items: center; gap: 14px;
+  background: var(--fg); color: var(--bg); border-radius: 12px; padding: 10px 10px 10px 16px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .25); font-size: 15px;
+}
+.toast button {
+  flex: none; border: 0; border-radius: 8px; padding: 8px 14px; min-height: 40px; cursor: pointer;
+  background: var(--bg); color: var(--fg); font-weight: 600;
+}
+@media (min-width: 760px) { .toast { bottom: 24px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .toast:not([hidden]) { animation: toast-in .25s ease-out; }
+  @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+}
+
 /* On phones the readout rides above the bottom nav while its chart is on screen, so a tapped row is never out of sight. */
 @media (max-width: 759px) {
   .readout {

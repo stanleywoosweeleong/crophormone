@@ -9,10 +9,10 @@ Live site: https://stanleywoosweeleong.github.io/crophormone/ (served by GitHub 
 - `index.html`, `styles.css`, `app.js` – the app: Overview, Ripening, Flowering and Fruit set views
 - `report.html` – renders `report.md`, the full research report with gaps, conflicts and DOI status
 - `data/*.csv` – the values behind each chart, with verification level and source for every row
-- `manifest.webmanifest`, `sw.js`, `icons/` – install and offline support
+- `manifest.webmanifest`, `sw.js`, `update.js`, `icons/` – install, offline support and update notices
 - `.nojekyll` – serve files as they are, without a Jekyll build
 
-When you change any app or data file, bump `VERSION` in `sw.js` so installed copies refresh their offline cache.
+Updates need no version bump. The service worker fingerprints the app and data files; when any of them change, readers see "App updated to the latest version" the next time they open the app, or a "Reload" prompt if it is already open (checked when the app returns to the foreground and every 30 minutes). A new file must be added to `APP_FILES` in `sw.js` to be cached and watched.
 
 ## Verification levels
 

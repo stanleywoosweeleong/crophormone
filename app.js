@@ -399,7 +399,6 @@
       timer = setTimeout(() => { if (window.innerWidth !== w) { w = window.innerWidth; drawView(); } }, 120);
     });
     route();
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
     if (typeof d3 === 'undefined') {
       /* The chart library comes from a CDN; the service worker keeps a copy after the first online visit. */
       document.querySelectorAll('.chart, #mx').forEach(n => n.replaceChildren(el('div', {class: 'fail', text: 'Charts need one online visit before they work offline'})));
