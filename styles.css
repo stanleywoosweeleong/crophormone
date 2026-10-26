@@ -363,3 +363,6 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
   .crop-pick .dots { display: none; }
   .crop-bar .stepper button { width: 40px; height: 40px; }
 }
+
+/* Arrows removed: the crop button has room for its dots again on phones */
+@media (max-width: 420px) { .crop-pick .dots { display: inline-flex; } }
