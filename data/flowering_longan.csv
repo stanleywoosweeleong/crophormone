@@ -1,8 +1,8 @@
-hormone,group,value,verification,source,source_url,doi
-GA1,KClO3-treated (week 1),25,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073
-GA3,KClO3-treated (week 1),50,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073
-GA19,KClO3-treated (week 1),20,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073
-GA20,KClO3-treated (week 1),60,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073
-iP,Untreated control,20,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073
-iPR,Untreated control,50,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073
-DHZR,Untreated control,60,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073
+hormone,group,value,verification,source,source_url,doi,hormone_zh,hormone_ms,group_zh,group_ms
+GA1,KClO3-treated (week 1),25,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073,GA1,GA1,KClO3处理（第1周）,Dirawat KClO3 (minggu 1)
+GA3,KClO3-treated (week 1),50,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073,GA3,GA3,KClO3处理（第1周）,Dirawat KClO3 (minggu 1)
+GA19,KClO3-treated (week 1),20,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073,GA19,GA19,KClO3处理（第1周）,Dirawat KClO3 (minggu 1)
+GA20,KClO3-treated (week 1),60,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073,GA20,GA20,KClO3处理（第1周）,Dirawat KClO3 (minggu 1)
+iP,Untreated control,20,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073,iP,iP,未处理的对照,Kawalan tidak dirawat
+iPR,Untreated control,50,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073,iPR,iPR,未处理的对照,Kawalan tidak dirawat
+DHZR,Untreated control,60,ABS,Susawaengsup et al. 2011,https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842,10.1016/j.talanta.2011.04.073,DHZR,DHZR,未处理的对照,Kawalan tidak dirawat
