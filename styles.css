@@ -552,3 +552,15 @@ details.notice[open] > summary::after { content: "▴"; }
 .soil-group-title { font-weight: 600; font-size: 15px; }
 .soil-group-rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); column-gap: 28px; }
 .persist.role { color: var(--muted); border-color: var(--line); background: var(--bg); }
+
+/* Soil list hierarchy: group headings as tinted bands, their products indented under a guide line */
+.soil-group { margin-top: 8px; }
+.soil-group > summary {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 32px 10px 12px; border-bottom: 1px solid var(--line);
+}
+.soil-group > summary::after { right: 12px; top: 13px; }
+.soil-group[open] > summary { border-radius: 10px 10px 0 0; }
+.soil-group-title { font-size: 16px; }
+.soil-group-rows { margin: 0 0 6px 12px; padding-left: 14px; border-left: 2px solid var(--line); }
+.soil-group-rows .soil-name { font-size: 14px; }
