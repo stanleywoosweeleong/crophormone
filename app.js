@@ -96,17 +96,26 @@
     if (!doi || !/^10\.\d{4,9}\/\S+$/.test(doi)) return link;
     return el('span', {}, link, ' · ', el('a', {class: 'doi', href: 'https://doi.org/' + doi, target: '_blank', rel: 'noopener', text: 'DOI ' + doi}));
   }
+  /* A chart's details box ends with Close: it clears the row highlight and keeps the box closed on redraw. */
+  function readoutClose(id) {
+    return el('button', {type: 'button', class: 'closer', text: t('closer'), onclick: () => {
+      tapped[id.replace('-readout', '-chart')] = false;
+      drawCharts();
+    }});
+  }
   function readout(id, title, lines, source) {
     const box = document.getElementById(id);
     box.replaceChildren(el('span', {class: 't', text: title}));
     lines.forEach(l => box.append(el('span', {text: l})));
     if (source) box.append(el('span', {class: 'm'}, `${source.level} · `, cite(source.name, source.url, source.doi)));
+    box.append(readoutClose(id));
   }
   function readoutList(id, title, items) {
     const box = document.getElementById(id);
     box.replaceChildren(el('span', {class: 't', text: title}));
     items.forEach(it => box.append(el('span', {class: 'ro-item'}, it.text,
       it.source ? el('span', {class: 'm'}, ` · ${it.source.level} · `, cite(it.source.name, it.source.url, it.source.doi)) : null)));
+    box.append(readoutClose(id));
   }
   function failed(id) {
     document.getElementById(id).replaceChildren(el('div', {class: 'fail', text: t('fail')}));
@@ -594,7 +603,8 @@
       picks.push(pick);
     });
     const again = rows.findIndex(d => o.label(d) === tapped[id]);
-    const chosen = again >= 0 ? again : o.isSelected ? rows.findIndex(o.isSelected) : -1;
+    /* tapped === false: the reader closed the details, so the chosen crop is not picked again. */
+    const chosen = again >= 0 ? again : tapped[id] === false ? -1 : o.isSelected ? rows.findIndex(o.isSelected) : -1;
     if (chosen >= 0) picks[chosen]();
     return chosen >= 0;
   }
