@@ -53,6 +53,11 @@
   const data = {};
   const DEFAULT_CROP = 'Durian';
   const state = {crop: DEFAULT_CROP, stage: 'Flowering', view: 'overview', regAll: false, regStage: '', regMeasured: false, listOpen: false};
+  /* The chosen crop is remembered on this device; storage can be blocked (private mode), so failures are ignored. */
+  const CROP_KEY = 'crophormone.crop';
+  const savedCrop = () => { try { return localStorage.getItem(CROP_KEY); } catch (e) { return null; } };
+  const saveCrop = crop => { try { localStorage.setItem(CROP_KEY, crop); } catch (e) { /* not remembered */ } };
+
   /* The default crop first, then the rest alphabetically. */
   const cropOrder = rows => [...new Set(rows.map(r => r.crop))]
     .sort((a, b) => (b === DEFAULT_CROP) - (a === DEFAULT_CROP) || a.localeCompare(b));
@@ -277,6 +282,8 @@
 
   function selectCrop(crop, scroll) {
     state.crop = crop;
+    saveCrop(crop);
+    Object.keys(tapped).forEach(k => delete tapped[k]);
     state.listOpen = false;
     state.regShown = 0;
     drawView();
@@ -524,6 +531,8 @@
   }
 
   /* ---------- charts ---------- */
+  /* The row last tapped in each chart, so a redraw for a new screen width shows the same one; cleared on crop change. */
+  const tapped = {};
   function svgFor(id, W, H) {
     const box = document.getElementById(id);
     box.replaceChildren();
@@ -572,11 +581,12 @@
         bg.style('fill', 'var(--sel)');
         o.select(d);
       };
-      g.on('click', pick).on('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } });
+      g.on('click', () => { tapped[id] = o.label(d); pick(); }).on('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); tapped[id] = o.label(d); pick(); } });
       groups.push(bg);
       picks.push(pick);
     });
-    const chosen = o.isSelected ? rows.findIndex(o.isSelected) : -1;
+    const again = rows.findIndex(d => o.label(d) === tapped[id]);
+    const chosen = again >= 0 ? again : o.isSelected ? rows.findIndex(o.isSelected) : -1;
     if (chosen >= 0) picks[chosen]();
     return chosen >= 0;
   }
@@ -693,6 +703,7 @@
       muted(svg.append('text').attr('x', m.l - 6).attr('y', y(t) + 4).attr('text-anchor', 'end').text(t));
     });
     const bars = [];
+    let again = null;
     list.forEach(d => {
       const isGA = d.hormone.startsWith('GA');
       const cx = x(d.hormone) + x.bandwidth() / 2, bw = Math.min(36, x.bandwidth());
@@ -705,9 +716,12 @@
         bars.forEach(b => b.style('opacity', 0.45)); bar.style('opacity', 1);
         readout('longan-readout', d.hormone, [d.group, `About ${fmt(d.v)} ng/g dry weight`], source(d));
       };
-      g.on('click', pick).on('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } });
+      g.on('click', () => { tapped['longan-chart'] = d.hormone; pick(); })
+        .on('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); tapped['longan-chart'] = d.hormone; pick(); } });
       bars.push(bar);
+      if (tapped['longan-chart'] === d.hormone) again = pick;
     });
+    if (again) again();
   }
 
   /* "PBZ vs control" reads as jargon; say what the control trees were. */
@@ -784,6 +798,14 @@
     Object.values(FLOWER_CHARTS).flat().forEach(f => f());
   }
 
+  /* A width change (phone rotation) redraws only the charts, which are sized to the screen; lists and their open
+     sections are left as they are. */
+  function drawCharts() {
+    if (typeof d3 === 'undefined') return;
+    if (state.view === 'flowering') Object.values(FLOWER_CHARTS).flat().forEach(f => f());
+    if (state.view === 'fruitset') drawFold();
+    if (state.view === 'ripening') drawRipening();
+  }
   function drawView() {
     if (typeof d3 === 'undefined') return;
     drawCropChip();
@@ -822,15 +844,20 @@
     let w = window.innerWidth, timer;
     window.addEventListener('resize', () => {
       clearTimeout(timer);
-      timer = setTimeout(() => { if (window.innerWidth !== w) { w = window.innerWidth; drawView(); } }, 120);
+      timer = setTimeout(() => { if (window.innerWidth !== w) { w = window.innerWidth; drawCharts(); } }, 120);
     });
+    state.crop = savedCrop() || DEFAULT_CROP;
     route();
     if (typeof d3 === 'undefined') {
       /* The chart library comes from a CDN; the service worker keeps a copy after the first online visit. */
       document.querySelectorAll('.loading').forEach(n => n.replaceWith(el('div', {class: 'fail', text: 'Needs one online visit before it works offline. Connect and reload.'})));
       return;
     }
-    load().then(drawView);
+    load().then(() => {
+      /* Keep the remembered crop only if it is still in the data. */
+      if (data.evidence && !data.evidence.some(r => r.crop === state.crop)) state.crop = DEFAULT_CROP;
+      drawView();
+    });
   }
 
   init();

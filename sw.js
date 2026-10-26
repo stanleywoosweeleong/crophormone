@@ -27,21 +27,33 @@ self.addEventListener('activate', event => {
   );
 });
 
-/* App files: network first so updates show straight away, falling back to the cached copy offline. */
-async function networkFirst(request) {
+/* App files: network first so updates show straight away, falling back to the cached copy offline. On a stalled
+   connection the cached copy is used after a few seconds, and the network answer still refreshes the cache. */
+const NETWORK_TIMEOUT_MS = 4000;
+async function networkFirst(event) {
+  const {request} = event;
   const cache = await caches.open(APP_CACHE);
-  try {
-    /* no-cache: revalidate with the server rather than trusting the browser's HTTP cache (Pages caches for 10 minutes).
-       A new Request from the URL, because a page navigation request can't be re-sent with changed options. */
-    const response = await fetch(new Request(request.url, {cache: 'no-cache', credentials: 'same-origin'}));
+  const cachedCopy = () => cache.match(request, {ignoreSearch: true})
+    .then(hit => hit || (request.mode === 'navigate' ? cache.match('index.html') : undefined));
+  /* no-cache: revalidate with the server rather than trusting the browser's HTTP cache (Pages caches for 10 minutes).
+     A new Request from the URL, because a page navigation request can't be re-sent with changed options. */
+  const network = fetch(new Request(request.url, {cache: 'no-cache', credentials: 'same-origin'})).then(response => {
     /* Store under the address without ?v=…, so each file keeps one offline copy whatever its fingerprint. */
     if (response.ok) cache.put(request.url.split('?')[0], response.clone()).catch(() => {});
     return response;
+  });
+  event.waitUntil(network.catch(() => {}));
+  let timer;
+  const slow = new Promise(resolve => { timer = setTimeout(resolve, NETWORK_TIMEOUT_MS); })
+    .then(cachedCopy).then(hit => hit || network);
+  try {
+    return await Promise.race([network, slow]);
   } catch (err) {
-    const cached = await cache.match(request, {ignoreSearch: true});
-    if (cached) return cached;
-    if (request.mode === 'navigate') return cache.match('index.html');
+    const hit = await cachedCopy();
+    if (hit) return hit;
     throw err;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -60,7 +72,7 @@ self.addEventListener('fetch', event => {
   const {request} = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.origin === self.location.origin) event.respondWith(networkFirst(request));
+  if (url.origin === self.location.origin) event.respondWith(networkFirst(event));
   else if (CDN_HOSTS.includes(url.hostname)) event.respondWith(cacheFirst(request));
 });
 
