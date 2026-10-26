@@ -409,7 +409,10 @@
     const box = document.getElementById('soil-table');
     if (!box || !data.soil || box.dataset.drawn) return;
     box.dataset.drawn = '1';
-    const rows = data.soil.slice().sort((a, b) => PERSIST_ORDER[persistClass(a.persistence_class)] - PERSIST_ORDER[persistClass(b.persistence_class)]);
+    /* Only products that appear in a regulator entry; others stay in the data file but are not listed. */
+    const used = new Set((data.regulators || []).flatMap(residueKeys));
+    const rows = data.soil.filter(r => used.has(r.key))
+      .sort((a, b) => PERSIST_ORDER[persistClass(a.persistence_class)] - PERSIST_ORDER[persistClass(b.persistence_class)]);
     const soilRow = r => el('details', {class: 'soil-row'},
       el('summary', {},
         el('span', {class: 'soil-name', text: r.active_ingredient}),
