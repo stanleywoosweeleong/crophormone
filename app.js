@@ -849,7 +849,8 @@
       clearTimeout(timer);
       timer = setTimeout(() => { if (window.innerWidth !== w) { w = window.innerWidth; drawCharts(); } }, 120);
     });
-    state.crop = savedCrop() || DEFAULT_CROP;
+    const linkCrop = new URLSearchParams(location.search).get('crop');
+    state.crop = linkCrop || savedCrop() || DEFAULT_CROP;
     route();
     if (typeof d3 === 'undefined') {
       /* The chart library comes from a CDN; the service worker keeps a copy after the first online visit. */
@@ -858,7 +859,9 @@
     }
     load().then(() => {
       /* Keep the remembered crop only if it is still in the data. */
-      if (data.evidence && !data.evidence.some(r => r.crop === state.crop)) state.crop = DEFAULT_CROP;
+      if (data.evidence && !data.evidence.some(r => r.crop === state.crop)) state.crop = savedCrop() || DEFAULT_CROP;
+      else if (linkCrop) saveCrop(state.crop);
+      if (linkCrop) history.replaceState(null, '', location.pathname + location.hash);
       drawView();
     });
   }

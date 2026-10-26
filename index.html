@@ -10,17 +10,34 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Fruit hormones">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="canonical" href="https://stanleywoosweeleong.github.io/crophormone/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fruit hormones">
+<meta property="og:title" content="Tropical fruit hormone charts">
+<meta property="og:description" content="How hormones rise and fall through flowering, fruit set and ripening in 13 tropical fruit crops, with sources. English · 中文 · Bahasa Melayu. Free, works offline.">
+<meta property="og:url" content="https://stanleywoosweeleong.github.io/crophormone/">
+<meta property="og:image" content="https://stanleywoosweeleong.github.io/crophormone/icons/og-image.jpg">
+<meta property="og:image:secure_url" content="https://stanleywoosweeleong.github.io/crophormone/icons/og-image.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tropical fruit hormone charts: a table of how gibberellin, cytokinin, ABA, auxin and ethylene change in durian through flowering, fruit set and ripening.">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta property="og:locale:alternate" content="ms_MY">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=6ee58224c3">
+<link rel="stylesheet" href="styles.css?v=49ea7de53c">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" integrity="sha512-M7nHCiNUOwFt6Us3r8alutZLm9qMt4s9951uo8jqO4UwJ1hziseL6O3ndFyigx6+LREfZqnhHxYjKRJ8ZQ69DQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-<script src="i18n.js?v=477888ed44" defer></script>
-<script src="app.js?v=536ce7ee82" defer></script>
+<script src="i18n.js?v=a7084b43ab" defer></script>
+<script src="app.js?v=36b97a9080" defer></script>
 <script src="update.js?v=0bbce73020" defer></script>
+<script src="share.js?v=702c629919" defer></script>
 <script src="install.js?v=69bf8850de" defer></script>
 </head>
 <body data-title-key="app.title">
@@ -36,8 +53,9 @@
       <a href="#ripening" data-i18n="tab.ripening">Ripening</a>
       <a href="report.html" data-i18n="tab.report">Report</a>
     </nav>
+    <button type="button" id="share-btn" class="share-btn" aria-label="Share" data-i18n-aria="share.btn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/></svg></button>
     <button type="button" id="lang-btn" class="lang-btn" aria-label="Language">EN</button>
-    <button type="button" id="install" class="install" hidden data-i18n="install.btn">Install app</button>
+    <button type="button" id="install" class="install" hidden><span class="ins-full" data-i18n="install.btn">Install app</span><span class="ins-short" data-i18n="install.short">Install</span></button>
   </div>
   <div id="crop-panel" class="crop-panel-global" hidden></div>
 </header>

@@ -20,6 +20,7 @@
     'aria.sections': ['Sections', '栏目', 'Bahagian'],
     'aria.sectionsBottom': ['Sections, bottom bar', '栏目（底部栏）', 'Bahagian, bar bawah'],
     'install.btn': ['Install app', '安装应用', 'Pasang aplikasi'],
+    'install.short': ['Install', '安装', 'Pasang'],
 
     /* ---------- tabs and bottom bar ---------- */
     'tab.overview': ['Crop', '作物', 'Tanaman'],
@@ -360,6 +361,24 @@
     'report.only': ['', '本报告仅提供英文版。', 'Laporan ini hanya tersedia dalam bahasa Inggeris.'],
     'report.loading': ['Loading report…', '正在加载报告…', 'Memuatkan laporan…'],
     'report.fail': ['The report could not be loaded. Check your connection and try again.', '无法加载报告。请检查网络连接后重试。', 'Laporan tidak dapat dimuatkan. Semak sambungan anda dan cuba lagi.'],
+
+    /* ---------- share ---------- */
+    'share.btn': ['Share', '分享', 'Kongsi'],
+    'share.title': ['Share this app', '分享此应用', 'Kongsi aplikasi ini'],
+    'share.what': ['The link opens the {tab} tab with {crop} selected.', '链接会打开“{tab}”页面，并选中{crop}。', 'Pautan ini membuka tab {tab} dengan {crop} dipilih.'],
+    'share.whatReport': ['The link opens the research report.', '链接会打开研究报告。', 'Pautan ini membuka laporan penyelidikan.'],
+    'share.scan': ['Scan with a phone camera to open it.', '用手机相机扫描即可打开。', 'Imbas dengan kamera telefon untuk membukanya.'],
+    'share.qrAria': ['QR code for the link', '链接的二维码', 'Kod QR untuk pautan'],
+    'share.qrFail': ['The QR code needs one online visit first.', '需要先联网一次才能显示二维码。', 'Kod QR perlu dibuka dalam talian sekali dahulu.'],
+    'share.link': ['Link', '链接', 'Pautan'],
+    'share.copy': ['Copy link', '复制链接', 'Salin pautan'],
+    'share.copied': ['Copied ✓', '已复制 ✓', 'Disalin ✓'],
+    'share.copyFail': ['Select the link and copy it', '请选中链接后复制', 'Pilih pautan dan salin'],
+    'share.more': ['More…', '更多…', 'Lagi…'],
+    'share.done': ['Done', '完成', 'Selesai'],
+    'share.message': ['Tropical fruit hormone charts: how hormones change through flowering, fruit set and ripening in 13 crops.',
+      '热带水果激素图表：13 种作物在开花、坐果和成熟阶段的激素变化。',
+      'Carta hormon buah tropika: bagaimana hormon berubah semasa pembungaan, pembentukan buah dan pemasakan bagi 13 tanaman.'],
 
     /* ---------- update toast ---------- */
     'toast.updated': ['App updated to the latest version.', '应用已更新到最新版本。', 'Aplikasi telah dikemas kini ke versi terkini.'],

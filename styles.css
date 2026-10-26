@@ -617,3 +617,44 @@ details.notice[open] > summary::after { content: "▴"; }
 .bottom-nav a span { text-align: center; line-height: 1.15; max-width: 100%; padding-inline: 2px; overflow-wrap: anywhere; }
 /* Chinese reads better slightly larger at the same pixel size, and without letter-spacing on caps-style labels. */
 :root[data-lang="zh"] .ct-group, :root[data-lang="zh"] .cmp-group, :root[data-lang="zh"] .chain li strong { letter-spacing: 0; }
+
+/* Share: an icon button in the top bar and a sheet with QR code, WhatsApp, copy and the phone's share menu. */
+.share-btn {
+  margin-left: auto; width: 40px; height: 40px; padding: 0; display: inline-grid; place-items: center; flex: none;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--fg); cursor: pointer;
+}
+.share-btn[hidden] { display: none; }
+.share-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.share-btn:not([hidden]) + .lang-btn { margin-left: 8px; }
+.share-sheet h2 { font-size: 18px; margin-bottom: 4px; }
+.share-sheet > .note { margin-bottom: 12px; }
+.share-fig { margin: 0 0 12px; display: grid; justify-items: center; gap: 6px; }
+.share-qr { width: 200px; height: 200px; display: grid; place-items: center; border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid var(--line); }
+.share-qr svg { width: 100%; height: 100%; display: block; }
+.share-fig figcaption { font-size: 14px; color: var(--muted); text-align: center; }
+.share-url {
+  width: 100%; box-sizing: border-box; min-height: 44px; padding: 8px 12px; margin-bottom: 10px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg); color: var(--fg); font: inherit; font-size: 14px; text-overflow: ellipsis;
+}
+.share-acts { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.share-act {
+  min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 4px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--fg); font: inherit; font-size: 13px; font-weight: 600;
+  text-decoration: none; text-align: center; cursor: pointer;
+}
+.share-act svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* WhatsApp's own green, darkened to keep white text readable. */
+.share-act.wa { background: #128c4a; border-color: #128c4a; color: #fff; }
+/* Narrow phones: short install label and no "Crop" prefix, so share, language and install fit beside the crop. */
+.ins-short { display: none; }
+@media (max-width: 480px) {
+  .ins-full { display: none; }
+  .ins-short { display: inline; }
+  .install { padding: 6px 12px; }
+}
+@media (max-width: 400px) {
+  .crop-chip .chip-label { display: none; }
+}
+@media (max-width: 360px) {
+  .bar .brand { display: none; }
+}
