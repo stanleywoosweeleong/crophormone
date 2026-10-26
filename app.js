@@ -3,22 +3,30 @@
   'use strict';
 
   const FILES = {
-    lifecycle: 'data/lifecycle_direction.csv',
+    evidence: 'data/hormone_evidence.csv',
+    regulators: 'data/regulators.csv',
     ripening: 'data/ripening_ethylene.csv',
     mangoLeaf: 'data/flowering_mango_leaf.csv',
     longan: 'data/flowering_longan.csv',
     pbz: 'data/flowering_pct_change.csv',
     fruitset: 'data/fruitset_fold.csv'
   };
-  const VIEWS = ['overview', 'ripening', 'flowering', 'fruitset'];
+  const VIEWS = ['overview', 'regulators', 'ripening', 'flowering', 'fruitset'];
   const STAGES = ['Flowering', 'Fruit set', 'Ripening'];
+  /* Every hormone class the app covers; "group" splits the five classic hormones from the others. */
   const HORMONES = [
-    {field: 'GA', short: 'GA', name: 'Gibberellin (GA)'},
-    {field: 'cytokinin', short: 'CK', name: 'Cytokinin'},
-    {field: 'ABA', short: 'ABA', name: 'Abscisic acid (ABA)'},
-    {field: 'IAA', short: 'IAA', name: 'Auxin (IAA)'},
-    {field: 'ethylene', short: 'Eth', name: 'Ethylene'}
+    {key: 'GA', name: 'Gibberellin (GA)', group: 'Classic hormones'},
+    {key: 'Cytokinin', name: 'Cytokinin', group: 'Classic hormones'},
+    {key: 'ABA', name: 'Abscisic acid (ABA)', group: 'Classic hormones'},
+    {key: 'IAA', name: 'Auxin (IAA)', group: 'Classic hormones'},
+    {key: 'Ethylene', name: 'Ethylene', group: 'Classic hormones'},
+    {key: 'JA', name: 'Jasmonates (JA)', group: 'Other hormones'},
+    {key: 'SA', name: 'Salicylic acid (SA)', group: 'Other hormones'},
+    {key: 'BR', name: 'Brassinosteroids (BR)', group: 'Other hormones'},
+    {key: 'Polyamines', name: 'Polyamines', group: 'Other hormones'},
+    {key: 'Strigolactones', name: 'Strigolactones', group: 'Other hormones'}
   ];
+  const HORMONE_KEYS = new Set(HORMONES.map(h => h.key));
   const DIRECTION = {
     'Up': {glyph: '▲', cls: 'up', word: 'Rises'},
     'Down': {glyph: '▼', cls: 'down', word: 'Falls'},
@@ -26,6 +34,8 @@
     'Low': {glyph: '▽', cls: 'low', word: 'Stays low'},
     'Mixed': {glyph: '◆', cls: 'mix', word: 'Mixed'},
     'Conflicting': {glyph: '◆', cls: 'mix', word: 'Conflicting'},
+    'Not a driver': {glyph: '○', cls: 'nod', word: 'Not a driver'},
+    'Applied': {glyph: '◇', cls: 'trt', word: 'Applied only'},
     'No data': {glyph: '·', cls: 'nd', word: 'No data'}
   };
   const VERIFY = {
@@ -40,7 +50,7 @@
 
   const data = {};
   const DEFAULT_CROP = 'Durian';
-  const state = {crop: DEFAULT_CROP, stage: 'Flowering', view: 'overview'};
+  const state = {crop: DEFAULT_CROP, stage: 'Flowering', view: 'overview', regCrop: DEFAULT_CROP, regStage: '', regMeasured: false};
   /* The default crop first, then the rest alphabetically. */
   const cropOrder = rows => [...new Set(rows.map(r => r.crop))]
     .sort((a, b) => (b === DEFAULT_CROP) - (a === DEFAULT_CROP) || a.localeCompare(b));
@@ -83,44 +93,102 @@
     drawView();
   }
 
-  /* ---------- overview: one crop at a time, chosen from a picker ---------- */
-  const stageRow = (rows, crop, s) => rows.find(x => x.crop === crop && x.stage === s);
-  const measuredStages = (rows, crop) => STAGES.filter(s => { const r = stageRow(rows, crop, s); return r && /measured/i.test(r.basis); }).length;
+  /* ---------- evidence lookups ---------- */
+  /* What a cell shows: the direction, or "Applied" when the hormone was only tested as a spray or dip. */
+  const shown = r => !r ? 'No data' : r.basis === 'Treatment only' ? 'Applied' : (DIRECTION[r.direction] ? r.direction : 'No data');
+  const isMeasured = r => !!r && /measured/i.test(r.basis) && r.basis !== 'Treatment only';
+  let evIndex = null;
+  function evidence() {
+    if (!data.evidence) return null;
+    if (!evIndex) {
+      evIndex = new Map();
+      data.evidence.forEach(r => { const k = r.crop + '|' + r.stage + '|' + r.hormone; if (!evIndex.has(k)) evIndex.set(k, r); });
+    }
+    return evIndex;
+  }
+  const cell = (crop, stage, key) => evidence().get(crop + '|' + stage + '|' + key);
+  const signals = (crop, stage) => data.evidence.filter(r => r.crop === crop && r.stage === stage && !HORMONE_KEYS.has(r.hormone) && r.basis !== 'No data');
+  const measuredStages = crop => STAGES.filter(s => HORMONES.some(h => isMeasured(cell(crop, s, h.key)))).length;
+  function coverage(crop) {
+    const c = {measured: 0, inferred: 0, applied: 0, none: 0};
+    STAGES.forEach(s => HORMONES.forEach(h => {
+      const r = cell(crop, s, h.key);
+      if (isMeasured(r)) c.measured++;
+      else if (r && r.basis === 'Inferred' && r.direction !== 'No data') c.inferred++;
+      else if (r && r.basis === 'Treatment only') c.applied++;
+      else c.none++;
+    }));
+    return c;
+  }
   const dots = n => el('span', {class: 'dots', 'aria-hidden': 'true'}, ...STAGES.map((s, i) => el('i', {class: i < n ? 'on' : ''})));
+  const SHORT = {up: 'Rises', peak: 'Peaks', down: 'Falls', low: 'Low', mix: 'Mixed', nod: 'Not a driver', trt: 'Applied', nd: '—'};
+  const verName = v => (VERIFY[v] ? VERIFY[v].name : '');
 
-  const SHORT = {up: 'Rises', peak: 'Peaks', down: 'Falls', low: 'Low', mix: 'Mixed', nd: '—'};
-  const basisClass = b => b === 'Measured' ? 'measured' : b === 'Partly measured' ? 'partly' : b === 'Inferred' ? 'inferred' : '';
+  /* ---------- overview: one crop at a time, chosen from a picker ---------- */
+  function badge(r) {
+    const v = shown(r), d = DIRECTION[v];
+    const inferred = !!r && r.basis === 'Inferred' && d.cls !== 'nd';
+    const word = v === 'Conflicting' ? 'Conflict' : SHORT[d.cls];
+    return el('span', {class: `c ${d.cls}${inferred ? ' inferred' : ''}`, title: d.word + (inferred ? ' (inferred)' : '')},
+      d.cls === 'nd' ? null : el('span', {'aria-hidden': 'true', text: d.glyph}), word);
+  }
+
+  function evidenceLine(name, r) {
+    const tag = [r.basis === 'Treatment only' ? 'Applied only' : r.basis, verName(r.verification)].filter(Boolean).join(' · ');
+    const value = r.value ? ` (${r.value}${r.units ? ' ' + r.units : ''}${r.tissue ? ', ' + r.tissue : ''})` : '';
+    return el('p', {}, el('strong', {text: name + ': '}), (r.note || '') + value, ' ',
+      el('span', {class: 'src'}, `${tag}${r.source ? ' · ' : ''}`, r.source ? safeLink(r.source, r.source_url) : null));
+  }
+
+  /* The evidence behind one stage: the shared note for the classic hormones, then each other hormone and signal. */
+  function stageEvidence(crop, stage) {
+    const parts = [el('h4', {text: stage})];
+    const byNote = new Map();
+    HORMONES.filter(h => h.group === 'Classic hormones').forEach(h => {
+      const r = cell(crop, stage, h.key);
+      if (!r || !r.note) return;
+      const entry = byNote.get(r.note) || {names: [], r};
+      entry.names.push(h.key);
+      byNote.set(r.note, entry);
+    });
+    byNote.forEach(({names, r}) => parts.push(byNote.size === 1 ? el('p', {}, el('strong', {text: 'Classic hormones: '}), r.note)
+      : evidenceLine(names.join(', '), r)));
+    const none = [];
+    HORMONES.filter(h => h.group === 'Other hormones').forEach(h => {
+      const r = cell(crop, stage, h.key);
+      if (!r || r.basis === 'No data') { none.push(h.key); return; }
+      parts.push(evidenceLine(h.name, r));
+    });
+    signals(crop, stage).forEach(r => parts.push(evidenceLine(r.hormone, r)));
+    if (none.length) parts.push(el('p', {class: 'none', text: `No study found for: ${none.join(', ')}.`}));
+    return el('section', {class: 'ev-stage'}, ...parts);
+  }
 
   /* The chosen crop: one compact table (hormones down, stages across), evidence folded away below it. */
-  function cropPanel(rows, crop) {
-    const byStage = STAGES.map(s => stageRow(rows, crop, s));
+  function cropPanel(crop) {
     const table = el('div', {class: 'ct', role: 'table', 'aria-label': `${crop}: hormone direction by stage`});
     table.append(el('div', {role: 'columnheader'}));
-    STAGES.forEach((s, i) => {
-      const basis = byStage[i] ? byStage[i].basis : 'No data';
-      table.append(el('div', {class: 'ct-stage', role: 'columnheader'},
-        el('span', {text: s}), el('span', {class: 'pill ' + basisClass(basis), text: basis.replace('Partly measured', 'Partly')})));
-    });
+    STAGES.forEach(s => table.append(el('div', {class: 'ct-stage', role: 'columnheader', text: s})));
+    let group = null;
     HORMONES.forEach(h => {
+      if (h.group !== group) { group = h.group; table.append(el('div', {class: 'ct-group', role: 'rowheader', text: group})); }
       table.append(el('div', {class: 'ct-h', role: 'rowheader', text: h.name}));
-      byStage.forEach((r, i) => {
-        const v = r ? r[h.field] : 'No data', d = dir(v);
-        const inferred = r && r.basis === 'Inferred' && d.cls !== 'nd';
-        table.append(el('div', {role: 'cell', 'aria-label': `${STAGES[i]}: ${d.word}${inferred ? ' (inferred)' : ''}`},
-          el('span', {class: `c ${d.cls}${inferred ? ' inferred' : ''}`, title: d.word},
-            d.cls === 'nd' ? null : el('span', {'aria-hidden': 'true', text: d.glyph}), SHORT[d.cls])));
+      STAGES.forEach(s => {
+        const r = cell(crop, s, h.key);
+        table.append(el('div', {role: 'cell', 'aria-label': `${h.name}, ${s}: ${DIRECTION[shown(r)].word}`}, badge(r)));
       });
     });
-    const evidence = el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}),
-      ...STAGES.map((s, i) => el('p', {}, el('strong', {text: s + ': '}), byStage[i] ? byStage[i].note : 'No data found.')));
-    return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, table, evidence);
+    const c = coverage(crop);
+    const summary = el('p', {class: 'cov'},
+      el('strong', {text: `${c.measured} of 30`}), ' hormone × stage cells measured or partly measured · ', `${c.inferred} inferred · ${c.applied} applied only · ${c.none} no data`);
+    const ev = el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}), ...STAGES.map(s => stageEvidence(crop, s)));
+    return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, summary, table, ev);
   }
 
   /* The picker: every crop as a compact tile in a sheet; choosing one closes it. */
   let picker = null;
   function openPicker() {
-    const rows = data.lifecycle;
-    if (!rows) return;
+    if (!evidence()) return;
     if (!picker) {
       picker = el('dialog', {class: 'sheet picker', 'aria-labelledby': 'picker-title'});
       picker.addEventListener('click', e => { if (e.target === picker) picker.close(); });
@@ -128,9 +196,9 @@
     }
     picker.replaceChildren(
       el('h2', {id: 'picker-title', text: 'Choose a crop'}),
-      el('p', {class: 'note', text: 'Dots show how many of the three stages have measurements.'}),
-      el('div', {class: 'tiles'}, ...cropOrder(rows).map(crop => {
-        const n = measuredStages(rows, crop);
+      el('p', {class: 'note', text: 'Dots show how many of the three stages have at least one measured hormone.'}),
+      el('div', {class: 'tiles'}, ...cropOrder(data.evidence).map(crop => {
+        const n = measuredStages(crop);
         return el('button', {
           type: 'button', class: 'tile', 'aria-pressed': String(crop === state.crop), 'aria-label': `${crop}, ${n} of 3 stages measured`,
           onclick: () => { picker.close(); selectCrop(crop); }
@@ -143,13 +211,12 @@
   }
 
   function drawCropCard() {
-    const rows = data.lifecycle;
-    if (rows === null) return failed('crop-detail');
-    if (!rows) return;
-    const crops = cropOrder(rows);
+    if (data.evidence === null) return failed('crop-detail');
+    if (!evidence()) return;
+    const crops = cropOrder(data.evidence);
     if (!crops.includes(state.crop)) state.crop = crops[0];
     const i = crops.indexOf(state.crop);
-    const n = measuredStages(rows, state.crop);
+    const n = measuredStages(state.crop);
     const step = d => selectCrop(crops[(i + d + crops.length) % crops.length]);
     document.getElementById('crop-bar').replaceChildren(
       el('button', {type: 'button', class: 'crop-pick', 'aria-haspopup': 'dialog', 'aria-label': `${state.crop}, ${n} of 3 stages measured. Change crop`, onclick: openPicker},
@@ -158,7 +225,7 @@
       el('span', {class: 'stepper'},
         el('button', {type: 'button', 'aria-label': `Previous crop: ${crops[(i - 1 + crops.length) % crops.length]}`, text: '‹', onclick: () => step(-1)}),
         el('button', {type: 'button', 'aria-label': `Next crop: ${crops[(i + 1) % crops.length]}`, text: '›', onclick: () => step(1)})));
-    document.getElementById('crop-detail').replaceChildren(cropPanel(rows, state.crop));
+    document.getElementById('crop-detail').replaceChildren(cropPanel(state.crop));
   }
 
   function selectCrop(crop, scroll) {
@@ -168,36 +235,86 @@
     if (scroll) document.getElementById('crop-card').scrollIntoView({behavior: 'smooth', block: 'start'});
   }
 
-  /* ---------- overview: map of all crops ---------- */
+  /* ---------- overview: compare all crops at one stage ---------- */
   function drawMatrix() {
     const box = document.getElementById('mx');
-    const rows = data.lifecycle;
-    if (rows === null) return failed('mx');
-    if (!rows) return;
+    if (data.evidence === null) return failed('mx');
+    if (!evidence()) return;
     document.querySelectorAll('#stage-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === state.stage)));
-    const crops = cropOrder(rows);
-    const by = new Map(rows.map(r => [r.crop + '|' + r.stage, r]));
+    const crops = cropOrder(data.evidence);
     /* One card per hormone; inside, crops grouped by direction, in this order. */
-    const ORDER = ['Up', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'No data'];
-    box.replaceChildren(...HORMONES.map(h => {
+    const ORDER = ['Up', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not a driver', 'Applied', 'No data'];
+    let group = null;
+    const cards = [];
+    HORMONES.forEach(h => {
+      if (h.group !== group) { group = h.group; cards.push(el('h3', {class: 'cmp-group', text: group})); }
       const groups = new Map(ORDER.map(k => [k, []]));
       crops.forEach(crop => {
-        const r = by.get(crop + '|' + state.stage);
-        const v = r && DIRECTION[r[h.field]] ? r[h.field] : 'No data';
-        groups.get(v).push({crop, inferred: !!r && r.basis === 'Inferred'});
+        const r = cell(crop, state.stage, h.key);
+        groups.get(shown(r)).push({crop, inferred: !!r && r.basis === 'Inferred'});
       });
+      const measured = crops.filter(crop => isMeasured(cell(crop, state.stage, h.key))).length;
       const lines = ORDER.filter(k => groups.get(k).length).map(k => {
         const d = DIRECTION[k];
         return el('div', {class: 'grp' + (k === 'No data' ? ' nd' : '')},
           el('span', {class: `c ${d.cls}`}, el('span', {'aria-hidden': 'true', text: d.glyph}), d.word),
+          k === 'Conflicting' ? el('span', {class: 'why', text: 'Studies disagree. Open the crop and read Evidence and sources for why.'}) : null,
+          k === 'Applied' ? el('span', {class: 'why', text: 'Tested as a spray or dip; the natural level was not measured.'}) : null,
+          k === 'Not a driver' ? el('span', {class: 'why', text: 'The level changes, but studies show it does not cause this stage.'}) : null,
           el('span', {class: 'names'}, ...groups.get(k).map(g => el('button', {
             type: 'button', class: 'name' + (g.inferred && k !== 'No data' ? ' inferred' : '') + (g.crop === state.crop ? ' on' : ''),
             'aria-label': `${g.crop}: ${d.word}${g.inferred ? ', inferred' : ''}. Open ${g.crop}`,
             text: g.crop, onclick: () => selectCrop(g.crop, true)
           }))));
       });
-      return el('article', {class: 'cmp-card'}, el('h3', {text: h.name}), ...lines);
-    }));
+      cards.push(el('article', {class: 'cmp-card'},
+        el('header', {}, el('h4', {text: h.name}), el('span', {class: 'cnt', text: `${measured} of ${crops.length} measured`})), ...lines));
+    });
+    box.replaceChildren(...cards);
+  }
+
+  /* ---------- regulators: cause and effect ---------- */
+  const EVIDENCE_ORDER = {'Hormones measured': 0, 'Effect only': 1, 'Practice': 2};
+  const missingText = t => !t || /^\s*(n\/a|none|unknown)?\s*$/i.test(t) || /^\s*not (retrieved|given|reported|stated|found|available)/i.test(t);
+  function chainStep(label, text, empty) {
+    const missing = missingText(text);
+    return el('li', {class: missing ? 'missing' : ''}, el('strong', {text: label}), el('span', {text: missing ? empty : text}));
+  }
+  function regulatorCard(r) {
+    const evCls = r.evidence === 'Hormones measured' ? 'measured' : r.evidence === 'Practice' ? 'practice' : 'effect';
+    const applied = [r.active_ingredient, r.timing, r.rate].filter(t => !missingText(t)).join(' · ');
+    return el('article', {class: 'reg'},
+      el('header', {},
+        el('h3', {text: r.regulator}),
+        el('span', {class: `act ${(r.action || '').toLowerCase()}`, text: `${r.action} ${r.target_hormone}`.trim()})),
+      el('p', {class: 'reg-meta'}, `${r.crop} · ${r.stage} `, el('span', {class: `ev-badge ${evCls}`, text: r.evidence})),
+      el('ol', {class: 'chain'},
+        chainStep('Applied', applied, 'Product details not reported in the sources we could read'),
+        chainStep('Aim', r.purpose, 'Not stated'),
+        chainStep('Hormone changes', r.hormone_changes, 'Hormones were not measured in this study'),
+        chainStep('What you see', r.visible_effect, 'Visible effect not reported in the sources we could read'),
+        missingText(r.side_effects) ? null : chainStep('Watch for', r.side_effects, '')),
+      el('details', {class: 'reg-more'}, el('summary', {text: 'Notes and source'}),
+        r.note ? el('p', {text: r.note}) : null,
+        el('p', {class: 'src'}, `${verName(r.verification) || r.verification}${r.source ? ' · ' : ''}`, r.source ? safeLink(r.source, r.source_url) : null)));
+  }
+  function drawRegulators() {
+    const list = document.getElementById('reg-list');
+    if (data.regulators === null) return failed('reg-list');
+    if (!data.regulators) return;
+    const cropSel = document.getElementById('reg-crop');
+    if (!cropSel.options.length) {
+      cropSel.append(el('option', {value: '', text: 'All crops'}), ...cropOrder(data.regulators).map(c => el('option', {value: c, text: c})));
+      cropSel.value = state.regCrop;
+    }
+    document.querySelectorAll('#reg-stage button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === state.regStage)));
+    const rows = data.regulators
+      .filter(r => (!state.regCrop || r.crop === state.regCrop) && (!state.regStage || r.stage === state.regStage) && (!state.regMeasured || r.evidence === 'Hormones measured'))
+      .sort((a, b) => (EVIDENCE_ORDER[a.evidence] ?? 3) - (EVIDENCE_ORDER[b.evidence] ?? 3) || a.regulator.localeCompare(b.regulator));
+    document.getElementById('reg-count').textContent =
+      `${rows.length} ${rows.length === 1 ? 'entry' : 'entries'}${state.regCrop ? ' for ' + state.regCrop : ''}. Chains with measured hormone changes come first.`;
+    list.replaceChildren(...(rows.length ? rows.map(regulatorCard)
+      : [el('p', {class: 'none', text: 'No regulator studies found for this choice. Try All crops or another stage.'})]));
   }
 
   /* ---------- charts ---------- */
@@ -398,6 +515,7 @@
   function drawView() {
     if (typeof d3 === 'undefined') return;
     if (state.view === 'overview') { drawCropCard(); drawMatrix(); }
+    if (state.view === 'regulators') drawRegulators();
     if (state.view === 'ripening') drawRipening();
     if (state.view === 'flowering') { drawLeaf(); drawLongan(); drawPbz(); }
     if (state.view === 'fruitset') drawFold();
@@ -418,6 +536,9 @@
       return el('span', {}, sw, v.name);
     }));
     document.querySelectorAll('#stage-seg button').forEach(b => b.addEventListener('click', () => { state.stage = b.dataset.stage; drawMatrix(); }));
+    document.querySelectorAll('#reg-stage button').forEach(b => b.addEventListener('click', () => { state.regStage = b.dataset.stage; drawRegulators(); }));
+    document.getElementById('reg-crop').addEventListener('change', e => { state.regCrop = e.target.value; drawRegulators(); });
+    document.getElementById('reg-measured').addEventListener('change', e => { state.regMeasured = e.target.checked; drawRegulators(); });
     window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
     let w = window.innerWidth, timer;
     window.addEventListener('resize', () => {

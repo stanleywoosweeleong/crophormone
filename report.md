@@ -285,3 +285,69 @@ These DOIs are **unverified** and should be checked before citing:
 The record is lopsided. Postharvest ethylene is easy to measure non-destructively by GC, so it is well quantified. Endogenous GA, cytokinin, ABA and IAA in field-grown buds and fruitlets need destructive sampling and mass spectrometry, so they are poorly quantified, and most of what exists predates modern LC-MS/MS. As a result, the textbook flowering model for tropical fruit trees (GA down, cytokinin up, ABA up) is supported mostly by direction-of-change data and inhibitor experiments. The one LC-MS dataset that tests it directly in longan contradicts it on GA. Any chart that places values from different studies on one axis will be dominated by method artefacts, not biology. The defensible comparisons are within-study series (Shivashankara, Susawaengsup, Chomba, Tongdee, Bron & Jacomino) and normalized relative-change plots.
 
 The most valuable next steps are targeted, not broad. Retrieving full-text tables from Upreti 2013, Burondkar 2016, Chen 1991, Hegele 2010, Capelli 2021, Ma 2019 and the Shu 2026 supplement would roughly double the chartable absolute values. Digitising figures in Li et al. 2017 (lemon) and Olivares 2022 (avocado) would add more. Durian, mangosteen and rambutan need original LC-MS/MS work across the annual cycle; for these economically important Southeast Asian crops, no flowering or fruit-set hormone concentration has been published in any source this search could reach.
+
+## Coverage of every hormone class
+
+The app covers ten hormone classes for each of the 13 crops at flowering, fruit set and ripening (390 cells). Each cell is labelled as measured (or partly measured), inferred from the fruit type, applied only (tested as a spray or dip, natural level not measured), or no data. Gaps are shown as gaps rather than left out.
+
+| Hormone | Measured or partly | Inferred | Applied only | No data |
+|---|---|---|---|---|
+| GA | 21 | 12 | 0 | 6 |
+| Cytokinin | 20 | 11 | 0 | 8 |
+| ABA | 22 | 8 | 0 | 9 |
+| IAA | 19 | 11 | 0 | 9 |
+| Ethylene | 18 | 6 | 0 | 15 |
+| JA | 7 | 0 | 6 | 26 |
+| SA | 6 | 0 | 9 | 24 |
+| BR | 1 | 0 | 4 | 34 |
+| Polyamines | 12 | 0 | 2 | 25 |
+| Strigolactones | 1 | 0 | 1 | 37 |
+
+| Crop | Measured or partly (of 30) | Inferred | Applied only | No data |
+|---|---|---|---|---|
+| Durian | 8 | 5 | 0 | 17 |
+| Avocado | 12 | 1 | 0 | 17 |
+| Banana | 6 | 3 | 2 | 19 |
+| Citrus | 18 | 0 | 3 | 9 |
+| Guava | 6 | 5 | 2 | 17 |
+| Litchi | 13 | 0 | 4 | 13 |
+| Longan | 12 | 5 | 0 | 13 |
+| Mango | 21 | 0 | 4 | 5 |
+| Mangosteen | 5 | 7 | 2 | 16 |
+| Papaya | 6 | 5 | 2 | 17 |
+| Passion fruit | 5 | 5 | 0 | 20 |
+| Pineapple | 10 | 3 | 2 | 15 |
+| Rambutan | 5 | 9 | 1 | 15 |
+
+Other signals with crop-specific evidence, listed under each crop's evidence: Florigen (FT) (8), Melatonin (7), Nitric oxide (3), Peptide hormones (1), ROS / H2O2 (1). Florigen rows are gene-expression levels, not hormone levels.
+
+**Main gaps.** Strigolactones and brassinosteroids have almost no endogenous measurements in any of these crops. Jasmonates and salicylic acid are measured mainly in mango, citrus, avocado and longan; elsewhere they appear as postharvest sprays or dips. Durian, mangosteen and rambutan have the least data for every class beyond the classic five.
+
+## Resolved conflicts
+
+Two cells were marked Conflicting because studies disagreed. Both were checked against the primary literature:
+
+- **Mango, flowering, ethylene: not a driver.** In Florida, ethylene stayed at basal levels in buds and leaves, and ethephon raised it without causing flowering (Davenport & Núñez-Elisea 1991). In the Philippines, blocking ethylene did not stop KNO3-induced flowering (Protacio 2003, 2009). Rises reported in India and the Philippines go along with developing flower buds, so they are a consequence rather than the cause.
+- **Longan, flowering after KClO3, gibberellin: falls** (moderate confidence). Two labs using bioassay and immunoassay found GA down and cytokinin up in shoot tips and buds (Wangsin & Pankasemsuk 2005; Hegele et al. 2010; Huang et al. 2021 review). One LC-MS study (Susawaengsup 2011) found GAs rising in week 1, but its other hormones also disagree with every other lab.
+
+## Commercial regulators
+
+The Regulators view lists 116 product × crop entries: 42 with hormone changes measured after treatment, 61 reporting only the visible effect, and 13 from label or extension guidance. Each entry follows the chain product → hormone it boosts or blocks → measured hormone changes → visible effect → side effects.
+
+| Crop | Entries | With hormones measured |
+|---|---|---|
+| Durian | 4 | 1 |
+| Avocado | 8 | 1 |
+| Banana | 6 | 1 |
+| Citrus | 19 | 7 |
+| Guava | 8 | 1 |
+| Litchi | 14 | 5 |
+| Longan | 6 | 3 |
+| Mango | 28 | 17 |
+| Mangosteen | 4 | 2 |
+| Papaya | 2 | 1 |
+| Passion fruit | 3 | 1 |
+| Pineapple | 9 | 1 |
+| Rambutan | 5 | 1 |
+
+No study measured fruitlet or abscission-zone hormones after the common anti-drop sprays (NAA, 2,4-D, AVG, CPPU) in these crops; only their visible effects are reported. Rates and timings in the app come from the cited studies and are not recommendations; product registration differs by country.

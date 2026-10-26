@@ -16,9 +16,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=bcc4c7bb40">
+<link rel="stylesheet" href="styles.css?v=afd80e3ff8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
-<script src="app.js?v=a7199263bd" defer></script>
+<script src="app.js?v=d36f5f07f8" defer></script>
 <script src="update.js?v=4b38a14d43" defer></script>
 <script src="install.js?v=2e7b7407fd" defer></script>
 </head>
@@ -28,6 +28,7 @@
     <a class="brand" href="#overview"><img src="icons/icon-192.png" alt="" width="28" height="28"><span>Fruit hormones</span></a>
     <nav class="tabs" aria-label="Sections">
       <a href="#overview">Overview</a>
+      <a href="#regulators">Regulators</a>
       <a href="#ripening">Ripening</a>
       <a href="#flowering">Flowering</a>
       <a href="#fruitset">Fruit set</a>
@@ -40,11 +41,11 @@
 <main>
   <section id="view-overview" class="view" aria-labelledby="overview-title">
     <h1 id="overview-title">Tropical fruit hormone charts</h1>
-    <p class="lead">Buds lose gibberellin and gain cytokinin and ABA before flowering. Young fruit that drop show rising ABA and ethylene. At ripening, climacteric fruits peak in ethylene and non-climacteric fruits rely on rising ABA. Most crops have only the direction of change, not measured levels.</p>
+    <p class="lead">Ten hormone classes for 13 crops at flowering, fruit set and ripening: the five classic hormones plus jasmonates, salicylic acid, brassinosteroids, polyamines and strigolactones. Every cell says whether it was measured, inferred, only tested as a spray, or has no study yet, so nothing is hidden.</p>
 
     <div class="card" id="crop-card">
       <h2>Crops through the growth cycle</h2>
-      <p class="note">How each hormone changes at flowering, fruit set and ripening. Tap the crop name to choose another, or step through with the arrows. Dashed marks are inferred.</p>
+      <p class="note">Tap the crop name to choose another, or step through with the arrows. Dashed marks are inferred from the fruit type, not measured in that crop. "Applied" means the hormone was only tested as a spray or dip.</p>
       <div class="crop-bar" id="crop-bar"></div>
       <div id="crop-detail"><div class="loading"></div></div>
     </div>
@@ -58,6 +59,41 @@
       </div>
       <p class="note">For each hormone, crops are grouped by what happens at this stage. Dashed names are inferred, not measured in that crop. Tap a crop to open it above.</p>
       <div id="mx" class="cmp"><div class="loading"></div></div>
+    </div>
+  </section>
+
+  <section id="view-regulators" class="view" aria-labelledby="regulators-title" hidden>
+    <h1 id="regulators-title">Regulators</h1>
+    <p class="lead">Growers boost or block hormones with sprays, drenches and storage treatments. Each card follows the chain from product to hormone to what you see on the tree or fruit, and says how strong the evidence is.</p>
+
+    <div class="card">
+      <h2>Boosters and blockers</h2>
+      <p class="note">Most products work in opposing pairs. Choose the side that moves the tree where you want it.</p>
+      <ul class="pairs">
+        <li><span class="ph">Gibberellin</span><span><b>Boost:</b> GA₃ sprays (fruit set, delaying flowering)</span><span><b>Block:</b> paclobutrazol, uniconazole, prohexadione-calcium (forcing flowering, curbing flush)</span></li>
+        <li><span class="ph">Ethylene</span><span><b>Boost:</b> ethephon, ethylene gas (pineapple forcing, ripening, degreening)</span><span><b>Block:</b> 1-MCP stops its action, AVG stops its production, permanganate absorbs it (shelf life, less drop)</span></li>
+        <li><span class="ph">Auxin</span><span><b>Boost:</b> NAA, 2,4-D, 4-CPA (less fruit drop, bigger fruit)</span><span><b>Block:</b> TIBA (research only); ethylene lowers auxin flow and causes drop</span></li>
+        <li><span class="ph">Cytokinin</span><span><b>Boost:</b> CPPU, 6-BA (fruit set and size); KNO₃ acts partly through cytokinin</span><span><b>Opposed by:</b> auxin at the shoot tip</span></li>
+        <li><span class="ph">ABA</span><span><b>Boost:</b> S-ABA (peel colour); water stress and girdling raise it</span><span><b>Opposed by:</b> gibberellin (growth vs rest)</span></li>
+        <li><span class="ph">Others</span><span><b>Boost:</b> MeJA, salicylic acid, brassinolide, putrescine, melatonin (colour, chilling and browning control, fruit set)</span><span><b>Block:</b> none in commercial use</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Cause and effect by crop</h2>
+      <div class="reg-filters">
+        <label class="field"><span>Crop</span><select id="reg-crop"></select></label>
+        <div class="seg" id="reg-stage" role="group" aria-label="Stage">
+          <button type="button" data-stage="">All</button>
+          <button type="button" data-stage="Flowering">Flowering</button>
+          <button type="button" data-stage="Fruit set">Fruit set</button>
+          <button type="button" data-stage="Ripening">Ripening</button>
+        </div>
+        <label class="check"><input type="checkbox" id="reg-measured"> Only chains with measured hormone changes</label>
+      </div>
+      <p class="note" id="reg-count"></p>
+      <div id="reg-list" class="reg-list"><div class="loading"></div></div>
+      <p class="note">Rates and timings are from the cited studies, not recommendations. Product registration differs by country: check the local label before use.</p>
     </div>
   </section>
 
@@ -119,6 +155,7 @@
 
 <nav class="bottom-nav" aria-label="Sections">
   <a href="#overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</a>
+  <a href="#regulators"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/><path d="M7.5 15h9"/></svg>Regulators</a>
   <a href="#ripening"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c-4 0-7 3-7 7s3 7 7 7 7-3 7-7-3-7-7-7z"/><path d="M12 7c0-2 1-4 4-4"/></svg>Ripening</a>
   <a href="#flowering"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="2.5"/><path d="M12 7.5c0-3 3-3 3 0M12 7.5c0-3-3-3-3 0M14.5 10c3 0 3 3 0 3M9.5 10c-3 0-3 3 0 3M12 12.5v8.5"/></svg>Flowering</a>
   <a href="#fruitset"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><circle cx="16" cy="14" r="3"/><path d="M8 11c0-3 2-6 6-7M16 11c0-2-1-4-2-7"/></svg>Fruit set</a>

@@ -6,9 +6,11 @@ Live site: https://stanleywoosweeleong.github.io/crophormone/ (served by GitHub 
 
 ## Files
 
-- `index.html`, `styles.css`, `app.js` – the app: Overview, Ripening, Flowering and Fruit set views
+- `index.html`, `styles.css`, `app.js` – the app: Overview, Regulators, Ripening, Flowering and Fruit set views
 - `report.html` – renders `report.md`, the full research report with gaps, conflicts and DOI status
-- `data/*.csv` – the values behind each chart, with verification level and source for every row
+- `data/hormone_evidence.csv` – one row per crop × stage × hormone for ten hormone classes (GA, cytokinin, ABA, IAA, ethylene, JA, SA, brassinosteroids, polyamines, strigolactones), plus other signals such as florigen and melatonin; `basis` is Measured, Partly measured, Inferred, Treatment only or No data
+- `data/regulators.csv` – commercial regulators and treatments: product, the hormone it boosts or blocks, measured hormone changes, visible effect, side effects and evidence type
+- `data/*.csv` (others) – the values behind each chart, with verification level and source for every row
 - `manifest.webmanifest`, `sw.js`, `update.js`, `install.js`, `icons/` – install, offline support and update notices
 - `.nojekyll` – serve files as they are, without a Jekyll build
 - `tools/stamp_assets.py` – adds a content fingerprint to each script and stylesheet link (`app.js?v=…`)
@@ -19,4 +21,4 @@ Before committing a change to `styles.css`, `app.js`, `update.js` or `install.js
 
 ## Verification levels
 
-**FT** full text read, **ABS** abstract only, **SEC** quoted by a review or guide, **SNIP** search snippet only. Rows marked "Inferred" in `lifecycle_direction.csv` come from the crop's fruit type or general tree physiology, not from measurements in that crop.
+**FT** full text read, **ABS** abstract only, **SEC** quoted by a review or guide, **SNIP** search snippet only. Rows marked "Inferred" in `hormone_evidence.csv` come from the crop's fruit type or general tree physiology, not from measurements in that crop.
