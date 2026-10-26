@@ -16,9 +16,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=65f36e751d">
+<link rel="stylesheet" href="styles.css?v=a892a692db">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" integrity="sha512-M7nHCiNUOwFt6Us3r8alutZLm9qMt4s9951uo8jqO4UwJ1hziseL6O3ndFyigx6+LREfZqnhHxYjKRJ8ZQ69DQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-<script src="app.js?v=a190b55a00" defer></script>
+<script src="app.js?v=8fc61bb2db" defer></script>
 <script src="update.js?v=2aedf4b52a" defer></script>
 <script src="install.js?v=69c5497517" defer></script>
 </head>
@@ -160,7 +160,7 @@
     </div>
     <div class="card">
       <h2>Fold change: all crops with data</h2>
-      <p class="note">Times higher, log scale from 1× (no change). Colour shows how the value was checked.</p>
+      <p class="note">Fold change: how many times higher the hormone was than in the comparison (untreated fruit or an earlier stage). 2× means double, 10× ten times as much, 1× no change. Log scale, so each step to the right multiplies. Colour shows how the value was checked.</p>
       <p class="crop-note" id="fold-crop-note" hidden></p>
       <div class="chart" id="fold-chart"><div class="loading"></div></div>
       <div class="readout" id="fold-readout" aria-live="polite"><span class="hint">Tap a row for its details and source.</span></div>

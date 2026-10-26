@@ -414,9 +414,11 @@
       if (limits.length) {
         parts.push(el('p', {}, el('strong', {text: `Fruit residue limits for ${r.crop}:`})));
         parts.push(el('ul', {class: 'mrl'}, ...limits.map(m => el('li', {},
-          `${m.market}: `, el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : 'see note'}),
-          `${m.crop && !/^all/i.test(m.crop) ? ` (${m.crop})` : ''}${m.limit_type ? ' · ' + m.limit_type : ''}${m.measured_fruit_residues ? ' · measured: ' + m.measured_fruit_residues : ''} `,
-          el('span', {class: 'src'}, cite(m.source || 'source', firstUrl(m.source_url), m.doi))))));
+          `${m.market}: `, el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : m.note ? 'see note' : 'no value found'}),
+          `${m.crop && !/^all/i.test(m.crop) ? ` (${m.crop})` : ''}${m.limit_type ? ' · ' + m.limit_type : ''}${m.measured_fruit_residues ? ' · measured: ' + m.measured_fruit_residues : ''}`,
+          /* The note carries caveats such as a superseded or unchecked limit, so it is shown with every value. */
+          m.note ? el('span', {class: 'mrl-note', text: m.note}) : null,
+          el('span', {class: 'src mrl-src'}, `${verName(m.verification) || m.verification}${m.verification ? ' · ' : ''}`, cite(m.source || 'source', firstUrl(m.source_url), m.doi))))));
       } else {
         parts.push(el('p', {class: 'none', text: `No fruit residue limit found for ${r.crop} in the markets checked (China, US, EU, Codex, Japan). Where no limit is set, many markets apply a default of 0.01 mg/kg: check your export market.`}));
       }

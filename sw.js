@@ -1,9 +1,12 @@
 /* Offline support and update detection.
    Changes to app or data files are found by fingerprinting their contents, so no version number needs bumping. */
-const APP_CACHE = 'app-v1';
-/* cdn-v2: v1 could hold an unreadable (opaque) error response, so it is dropped on activate. */
-const CDN_CACHE = 'cdn-v2';
-const META_CACHE = 'meta-v1';
+/* Cache storage is shared by every site on stanleywoosweeleong.github.io, so this app's caches carry its own prefix
+   and only those (plus the unprefixed names this app used before) are ever deleted. */
+const PREFIX = 'crophormone-';
+const APP_CACHE = PREFIX + 'app-v1';
+const CDN_CACHE = PREFIX + 'cdn-v1';
+const META_CACHE = PREFIX + 'meta-v1';
+const OLD_CACHES = ['app-v1', 'cdn-v1', 'cdn-v2', 'meta-v1'];
 const APP_FILES = [
   './', 'index.html', 'styles.css', 'app.js', 'update.js', 'install.js', 'report.html', 'report.md', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
@@ -13,16 +16,25 @@ const APP_FILES = [
 /* Files whose contents decide whether the app has changed. */
 const WATCHED = APP_FILES.filter(f => f !== './' && !f.startsWith('icons/'));
 const CDN_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
+/* The chart library is stored at install, so the app works offline from the second launch even if the browser's own
+   cache has dropped it. Kept in step with the script tag in index.html. */
+const CDN_FILES = ['https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js'];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(APP_CACHE).then(c => c.addAll(APP_FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(Promise.all([
+    caches.open(APP_CACHE).then(c => c.addAll(APP_FILES)),
+    /* Best effort: a CDN hiccup must not stop the app files from installing; the fetch handler stores it later. */
+    caches.open(CDN_CACHE).then(c => c.addAll(CDN_FILES.map(u => new Request(u, {mode: 'cors', credentials: 'omit'})))).catch(() => {})
+  ]).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {
   const keep = [APP_CACHE, CDN_CACHE, META_CACHE];
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => !keep.includes(k)).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys
+        .filter(k => (k.startsWith(PREFIX) && !keep.includes(k)) || OLD_CACHES.includes(k))
+        .map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -37,10 +49,14 @@ async function networkFirst(event) {
     .then(hit => hit || (request.mode === 'navigate' ? cache.match('index.html') : undefined));
   /* no-cache: revalidate with the server rather than trusting the browser's HTTP cache (Pages caches for 10 minutes).
      A new Request from the URL, because a page navigation request can't be re-sent with changed options. */
-  const network = fetch(new Request(request.url, {cache: 'no-cache', credentials: 'same-origin'})).then(response => {
+  const network = fetch(new Request(request.url, {cache: 'no-cache', credentials: 'same-origin'})).then(async response => {
     /* Store under the address without ?v=…, so each file keeps one offline copy whatever its fingerprint. */
-    if (response.ok) cache.put(request.url.split('?')[0], response.clone()).catch(() => {});
-    return response;
+    if (response.ok) {
+      cache.put(request.url.split('?')[0], response.clone()).catch(() => {});
+      return response;
+    }
+    /* A server error (404, 503…) must not replace a good offline copy. */
+    return (await cachedCopy()) || response;
   });
   event.waitUntil(network.catch(() => {}));
   let timer;

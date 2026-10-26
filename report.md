@@ -292,10 +292,10 @@ The app covers ten hormone classes for each of the 13 crops at flowering, fruit 
 
 | Hormone | Measured or partly | Inferred | Applied only | No data |
 |---|---|---|---|---|
-| GA | 21 | 12 | 0 | 6 |
-| Cytokinin | 20 | 11 | 0 | 8 |
-| ABA | 22 | 8 | 0 | 9 |
-| IAA | 19 | 11 | 0 | 9 |
+| GA | 10 | 23 | 0 | 6 |
+| Cytokinin | 9 | 22 | 0 | 8 |
+| ABA | 15 | 15 | 0 | 9 |
+| IAA | 9 | 21 | 0 | 9 |
 | Ethylene | 18 | 6 | 0 | 15 |
 | JA | 7 | 0 | 6 | 26 |
 | SA | 6 | 0 | 9 | 24 |
@@ -305,19 +305,19 @@ The app covers ten hormone classes for each of the 13 crops at flowering, fruit 
 
 | Crop | Measured or partly (of 30) | Inferred | Applied only | No data |
 |---|---|---|---|---|
-| Durian | 8 | 5 | 0 | 17 |
-| Avocado | 12 | 1 | 0 | 17 |
-| Banana | 6 | 3 | 2 | 19 |
-| Citrus | 18 | 0 | 3 | 9 |
-| Guava | 6 | 5 | 2 | 17 |
-| Litchi | 13 | 0 | 4 | 13 |
+| Durian | 4 | 9 | 0 | 17 |
+| Avocado | 8 | 5 | 0 | 17 |
+| Banana | 3 | 6 | 2 | 19 |
+| Citrus | 16 | 2 | 3 | 9 |
+| Guava | 2 | 9 | 2 | 17 |
+| Litchi | 10 | 3 | 4 | 13 |
 | Longan | 12 | 5 | 0 | 13 |
 | Mango | 21 | 0 | 4 | 5 |
-| Mangosteen | 5 | 7 | 2 | 16 |
-| Papaya | 6 | 5 | 2 | 17 |
-| Passion fruit | 5 | 5 | 0 | 20 |
-| Pineapple | 10 | 3 | 2 | 15 |
-| Rambutan | 5 | 9 | 1 | 15 |
+| Mangosteen | 1 | 11 | 2 | 16 |
+| Papaya | 2 | 9 | 2 | 17 |
+| Passion fruit | 1 | 9 | 0 | 20 |
+| Pineapple | 7 | 6 | 2 | 15 |
+| Rambutan | 1 | 13 | 1 | 15 |
 
 Other signals with crop-specific evidence, listed under each crop's evidence: Florigen (FT) (8), Melatonin (7), Nitric oxide (3), Peptide hormones (1), ROS / H2O2 (1). Florigen rows are gene-expression levels, not hormone levels.
 

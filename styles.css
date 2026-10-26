@@ -426,6 +426,8 @@ details.grp.nd .names { margin-top: 6px; }
 .res p, .res li { margin: 4px 0 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
 .res p strong, .res li strong { color: var(--fg); }
 .res ul.mrl { margin: 4px 0 0; padding-left: 18px; }
+.res ul.mrl li { margin-bottom: 6px; }
+.mrl-note, .mrl-src { display: block; font-size: 13px; color: var(--muted); }
 .persist { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 1px 9px; white-space: nowrap; border: 1px solid currentColor; }
 .persist.high { color: var(--bad); }
 .persist.mid { color: var(--warn); }
