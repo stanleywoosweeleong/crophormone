@@ -156,7 +156,7 @@
 
   /* The evidence behind one stage: the shared note for the classic hormones, then each other hormone and signal. */
   function stageEvidence(crop, stage) {
-    const parts = [el('h4', {text: stage})];
+    const parts = [el('h3', {text: stage})];
     const byNote = new Map();
     HORMONES.filter(h => h.group === 'Classic hormones').forEach(h => {
       const r = cell(crop, stage, h.key);
@@ -181,18 +181,17 @@
   /* The chosen crop: one compact table (hormones down, stages across), evidence folded away below it. */
   function cropPanel(crop) {
     const table = el('div', {class: 'ct', role: 'table', 'aria-label': `${crop}: hormone direction by stage`});
-    table.append(el('div', {role: 'columnheader'}));
-    STAGES.forEach(s => table.append(el('div', {class: 'ct-stage', role: 'columnheader', text: s})));
+    const row = (...cells) => el('div', {class: 'ct-row', role: 'row'}, ...cells);
+    table.append(row(el('div', {role: 'columnheader'}), ...STAGES.map(s => el('div', {class: 'ct-stage', role: 'columnheader', text: s}))));
     let group = null;
     /* Hormones with no study at any stage are listed in one line under the table instead of three dashes each. */
     const empty = HORMONES.filter(h => STAGES.every(s => shown(cell(crop, s, h.key)) === 'No data'));
     HORMONES.filter(h => !empty.includes(h)).forEach(h => {
-      if (h.group !== group) { group = h.group; table.append(el('div', {class: 'ct-group', role: 'rowheader', text: group})); }
-      table.append(el('div', {class: 'ct-h', role: 'rowheader', text: h.name}));
-      STAGES.forEach(s => {
+      if (h.group !== group) { group = h.group; table.append(row(el('div', {class: 'ct-group', role: 'rowheader', text: group}))); }
+      table.append(row(el('div', {class: 'ct-h', role: 'rowheader', text: h.name}), ...STAGES.map(s => {
         const r = cell(crop, s, h.key);
-        table.append(el('div', {role: 'cell', 'aria-label': `${h.name}, ${s}: ${DIRECTION[shown(r)].word}`}, badge(r)));
-      });
+        return el('div', {role: 'cell', 'aria-label': `${h.name}, ${s}: ${DIRECTION[shown(r)].word}`}, badge(r));
+      })));
     });
     const c = coverage(crop);
     const summary = el('p', {class: 'cov'},
@@ -344,7 +343,7 @@
         el('summary', {},
           el('span', {class: 'cmp-name', text: h.name}),
           el('span', {class: 'cmp-mine'}, `${state.crop}: `, badge(mine)),
-          el('span', {class: 'cmp-counts', 'aria-label': `${measured} of ${crops.length} crops measured`}, ...counts,
+          el('span', {class: 'cmp-counts', role: 'img', 'aria-label': `${measured} of ${crops.length} crops measured`}, ...counts,
             noData ? el('span', {class: 'cnt', text: `${noData} no data`}) : null)),
         ...lines));
     });
@@ -431,6 +430,7 @@
     : el('span', {class: `persist ${persistClass(r.persistence_class)}`, text: PERSIST_LABEL[persistClass(r.persistence_class)]});
   function drawSoilTable() {
     const box = document.getElementById('soil-table');
+    if (data.soil === null) return failed('soil-table');
     if (!box || !data.soil || box.dataset.drawn) return;
     box.dataset.drawn = '1';
     /* Only products that appear in a regulator entry; others stay in the data file but are not listed. */
@@ -527,7 +527,12 @@
   function svgFor(id, W, H) {
     const box = document.getElementById(id);
     box.replaceChildren();
-    return d3.select(box).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', W).attr('height', H).attr('role', 'img');
+    const ro = document.getElementById(id.replace('-chart', '-readout'));
+    if (ro) {
+      if (!ro.dataset.hint) ro.dataset.hint = ro.textContent.trim();
+      ro.replaceChildren(el('span', {class: 'hint', text: ro.dataset.hint}));
+    }
+    return d3.select(box).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', W).attr('height', H).attr('role', 'group');
   }
   function muted(sel) { return sel.style('fill', 'var(--muted)'); }
 
@@ -735,16 +740,18 @@
     });
   }
 
+  /* "Mango" must not match "Mangosteen". */
+  const sameCrop = name => name === state.crop || name.startsWith(state.crop + ' ');
   function drawFold() {
     const rows = data.fruitset;
     if (rows === null) return failed('fold-chart');
     if (!rows) return;
     const list = rows.map(r => ({...r, f: +r.fold})).sort((a, b) => b.f - a.f);
     const value = d => (d.qualifier ? d.qualifier + ' ' : '') + fmt(d.f) + '×';
-    const foldHas = list.some(d => d.crop.startsWith(state.crop));
+    const foldHas = list.some(d => sameCrop(d.crop));
     cropNote('fold-crop-note', foldHas, 'fruit-set fold changes');
     rowChart('fold-chart', list, {
-      isSelected: d => d.crop.startsWith(state.crop),
+      isSelected: d => sameCrop(d.crop),
       title: 'Fold change in hormones around fruit set',
       scale: r => d3.scaleLog([1, 30], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, [1, 2, 5, 10, 20], y0, y1, t => t + '×', 1),
@@ -811,7 +818,7 @@
     document.addEventListener('click', e => { if (!e.target.closest('#crop-panel, #crop-chip')) closeCropMenu(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.listOpen) { closeCropMenu(); document.getElementById('crop-chip').focus(); } });
     document.getElementById('reg-measured').addEventListener('change', e => { state.regMeasured = e.target.checked; state.regShown = 0; drawRegulators(); });
-    window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
+    window.addEventListener('hashchange', () => { closeCropMenu(); route(); window.scrollTo(0, 0); });
     let w = window.innerWidth, timer;
     window.addEventListener('resize', () => {
       clearTimeout(timer);
@@ -820,7 +827,7 @@
     route();
     if (typeof d3 === 'undefined') {
       /* The chart library comes from a CDN; the service worker keeps a copy after the first online visit. */
-      document.querySelectorAll('.chart, #mx').forEach(n => n.replaceChildren(el('div', {class: 'fail', text: 'Charts need one online visit before they work offline'})));
+      document.querySelectorAll('.loading').forEach(n => n.replaceWith(el('div', {class: 'fail', text: 'Needs one online visit before it works offline. Connect and reload.'})));
       return;
     }
     load().then(drawView);

@@ -1,6 +1,6 @@
-/* The "Install app" button. Only Chrome and Edge offer an install prompt the page can open, and only once
-   they decide the page qualifies; everywhere else (iPhone, iPad, Firefox, Safari on Mac) the button shows
-   the steps for that browser instead. Hidden when the app is already running installed. */
+/* The "Install app" button. Browsers with an install prompt the page can open (Chrome, Edge, Samsung Internet)
+   show the button only once they offer it, so it stays hidden when the app is already installed; everywhere else
+   (iPhone, iPad, Firefox, Safari on Mac) the button shows the steps for that browser instead. */
 (function () {
   'use strict';
   const button = document.getElementById('install');
@@ -8,23 +8,27 @@
 
   const installed = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   if (installed()) return;
-  button.hidden = false;
+  const hasPrompt = 'BeforeInstallPromptEvent' in window;
+  button.hidden = hasPrompt;
 
+  /* No preventDefault: the browser may still show its own install banner, and Chrome logs no "Banner not shown"
+     message. The saved event opens the same prompt from the button. */
   let promptEvent = null;
-  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); promptEvent = e; });
+  window.addEventListener('beforeinstallprompt', e => { promptEvent = e; button.hidden = false; });
   window.addEventListener('appinstalled', () => { button.hidden = true; closeSheet(); });
 
-  const ua = navigator.userAgent;
-  const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const android = /Android/.test(ua);
-  const firefox = /Firefox|FxiOS/.test(ua);
-  const samsung = /SamsungBrowser/.test(ua);
-  const edge = /Edg\//.test(ua);
-  const chrome = /Chrome|CriOS/.test(ua) && !edge && !samsung;
-  const macSafari = !iOS && /Macintosh/.test(ua) && /Safari/.test(ua) && !chrome && !edge && !firefox;
-
-  /* Each step is [lead, rest]: the lead is what to tap, shown in bold. */
+  /* Browser detection is only needed for the steps sheet, so it runs when the sheet opens. */
   function steps() {
+    const ua = navigator.userAgent;
+    const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const android = /Android/.test(ua);
+    const firefox = /Firefox|FxiOS/.test(ua);
+    const samsung = /SamsungBrowser/.test(ua);
+    const edge = /Edg\//.test(ua);
+    const chrome = /Chrome|CriOS/.test(ua) && !edge && !samsung;
+    const macSafari = !iOS && /Macintosh/.test(ua) && /Safari/.test(ua) && !chrome && !edge && !firefox;
+
+    /* Each step is [lead, rest]: the lead is what to tap, shown in bold. */
     if (iOS) return {
       title: 'Install on iPhone or iPad',
       list: [['Tap Share', ' (the square with an arrow) in the browser toolbar.'],
@@ -90,7 +94,7 @@
       promptEvent.prompt();
       const choice = await promptEvent.userChoice;
       promptEvent = null;
-      if (choice.outcome === 'accepted') button.hidden = true;
+      button.hidden = choice.outcome === 'accepted' || hasPrompt;
       return;
     }
     openSheet();

@@ -40,8 +40,8 @@
       const ask = reason => navigator.serviceWorker.ready
         .then(r => r.active && r.active.postMessage({type: 'CHECK_FOR_UPDATE', reason}));
       ask('open');
-      /* A newly installed worker takes over after the first check went to the old one; ask it too. */
-      navigator.serviceWorker.addEventListener('controllerchange', () => ask('open'));
+      /* A newly installed worker takes over while this page still runs the old scripts, so offer a reload. */
+      navigator.serviceWorker.addEventListener('controllerchange', () => ask('resume'));
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState !== 'visible') return;
         reg.update().catch(() => {});

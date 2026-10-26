@@ -1,7 +1,8 @@
 /* Offline support and update detection.
    Changes to app or data files are found by fingerprinting their contents, so no version number needs bumping. */
 const APP_CACHE = 'app-v1';
-const CDN_CACHE = 'cdn-v1';
+/* cdn-v2: v1 could hold an unreadable (opaque) error response, so it is dropped on activate. */
+const CDN_CACHE = 'cdn-v2';
 const META_CACHE = 'meta-v1';
 const APP_FILES = [
   './', 'index.html', 'styles.css', 'app.js', 'update.js', 'install.js', 'report.html', 'report.md', 'manifest.webmanifest',
@@ -34,7 +35,7 @@ async function networkFirst(request) {
        A new Request from the URL, because a page navigation request can't be re-sent with changed options. */
     const response = await fetch(new Request(request.url, {cache: 'no-cache', credentials: 'same-origin'}));
     /* Store under the address without ?v=…, so each file keeps one offline copy whatever its fingerprint. */
-    if (response.ok) cache.put(request.url.split('?')[0], response.clone());
+    if (response.ok) cache.put(request.url.split('?')[0], response.clone()).catch(() => {});
     return response;
   } catch (err) {
     const cached = await cache.match(request, {ignoreSearch: true});
@@ -50,7 +51,8 @@ async function cacheFirst(request) {
   const cached = await cache.match(request);
   if (cached) return cached;
   const response = await fetch(request);
-  if (response.ok || response.type === 'opaque') cache.put(request, response.clone());
+  /* Only a readable success: the pages load these with crossorigin, so a CDN error is never stored. */
+  if (response.ok) cache.put(request, response.clone()).catch(() => {});
   return response;
 }
 
@@ -90,10 +92,17 @@ async function check() {
 let running = null;
 self.addEventListener('message', event => {
   if (!event.data || event.data.type !== 'CHECK_FOR_UPDATE') return;
-  const source = event.source;
+  const source = event.source, reason = event.data.reason;
   /* One check at a time; a second request waits for the same answer. */
   running = running || check().finally(() => { running = null; });
   event.waitUntil(running
-    .then(changed => source && source.postMessage({type: 'UPDATE_CHECKED', changed, reason: event.data.reason}))
+    .then(async changed => {
+      /* The asking tab learns either way; when files changed every other open tab is told too, since the stored
+         fingerprint is now updated and their own checks would no longer see the change. */
+      if (source) source.postMessage({type: 'UPDATE_CHECKED', changed, reason});
+      if (!changed) return;
+      const others = (await self.clients.matchAll({type: 'window'})).filter(c => !source || c.id !== source.id);
+      others.forEach(c => c.postMessage({type: 'UPDATE_CHECKED', changed, reason: 'resume'}));
+    })
     .catch(() => {}));
 });

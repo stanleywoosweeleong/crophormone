@@ -12,8 +12,8 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=197c8b7d0e">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
+<link rel="stylesheet" href="styles.css?v=65f36e751d">
 <style>
 /* Text keeps a reading width; tables use the full page width on desktop and scroll only on narrow screens. */
 .doc { max-width: 1100px; margin-inline: auto; }
@@ -32,9 +32,9 @@
 .doc code { font-size: .9em; background: var(--grid); padding: 1px 4px; border-radius: 4px; overflow-wrap: anywhere; }
 .doc a { overflow-wrap: anywhere; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" defer></script>
-<script src="update.js?v=4b38a14d43" defer></script>
-<script src="install.js?v=2e7b7407fd" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" integrity="sha512-xeUh+KxNyTufZOje++oQHstlMQ8/rpyzPuM+gjMFYK3z5ILJGE7l2NvYL+XfliKURMpBIKKp1XoPN/qswlSMFA==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+<script src="update.js?v=2aedf4b52a" defer></script>
+<script src="install.js?v=69c5497517" defer></script>
 </head>
 <body>
 <header class="bar">
@@ -54,7 +54,7 @@
 <main>
   <article class="doc card" id="doc"><p class="note">Loading the report…</p></article>
 </main>
-<nav class="bottom-nav" aria-label="Sections">
+<nav class="bottom-nav" aria-label="Sections, bottom bar">
   <a href="./#overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Crop</a>
   <a href="./#regulators"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/><path d="M7.5 15h9"/></svg>Regulators</a>
   <a href="./#flowering"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="10" r="2.5"/><path d="M12 7.5c0-3 3-3 3 0M12 7.5c0-3-3-3-3 0M14.5 10c3 0 3 3 0 3M9.5 10c-3 0-3 3 0 3M12 12.5v8.5"/></svg>Flowering</a>
@@ -67,12 +67,18 @@ window.addEventListener('DOMContentLoaded', () => {
   const doc = document.getElementById('doc');
   fetch('report.md').then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(md => {
     if (window.marked) {
+      /* Raw HTML in the markdown is dropped, and only web, mail and in-page links are kept. */
+      marked.use({renderer: {html: () => ''}});
       doc.innerHTML = marked.parse(md);
+      doc.querySelectorAll('a[href]').forEach(a => { if (!/^(https?:|mailto:|#|\.?\/|[\w-]+\.(html|md))/i.test(a.getAttribute('href'))) a.removeAttribute('href'); });
       doc.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
     } else {
       const pre = document.createElement('pre'); pre.style.whiteSpace = 'pre-wrap'; pre.textContent = md; doc.replaceChildren(pre);
     }
-  }).catch(() => { doc.innerHTML = '<p class="note">The report could not be loaded. Check your connection and try again.</p>'; });
+  }).catch(() => {
+    const p = document.createElement('p'); p.className = 'note'; p.textContent = 'The report could not be loaded. Check your connection and try again.';
+    doc.replaceChildren(p);
+  });
 });
 </script>
 </body>

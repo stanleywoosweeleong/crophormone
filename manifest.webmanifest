@@ -9,7 +9,7 @@
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f4f7f5",
-  "theme_color": "#1f5e45",
+  "theme_color": "#ffffff",
   "categories": [
     "education",
     "science"
@@ -74,6 +74,22 @@
           "sizes": "192x192"
         }
       ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/phone.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "One crop through flowering, fruit set and ripening"
+    },
+    {
+      "src": "screenshots/wide.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "All crops compared at ripening"
     }
   ]
 }
