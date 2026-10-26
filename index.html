@@ -16,9 +16,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=4fb2d18ed3">
+<link rel="stylesheet" href="styles.css?v=5b55861030">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
-<script src="app.js?v=debf4af984" defer></script>
+<script src="app.js?v=2e6df7a182" defer></script>
 <script src="update.js?v=4b38a14d43" defer></script>
 <script src="install.js?v=2e7b7407fd" defer></script>
 </head>
@@ -26,6 +26,7 @@
 <header class="bar">
   <div class="bar-inner">
     <a class="brand" href="#overview"><img src="icons/icon-192.png" alt="" width="28" height="28"><span>Fruit hormones</span></a>
+    <button type="button" id="crop-chip" class="crop-chip" aria-expanded="false" aria-controls="crop-panel" hidden></button>
     <nav class="tabs" aria-label="Sections">
       <a href="#overview">Overview</a>
       <a href="#regulators">Regulators</a>
@@ -36,6 +37,7 @@
     </nav>
     <button type="button" id="install" class="install" hidden>Install app</button>
   </div>
+  <div id="crop-panel" class="crop-panel-global" hidden></div>
 </header>
 
 <main>
@@ -44,14 +46,13 @@
     <p class="lead">Ten hormone classes for 13 crops at flowering, fruit set and ripening: the five classic hormones plus jasmonates, salicylic acid, brassinosteroids, polyamines and strigolactones. Every cell says whether it was measured, inferred, only tested as a spray, or has no study yet, so nothing is hidden.</p>
 
     <div class="card" id="crop-card">
-      <h2>Crops through the growth cycle</h2>
-      <p class="note">Tap the crop name to see all crops and choose another. Dashed marks are inferred from the fruit type, not measured in that crop. "Applied" means the hormone was only tested as a spray or dip.</p>
-      <div class="crop-bar" id="crop-bar"></div>
+      <h2 id="crop-title">Through the growth cycle</h2>
+      <p class="note">Change crop with the Crop button in the top bar; every tab follows it. Dashed marks are inferred from the fruit type, not measured in that crop. "Applied" means the hormone was only tested as a spray or dip.</p>
       <div id="crop-detail"><div class="loading"></div></div>
     </div>
 
-    <div class="card">
-      <h2>Compare crops by stage</h2>
+    <details class="card cmp-details" id="cmp-details">
+      <summary><span class="cmp-sum-title">Compare all 13 crops at one stage</span><span class="note">See which crops share the same hormone pattern. Tap to open.</span></summary>
       <div class="seg" id="stage-seg" role="group" aria-label="Stage">
         <button type="button" data-stage="Flowering">Flowering</button>
         <button type="button" data-stage="Fruit set">Fruit set</button>
@@ -59,7 +60,7 @@
       </div>
       <p class="note">For each hormone, crops are grouped by what happens at this stage. Dashed names are inferred, not measured in that crop. Tap a crop to open it above.</p>
       <div id="mx" class="cmp"><div class="loading"></div></div>
-    </div>
+    </details>
   </section>
 
   <section id="view-regulators" class="view" aria-labelledby="regulators-title" hidden>
@@ -81,9 +82,15 @@
     </div>
 
     <div class="card">
-      <h2>Cause and effect by crop</h2>
+      <h2>How long regulators stay in soil</h2>
+      <p class="note">Longest-lasting first. Times are approximate: about five soil half-lives, when roughly 97% has broken down. Real times vary with soil type, temperature, moisture and repeated use. Tap a product for measured orchard residues and effects.</p>
+      <div id="soil-table" class="soil-table"><div class="loading"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Cause and effect for your crop</h2>
       <div class="reg-filters">
-        <label class="field"><span>Crop</span><select id="reg-crop"></select></label>
+        <label class="check"><input type="checkbox" id="reg-all"> Show all crops</label>
         <div class="seg" id="reg-stage" role="group" aria-label="Stage">
           <button type="button" data-stage="">All</button>
           <button type="button" data-stage="Flowering">Flowering</button>
@@ -103,11 +110,13 @@
   <section id="view-ripening" class="view" aria-labelledby="ripening-title" hidden>
     <h1 id="ripening-title">Ripening</h1>
     <p class="lead">Climacteric fruits (mango, durian, papaya, passion fruit, avocado) show an ethylene peak after harvest. Non-climacteric fruits such as rambutan stay low.</p>
+    <div class="card stage-card" id="stage-ripening"><div class="loading"></div></div>
     <div class="card">
-      <h2>Ethylene production by crop</h2>
+      <h2>Ethylene production: all crops compared</h2>
       <p class="note">One row per crop. Hollow dot: ethylene at harvest. Filled mark: the ripening peak (a bar is a reported range; two marks mean two sources). The dashed arrow shows the rise. µL ethylene per kg of fruit per hour, log scale; each gridline is 10 times the last. Tap a crop for every measurement and its source.</p>
       <div class="key"><span><i class="sw ring"></i>At harvest</span></div>
       <div class="key" id="ver-key"></div>
+      <p class="crop-note" id="ripe-crop-note" hidden></p>
       <div class="chart" id="ripe-chart"><div class="loading"></div></div>
       <div class="readout" id="ripe-readout" aria-live="polite"><span class="hint">Tap a row for its details and source.</span></div>
     </div>
@@ -115,16 +124,18 @@
 
   <section id="view-flowering" class="view" aria-labelledby="flowering-title" hidden>
     <h1 id="flowering-title">Flowering</h1>
-    <p class="lead">Measured hormone levels in buds, leaves and shoots before flowering. Units differ between studies, so each chart keeps its own scale.</p>
+    <p class="lead">How each hormone changes in buds, leaves and shoots before flowering, for the crop you choose. Measured-value charts appear for crops that have them; units differ between studies, so each chart keeps its own scale.</p>
+    <div class="card stage-card" id="stage-flowering"><div class="loading"></div></div>
+    <div class="card" id="flower-none" hidden></div>
     <div class="grid2">
-      <div class="card">
+      <div class="card" data-crop="Mango">
         <h2>Mango leaf, girdled vs control</h2>
         <p class="note">ng/g fresh mass, LC-MS/MS, log scale. Alphonso, one month after girdling. Girdled rows in the source table were scrambled, so treat ranges as approximate.</p>
         <div class="key"><span><i class="sw" style="background:var(--up)"></i>Control</span><span><i class="sw" style="background:var(--down)"></i>Girdled (range)</span></div>
         <div class="chart" id="leaf-chart"><div class="loading"></div></div>
         <div class="readout" id="leaf-readout" aria-live="polite"><span class="hint">Tap a hormone for its values.</span></div>
       </div>
-      <div class="card">
+      <div class="card" data-crop="Longan">
         <h2>Longan shoot tips after KClO₃</h2>
         <p class="note">ng/g dry weight, LC-ESI-MS, read from the abstract. Gibberellins from treated trees; cytokinins from untreated trees.</p>
         <div class="key"><span><i class="sw" style="background:var(--up)"></i>Gibberellins, treated</span><span><i class="sw" style="background:var(--brand)"></i>Cytokinins, untreated</span></div>
@@ -132,7 +143,7 @@
         <div class="readout" id="longan-readout" aria-live="polite"><span class="hint">Tap a bar for its value.</span></div>
       </div>
     </div>
-    <div class="card">
+    <div class="card" data-crop="Mango">
       <h2>Mango: change with paclobutrazol (PBZ)</h2>
       <p class="note">Percent change, mostly PBZ-treated vs untreated Alphonso trees (Burondkar 2016, from search snippets). The two "untreated" rows compare dates within control trees.</p>
       <div class="chart" id="pbz-chart"><div class="loading"></div></div>
@@ -142,10 +153,12 @@
 
   <section id="view-fruitset" class="view" aria-labelledby="fruitset-title" hidden>
     <h1 id="fruitset-title">Fruit set</h1>
-    <p class="lead">Before young fruit drop, ABA, ACC and ethylene climb. Few absolute fruit-set levels exist for these crops, so these are fold changes.</p>
+    <p class="lead">Before young fruit drop, ABA, ACC and ethylene climb. Few absolute fruit-set levels exist for these crops, so the chart shows fold changes.</p>
+    <div class="card stage-card" id="stage-fruitset"><div class="loading"></div></div>
     <div class="card">
-      <h2>Fold change vs control or earlier stage</h2>
+      <h2>Fold change: all crops with data</h2>
       <p class="note">Times higher, log scale from 1× (no change). Colour shows how the value was checked.</p>
+      <p class="crop-note" id="fold-crop-note" hidden></p>
       <div class="chart" id="fold-chart"><div class="loading"></div></div>
       <div class="readout" id="fold-readout" aria-live="polite"><span class="hint">Tap a row for its details and source.</span></div>
     </div>

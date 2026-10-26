@@ -5,6 +5,8 @@
   const FILES = {
     evidence: 'data/hormone_evidence.csv',
     regulators: 'data/regulators.csv',
+    soil: 'data/soil_persistence.csv',
+    mrls: 'data/fruit_mrls.csv',
     ripening: 'data/ripening_ethylene.csv',
     mangoLeaf: 'data/flowering_mango_leaf.csv',
     longan: 'data/flowering_longan.csv',
@@ -50,7 +52,7 @@
 
   const data = {};
   const DEFAULT_CROP = 'Durian';
-  const state = {crop: DEFAULT_CROP, stage: 'Flowering', view: 'overview', regCrop: DEFAULT_CROP, regStage: '', regMeasured: false, listOpen: false};
+  const state = {crop: DEFAULT_CROP, stage: 'Flowering', view: 'overview', regAll: false, regStage: '', regMeasured: false, listOpen: false};
   /* The default crop first, then the rest alphabetically. */
   const cropOrder = rows => [...new Set(rows.map(r => r.crop))]
     .sort((a, b) => (b === DEFAULT_CROP) - (a === DEFAULT_CROP) || a.localeCompare(b));
@@ -176,7 +178,9 @@
     table.append(el('div', {role: 'columnheader'}));
     STAGES.forEach(s => table.append(el('div', {class: 'ct-stage', role: 'columnheader', text: s})));
     let group = null;
-    HORMONES.forEach(h => {
+    /* Hormones with no study at any stage are listed in one line under the table instead of three dashes each. */
+    const empty = HORMONES.filter(h => STAGES.every(s => shown(cell(crop, s, h.key)) === 'No data'));
+    HORMONES.filter(h => !empty.includes(h)).forEach(h => {
       if (h.group !== group) { group = h.group; table.append(el('div', {class: 'ct-group', role: 'rowheader', text: group})); }
       table.append(el('div', {class: 'ct-h', role: 'rowheader', text: h.name}));
       STAGES.forEach(s => {
@@ -188,7 +192,9 @@
     const summary = el('p', {class: 'cov'},
       el('strong', {text: `${c.measured} of 30`}), ' hormone × stage cells measured or partly measured · ', `${c.inferred} inferred · ${c.applied} applied only · ${c.none} no data`);
     const ev = el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}), ...STAGES.map(s => stageEvidence(crop, s)));
-    return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, summary, table, ev);
+    const gaps = empty.length ? el('p', {class: 'gaps'}, el('strong', {text: 'No study found yet: '}), empty.map(h => h.name).join(', '),
+      '. These are open research gaps, not zero levels.') : null;
+    return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, summary, table, gaps, ev);
   }
 
   /* The crop list opens inline under the crop button; choosing a crop closes it again. */
@@ -199,9 +205,40 @@
         const n = measuredStages(crop);
         return el('button', {
           type: 'button', class: 'tile', 'aria-pressed': String(crop === state.crop), 'aria-label': `${crop}, ${n} of 3 stages measured`,
-          onclick: () => { state.listOpen = false; selectCrop(crop); }
+          onclick: () => selectCrop(crop)
         }, el('span', {class: 'tile-name', text: crop}), dots(n));
       })));
+  }
+
+  /* The chosen crop lives in the top bar on every tab; its tile list opens in a panel under the bar. */
+  function drawCropChip() {
+    const chip = document.getElementById('crop-chip');
+    const panel = document.getElementById('crop-panel');
+    if (!evidence()) return;
+    const crops = cropOrder(data.evidence);
+    if (!crops.includes(state.crop)) state.crop = crops[0];
+    chip.hidden = false;
+    chip.setAttribute('aria-expanded', String(!!state.listOpen));
+    chip.setAttribute('aria-label', `Crop: ${state.crop}. ${state.listOpen ? 'Hide' : 'Show'} all ${crops.length} crops`);
+    chip.replaceChildren(el('span', {class: 'chip-label', text: 'Crop'}), el('span', {class: 'chip-name', text: state.crop}),
+      el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'}));
+    panel.hidden = !state.listOpen;
+    panel.replaceChildren(...(state.listOpen ? [el('div', {class: 'crop-panel-inner'}, cropList(crops))] : []));
+  }
+
+  function cropButton(crops) {
+    const n = measuredStages(state.crop);
+    const toggle = () => {
+      state.listOpen = !state.listOpen;
+      drawView();
+      const b = document.querySelector(`#view-${state.view} .crop-pick`);
+      if (b) b.focus();
+    };
+    return el('button', {type: 'button', class: 'crop-pick', 'aria-expanded': String(!!state.listOpen), 'aria-controls': 'crop-list',
+      'aria-label': `${state.crop}, ${n} of 3 stages measured. ${state.listOpen ? 'Hide' : 'Show'} all ${crops.length} crops`, onclick: toggle},
+      el('span', {class: 'crop-pick-name', text: state.crop}), dots(n),
+      el('span', {class: 'crop-pick-more', text: state.listOpen ? 'Hide crops' : `${crops.length} crops`}),
+      el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'}));
   }
 
   function drawCropCard() {
@@ -209,26 +246,44 @@
     if (!evidence()) return;
     const crops = cropOrder(data.evidence);
     if (!crops.includes(state.crop)) state.crop = crops[0];
-    const n = measuredStages(state.crop);
-    const toggle = () => {
-      state.listOpen = !state.listOpen;
-      drawCropCard();
-      document.querySelector('.crop-pick').focus();
-    };
-    document.getElementById('crop-bar').replaceChildren(
-      el('button', {type: 'button', class: 'crop-pick', 'aria-expanded': String(!!state.listOpen), 'aria-controls': 'crop-list',
-        'aria-label': `${state.crop}, ${n} of 3 stages measured. ${state.listOpen ? 'Hide' : 'Show'} all ${crops.length} crops`, onclick: toggle},
-        el('span', {class: 'crop-pick-name', text: state.crop}), dots(n),
-        el('span', {class: 'crop-pick-more', text: state.listOpen ? 'Hide crops' : `${crops.length} crops`}),
-        el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'})));
-    document.getElementById('crop-detail').replaceChildren(...[state.listOpen ? cropList(crops) : null, cropPanel(state.crop)].filter(Boolean));
+    document.getElementById('crop-title').textContent = `${state.crop} through the growth cycle`;
+    document.getElementById('crop-detail').replaceChildren(cropPanel(state.crop));
+  }
+
+  /* The chosen crop at one stage: every hormone's direction, how much is measured, and the evidence. */
+  function drawStageCard(stage) {
+    const box = document.getElementById('stage-' + state.view);
+    if (!box) return;
+    if (data.evidence === null) return failed(box.id);
+    if (!evidence()) return;
+    const crops = cropOrder(data.evidence);
+    if (!crops.includes(state.crop)) state.crop = crops[0];
+    const measured = HORMONES.filter(h => isMeasured(cell(state.crop, stage, h.key))).length;
+    const list = el('div', {class: 'sh-list', role: 'list'}, ...HORMONES.map(h => {
+      const r = cell(state.crop, stage, h.key);
+      return el('div', {class: 'sh-row', role: 'listitem', 'aria-label': `${h.name}: ${DIRECTION[shown(r)].word}`},
+        el('span', {text: h.name}), badge(r));
+    }));
+    box.replaceChildren(
+      el('h2', {text: `${state.crop} at ${stage.toLowerCase()}`}),
+      el('p', {class: 'cov'}, el('strong', {text: `${measured} of ${HORMONES.length}`}), ` hormones measured at this stage for ${state.crop}.`),
+      list,
+      el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}), stageEvidence(state.crop, stage)));
+  }
+
+  /* Note above a cross-crop chart: whether the chosen crop is in it. */
+  function cropNote(id, inChart, what) {
+    const n = document.getElementById(id);
+    n.hidden = false;
+    n.textContent = inChart ? `${state.crop} is highlighted below.` : `No ${what} found for ${state.crop} yet. The chart shows the crops that have them.`;
+    n.classList.toggle('missing', !inChart);
   }
 
   function selectCrop(crop, scroll) {
     state.crop = crop;
-    drawCropCard();
-    drawMatrix();
-    if (scroll) document.getElementById('crop-card').scrollIntoView({behavior: 'smooth', block: 'start'});
+    state.listOpen = false;
+    drawView();
+    if (scroll && state.view === 'overview') document.getElementById('crop-card').scrollIntoView({behavior: 'smooth', block: 'start'});
   }
 
   /* ---------- overview: compare all crops at one stage ---------- */
@@ -242,8 +297,16 @@
     const ORDER = ['Up', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not a driver', 'Applied', 'No data'];
     let group = null;
     const cards = [];
+    /* Hormones no crop has any data for at this stage get one summary line per group, not a card each. */
+    const blank = h => crops.every(crop => shown(cell(crop, state.stage, h.key)) === 'No data');
     HORMONES.forEach(h => {
-      if (h.group !== group) { group = h.group; cards.push(el('h3', {class: 'cmp-group', text: group})); }
+      if (h.group !== group) {
+        group = h.group;
+        cards.push(el('h3', {class: 'cmp-group', text: group}));
+        const none = HORMONES.filter(x => x.group === group && blank(x));
+        if (none.length) cards.push(el('p', {class: 'gaps cmp-gaps'}, el('strong', {text: `No crop has data at ${state.stage.toLowerCase()} for: `}), none.map(x => x.name).join(', ') + '.'));
+      }
+      if (blank(h)) return;
       const groups = new Map(ORDER.map(k => [k, []]));
       crops.forEach(crop => {
         const r = cell(crop, state.stage, h.key);
@@ -252,7 +315,14 @@
       const measured = crops.filter(crop => isMeasured(cell(crop, state.stage, h.key))).length;
       const lines = ORDER.filter(k => groups.get(k).length).map(k => {
         const d = DIRECTION[k];
-        return el('div', {class: 'grp' + (k === 'No data' ? ' nd' : '')},
+        if (k === 'No data') {
+          /* Crops without a study fold away behind a count. */
+          const names = groups.get(k);
+          return el('details', {class: 'grp nd'},
+            el('summary', {text: `+${names.length} ${names.length === 1 ? 'crop' : 'crops'} with no study`}),
+            el('span', {class: 'names'}, ...names.map(g => el('button', {type: 'button', class: 'name', text: g.crop, onclick: () => selectCrop(g.crop, true)}))));
+        }
+        return el('div', {class: 'grp'},
           el('span', {class: `c ${d.cls}`}, el('span', {'aria-hidden': 'true', text: d.glyph}), d.word),
           k === 'Conflicting' ? el('span', {class: 'why', text: 'Studies disagree. Open the crop and read Evidence and sources for why.'}) : null,
           k === 'Applied' ? el('span', {class: 'why', text: 'Tested as a spray or dip; the natural level was not measured.'}) : null,
@@ -267,6 +337,82 @@
         el('header', {}, el('h4', {text: h.name}), el('span', {class: 'cnt', text: `${measured} of ${crops.length} measured`})), ...lines));
     });
     box.replaceChildren(...cards);
+  }
+
+  /* ---------- residues: soil persistence and fruit limits ---------- */
+  const RESIDUE_KEYS = [[/paclobutrazol/, 'paclobutrazol'], [/uniconazole/, 'uniconazole'], [/prohexadione/, 'prohexadione'],
+    [/gibberell|\bga3\b|ga₃/, 'ga3'], [/ethephon|chloroethylphosphonic/, 'ethephon'], [/1-mcp|methylcyclopropene/, '1mcp'],
+    [/aminoethoxyvinylglycine|\bavg\b/, 'avg'], [/naphthaleneacetic|\bnaa\b/, 'naa'], [/2,4-d(?!p)/, '24d'], [/4-cpa|chlorophenoxyacetic/, '4cpa'],
+    [/triclopyr|3,5,6-tpa/, 'triclopyr'], [/dichlorprop|2,4-dp/, 'dichlorprop'], [/forchlorfenuron|cppu/, 'cppu'],
+    [/benzyladenine|6-ba\b/, 'ba'], [/potassium nitrate|kno3|kno₃/, 'kno3'], [/chlorate|kclo3|kclo₃/, 'chlorate'], [/thiourea/, 'thiourea'],
+    [/cyanamide/, 'cyanamide'], [/calcium carbide/, 'carbide'], [/abscisic|s-aba/, 'sabA'], [/methyl jasmonate|meja/, 'meja'],
+    [/salicyl/, 'sa'], [/brassinolide/, 'br'], [/putrescine|spermidine|spermine/, 'polyamines'], [/melatonin/, 'melatonin'], [/permanganate/, 'kmno4']];
+  const residueKeys = r => {
+    const text = `${r.regulator} ${r.active_ingredient}`.toLowerCase();
+    return RESIDUE_KEYS.filter(([re]) => re.test(text)).map(([, k]) => k);
+  };
+  const MRL_CROPS = {Citrus: ['citrus', 'orange', 'mandarin', 'lemon', 'lime'], Litchi: ['litchi', 'lychee']};
+  const mrlCropMatch = (crop, mrlCrop) => {
+    const m = mrlCrop.toLowerCase();
+    return /^all|all tropical/.test(m) || (MRL_CROPS[crop] || [crop.toLowerCase()]).some(c => m.includes(c));
+  };
+  const firstUrl = u => (u || '').split(/;\s*/)[0];
+  /* Persistence band from the class text; "very persistent" or leading "Persistent" is high, any "moderate" is mid. */
+  const persistClass = t => /very persistent/i.test(t) || /^\s*persistent/i.test(t) ? 'high' : /moderate/i.test(t) ? 'mid' : /non-persistent/i.test(t) ? 'low' : 'unknown';
+
+  function residueSection(r) {
+    const keys = residueKeys(r);
+    if (!keys.length || !data.soil) return null;
+    const parts = [];
+    keys.forEach(k => {
+      const soil = data.soil.find(x => x.key === k);
+      const limits = (data.mrls || []).filter(x => x.key === k && mrlCropMatch(r.crop, x.crop));
+      const name = soil ? soil.active_ingredient : k;
+      parts.push(el('h4', {text: name}));
+      if (soil) {
+        parts.push(el('p', {}, el('span', {class: `persist ${persistClass(soil.persistence_class)}`, text: soil.persistence_class.split(/[;(]/)[0].trim() || 'Unknown'}),
+          ' ', el('strong', {text: 'Time to about 97% gone in soil: '}), soil.time_summary || 'not found',
+          soil.approx_time_to_97pct_gone ? el('span', {class: 'src', text: ` (${soil.approx_time_to_97pct_gone})`}) : null));
+        if (soil.orchard_field_residues && !/^not found/i.test(soil.orchard_field_residues)) parts.push(el('p', {}, el('strong', {text: 'Measured in orchards: '}), soil.orchard_field_residues));
+        if (soil.accumulation_note && !/^no data/i.test(soil.accumulation_note)) parts.push(el('p', {}, el('strong', {text: 'Repeated use: '}), soil.accumulation_note));
+        if (soil.effects_on_trees_and_following_crops && !/^no .*found/i.test(soil.effects_on_trees_and_following_crops)) parts.push(el('p', {}, el('strong', {text: 'Effects on trees and later crops: '}), soil.effects_on_trees_and_following_crops));
+        if (soil.leaching_water_note) parts.push(el('p', {}, el('strong', {text: 'Water: '}), soil.leaching_water_note));
+        if (soil.restrictions && !/^not found/i.test(soil.restrictions)) parts.push(el('p', {}, el('strong', {text: 'Restrictions: '}), soil.restrictions));
+        parts.push(el('p', {class: 'src'}, `${verName(soil.verification) || soil.verification} · `, safeLink(soil.source, firstUrl(soil.source_url))));
+      }
+      if (limits.length) {
+        parts.push(el('p', {}, el('strong', {text: `Fruit residue limits for ${r.crop}:`})));
+        parts.push(el('ul', {class: 'mrl'}, ...limits.map(m => el('li', {},
+          `${m.market}: `, el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : 'see note'}),
+          `${m.crop && !/^all/i.test(m.crop) ? ` (${m.crop})` : ''}${m.limit_type ? ' · ' + m.limit_type : ''}${m.measured_fruit_residues ? ' · measured: ' + m.measured_fruit_residues : ''} `,
+          el('span', {class: 'src'}, safeLink(m.source || 'source', firstUrl(m.source_url)))))));
+      } else {
+        parts.push(el('p', {class: 'none', text: `No fruit residue limit found for ${r.crop} in the markets checked (China, US, EU, Codex, Japan). Where no limit is set, many markets apply a default of 0.01 mg/kg: check your export market.`}));
+      }
+    });
+    return el('details', {class: 'res'}, el('summary', {text: 'Residues: soil and fruit'}), ...parts);
+  }
+
+  /* How long each regulator lasts in soil, longest first. */
+  const PERSIST_ORDER = {high: 0, mid: 1, low: 2, unknown: 3};
+  function drawSoilTable() {
+    const box = document.getElementById('soil-table');
+    if (!box || !data.soil || box.dataset.drawn) return;
+    box.dataset.drawn = '1';
+    const rows = data.soil.slice().sort((a, b) => PERSIST_ORDER[persistClass(a.persistence_class)] - PERSIST_ORDER[persistClass(b.persistence_class)]);
+    box.replaceChildren(...rows.map(r => el('details', {class: 'soil-row'},
+      el('summary', {},
+        el('span', {class: 'soil-name', text: r.active_ingredient}),
+        el('span', {class: `persist ${persistClass(r.persistence_class)}`, text: (r.persistence_class.split(/[;(]/)[0].trim() || 'Unknown')}),
+        el('span', {class: 'soil-time', text: r.time_summary || 'Not found'})),
+      el('p', {}, el('strong', {text: 'Half-life: '}), `lab ${r.soil_dt50_lab_days || 'not found'}; field ${r.soil_dt50_field_days || 'not found'}`),
+      r.approx_time_to_97pct_gone ? el('p', {}, el('strong', {text: 'Time to about 97% gone: '}), r.approx_time_to_97pct_gone) : null,
+      r.orchard_field_residues && !/^not found/i.test(r.orchard_field_residues) ? el('p', {}, el('strong', {text: 'Measured in orchards: '}), r.orchard_field_residues) : null,
+      r.accumulation_note ? el('p', {}, el('strong', {text: 'Repeated use: '}), r.accumulation_note) : null,
+      r.effects_on_trees_and_following_crops ? el('p', {}, el('strong', {text: 'Effects on trees and later crops: '}), r.effects_on_trees_and_following_crops) : null,
+      r.leaching_water_note ? el('p', {}, el('strong', {text: 'Water: '}), r.leaching_water_note) : null,
+      r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: 'Restrictions: '}), r.restrictions) : null,
+      el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, safeLink(r.source, firstUrl(r.source_url))))));
   }
 
   /* ---------- regulators: cause and effect ---------- */
@@ -290,6 +436,7 @@
         chainStep('Hormone changes', r.hormone_changes, 'Hormones were not measured in this study'),
         chainStep('What you see', r.visible_effect, 'Visible effect not reported in the sources we could read'),
         missingText(r.side_effects) ? null : chainStep('Watch for', r.side_effects, '')),
+      residueSection(r),
       el('details', {class: 'reg-more'}, el('summary', {text: 'Notes and source'}),
         r.note ? el('p', {text: r.note}) : null,
         el('p', {class: 'src'}, `${verName(r.verification) || r.verification}${r.source ? ' · ' : ''}`, r.source ? safeLink(r.source, r.source_url) : null)));
@@ -298,19 +445,16 @@
     const list = document.getElementById('reg-list');
     if (data.regulators === null) return failed('reg-list');
     if (!data.regulators) return;
-    const cropSel = document.getElementById('reg-crop');
-    if (!cropSel.options.length) {
-      cropSel.append(el('option', {value: '', text: 'All crops'}), ...cropOrder(data.regulators).map(c => el('option', {value: c, text: c})));
-      cropSel.value = state.regCrop;
-    }
+    document.getElementById('reg-all').checked = state.regAll;
+    drawSoilTable();
     document.querySelectorAll('#reg-stage button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === state.regStage)));
     const rows = data.regulators
-      .filter(r => (!state.regCrop || r.crop === state.regCrop) && (!state.regStage || r.stage === state.regStage) && (!state.regMeasured || r.evidence === 'Hormones measured'))
+      .filter(r => (state.regAll || r.crop === state.crop) && (!state.regStage || r.stage === state.regStage) && (!state.regMeasured || r.evidence === 'Hormones measured'))
       .sort((a, b) => (EVIDENCE_ORDER[a.evidence] ?? 3) - (EVIDENCE_ORDER[b.evidence] ?? 3) || a.regulator.localeCompare(b.regulator));
     document.getElementById('reg-count').textContent =
-      `${rows.length} ${rows.length === 1 ? 'entry' : 'entries'}${state.regCrop ? ' for ' + state.regCrop : ''}. Chains with measured hormone changes come first.`;
+      `${rows.length} ${rows.length === 1 ? 'entry' : 'entries'}${state.regAll ? ' for all crops' : ' for ' + state.crop}. Chains with measured hormone changes come first.`;
     list.replaceChildren(...(rows.length ? rows.map(regulatorCard)
-      : [el('p', {class: 'none', text: 'No regulator studies found for this choice. Try All crops or another stage.'})]));
+      : [el('p', {class: 'none', text: `No regulator studies found for ${state.crop} at this stage. Tick "Show all crops" or pick another stage.`})]));
   }
 
   /* ---------- charts ---------- */
@@ -344,7 +488,7 @@
     const svg = svgFor(id, W, H).attr('aria-label', o.title);
     const x = o.scale([m.l + 20, W - m.r - (o.padR || 0)]);
     o.axis(svg, x, m.t, H - m.b);
-    const groups = [];
+    const groups = [], picks = [];
     rows.forEach((d, i) => {
       const y = tops[i], rowH = 32 + lineH * lines[i].length;
       const g = svg.append('g').attr('class', 'row').attr('tabindex', 0).attr('role', 'button').attr('aria-label', lines[i].join(' '));
@@ -359,7 +503,11 @@
       };
       g.on('click', pick).on('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } });
       groups.push(bg);
+      picks.push(pick);
     });
+    const chosen = o.isSelected ? rows.findIndex(o.isSelected) : -1;
+    if (chosen >= 0) picks[chosen]();
+    return chosen >= 0;
   }
 
   function gridX(svg, x, ticks, y0, y1, label, ref) {
@@ -404,7 +552,10 @@
         return `Peak ${c.peaks.map(value).join(' or ')} (sources disagree)${from}`;
       return `Peak ${lo === hi ? fmt(hi) : fmt(lo) + '–' + fmt(hi)}${from}`;
     };
+    const ripeHas = crops.some(c => c.crop === state.crop);
+    cropNote('ripe-crop-note', ripeHas, 'ripening ethylene values');
     rowChart('ripe-chart', crops, {
+      isSelected: c => c.crop === state.crop,
       title: 'Ethylene production by crop: at harvest and at the ripening peak, log scale',
       scale: r => d3.scaleLog([0.01, 1000], r),
       axis(svg, x, y0, y1) {
@@ -521,7 +672,10 @@
     if (!rows) return;
     const list = rows.map(r => ({...r, f: +r.fold})).sort((a, b) => b.f - a.f);
     const value = d => (d.qualifier ? d.qualifier + ' ' : '') + fmt(d.f) + '×';
+    const foldHas = list.some(d => d.crop.startsWith(state.crop));
+    cropNote('fold-crop-note', foldHas, 'fruit-set fold changes');
     rowChart('fold-chart', list, {
+      isSelected: d => d.crop.startsWith(state.crop),
       title: 'Fold change in hormones around fruit set',
       scale: r => d3.scaleLog([1, 30], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, [1, 2, 5, 10, 20], y0, y1, t => t + '×', 1),
@@ -537,13 +691,31 @@
   }
 
   /* ---------- draw only the visible view, so hidden charts never measure a zero width ---------- */
+  /* Which flowering charts belong to which crop. */
+  const FLOWER_CHARTS = {Mango: [drawLeaf, drawPbz], Longan: [drawLongan]};
+  function drawFlowering() {
+    drawStageCard('Flowering');
+    document.querySelectorAll('#view-flowering [data-crop]').forEach(c => { c.hidden = c.dataset.crop !== state.crop; });
+    const grid = document.querySelector('#view-flowering .grid2');
+    grid.hidden = ![...grid.children].some(c => !c.hidden);
+    const none = document.getElementById('flower-none');
+    const charts = FLOWER_CHARTS[state.crop];
+    none.hidden = !!charts;
+    if (charts) { charts.forEach(f => f()); return; }
+    none.replaceChildren(
+      el('h2', {text: 'Measured flowering values'}),
+      el('p', {class: 'note', text: `No study we found reports measured flowering hormone concentrations for ${state.crop}; the directions above come from the sources listed under Evidence. Measured-value charts exist for:`}),
+      el('div', {class: 'names'}, ...Object.keys(FLOWER_CHARTS).map(c => el('button', {type: 'button', class: 'name', text: c, onclick: () => selectCrop(c)}))));
+  }
+
   function drawView() {
     if (typeof d3 === 'undefined') return;
+    drawCropChip();
     if (state.view === 'overview') { drawCropCard(); drawMatrix(); }
     if (state.view === 'regulators') drawRegulators();
-    if (state.view === 'ripening') drawRipening();
-    if (state.view === 'flowering') { drawLeaf(); drawLongan(); drawPbz(); }
-    if (state.view === 'fruitset') drawFold();
+    if (state.view === 'ripening') { drawStageCard('Ripening'); drawRipening(); }
+    if (state.view === 'flowering') drawFlowering();
+    if (state.view === 'fruitset') { drawStageCard('Fruit set'); drawFold(); }
   }
 
   function load() {
@@ -562,7 +734,12 @@
     }));
     document.querySelectorAll('#stage-seg button').forEach(b => b.addEventListener('click', () => { state.stage = b.dataset.stage; drawMatrix(); }));
     document.querySelectorAll('#reg-stage button').forEach(b => b.addEventListener('click', () => { state.regStage = b.dataset.stage; drawRegulators(); }));
-    document.getElementById('reg-crop').addEventListener('change', e => { state.regCrop = e.target.value; drawRegulators(); });
+    document.getElementById('reg-all').addEventListener('change', e => { state.regAll = e.target.checked; drawRegulators(); });
+    document.getElementById('crop-chip').addEventListener('click', () => {
+      state.listOpen = !state.listOpen;
+      drawCropChip();
+      if (state.listOpen) { const t = document.querySelector('#crop-panel [aria-pressed="true"]'); if (t) t.focus(); }
+    });
     document.getElementById('reg-measured').addEventListener('change', e => { state.regMeasured = e.target.checked; drawRegulators(); });
     window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
     let w = window.innerWidth, timer;

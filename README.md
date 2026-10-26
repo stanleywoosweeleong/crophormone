@@ -10,6 +10,8 @@ Live site: https://stanleywoosweeleong.github.io/crophormone/ (served by GitHub 
 - `report.html` – renders `report.md`, the full research report with gaps, conflicts and DOI status
 - `data/hormone_evidence.csv` – one row per crop × stage × hormone for ten hormone classes (GA, cytokinin, ABA, IAA, ethylene, JA, SA, brassinosteroids, polyamines, strigolactones), plus other signals such as florigen and melatonin; `basis` is Measured, Partly measured, Inferred, Treatment only or No data
 - `data/regulators.csv` – commercial regulators and treatments: product, the hormone it boosts or blocks, measured hormone changes, visible effect, side effects and evidence type
+- `data/soil_persistence.csv` – how long each regulator lasts in soil (half-lives, time to about 97% gone, measured orchard residues, leaching, restrictions)
+- `data/fruit_mrls.csv` – fruit residue limits by market (China, US, EU, Codex, Japan) and measured fruit residues
 - `data/*.csv` (others) – the values behind each chart, with verification level and source for every row
 - `manifest.webmanifest`, `sw.js`, `update.js`, `install.js`, `icons/` – install, offline support and update notices
 - `.nojekyll` – serve files as they are, without a Jekyll build
