@@ -33,10 +33,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=f75e0dadd1">
+<link rel="stylesheet" href="styles.css?v=5d68d16650">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" integrity="sha512-M7nHCiNUOwFt6Us3r8alutZLm9qMt4s9951uo8jqO4UwJ1hziseL6O3ndFyigx6+LREfZqnhHxYjKRJ8ZQ69DQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 <script src="i18n.js?v=81fd57fdc0" defer></script>
-<script src="app.js?v=844d37d213" defer></script>
+<script src="app.js?v=306c96e78a" defer></script>
 <script src="update.js?v=0bbce73020" defer></script>
 <script src="settings.js?v=19d5d1dfa1" defer></script>
 <script src="share.js?v=5796cbb24a" defer></script>
@@ -92,7 +92,8 @@
         <li data-i18n-html="pair.oth_html"><span class="ph">Others</span><span><b>Boost:</b> MeJA, salicylic acid, brassinolide, putrescine, melatonin (colour, chilling and browning control, fruit set)</span><span><b>Block:</b> no commercial blockers</span><span><b>Natural opponent:</b> salicylic acid and jasmonates often oppose each other; polyamines compete with ethylene for the same building block</span></li>
       </ul>
       <p class="note" data-i18n-html="pair.note_html"><b>Block</b> is a product that stops the plant making or sensing a hormone. <b>Natural opponent</b> is another of the plant's own hormones with the opposite effect; where no blocker exists, growers shift the balance through it.</p>
-        </details>
+      <button type="button" class="closer" data-close data-i18n="closer">Close ▴</button>
+    </details>
 
     <div class="card">
       <h2 data-i18n="reg.cause">Cause and effect for your crop</h2>
@@ -110,6 +111,7 @@
       <details class="notice">
         <summary data-i18n-html="reg.notice_html"><strong>Not dosing advice:</strong> rates are what each study used; follow your local label.</summary>
         <p data-i18n="reg.noticeBody">Rates and timings shown are what each study used, in its own country and conditions. They may not be tested where you farm, and a product may not be registered or legal for your crop. Always follow your local registration and the product label, and ask your extension officer.</p>
+        <button type="button" class="closer" data-close data-i18n="closer">Close ▴</button>
       </details>
       <p class="note" id="reg-count"></p>
       <div id="reg-list" class="reg-list"><div class="loading"></div></div>

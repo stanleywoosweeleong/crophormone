@@ -683,3 +683,8 @@ details.notice[open] > summary::after { content: "▴"; }
 .ev > summary::-webkit-details-marker, .reg-more > summary::-webkit-details-marker, .res > summary::-webkit-details-marker { display: none; }
 .ev > summary::after, .reg-more > summary::after, .res > summary::after { content: "▾"; font-size: 12px; }
 .ev[open] > summary::after, .reg-more[open] > summary::after, .res[open] > summary::after { content: "▴"; }
+/* "+N crops with no study": a short list, so only the shared marker, no Close button. */
+details.grp.nd > summary { list-style: none; gap: 6px; }
+details.grp.nd > summary::-webkit-details-marker { display: none; }
+details.grp.nd > summary::after { content: "▾"; font-size: 12px; }
+details.grp.nd[open] > summary::after { content: "▴"; }

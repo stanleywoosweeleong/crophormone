@@ -356,7 +356,7 @@
           el('span', {class: 'cmp-mine'}, cropN(state.crop) + t('colon'), badge(mine)),
           el('span', {class: 'cmp-counts', role: 'img', 'aria-label': t('cmp.measured', {m: measured, n: crops.length})}, ...counts,
             noData ? el('span', {class: 'cnt', text: t('cmp.noData', {n: noData})}) : null)),
-        ...lines));
+        ...lines, closer()));
     });
     box.replaceChildren(...cards);
   }
@@ -383,15 +383,16 @@
   const persistClass = t => /very persistent/i.test(t) || /^\s*persistent/i.test(t) ? 'high' : /moderate/i.test(t) ? 'mid' : /non-persistent/i.test(t) ? 'low' : 'unknown';
 
   /* A close button at the end of a long section, so readers need not scroll back up to its heading. */
+  function closeSection(btn) {
+    const d = btn.closest('details');
+    d.open = false;
+    const s = d.querySelector('summary');
+    const bar = document.querySelector('header')?.getBoundingClientRect().bottom || 0;
+    const top = s.getBoundingClientRect().top;
+    if (top < bar || top > innerHeight) s.scrollIntoView({block: 'center'});
+  }
   function closer() {
-    return el('button', {type: 'button', class: 'closer', text: t('closer'), onclick: e => {
-      const d = e.currentTarget.closest('details');
-      d.open = false;
-      const s = d.querySelector('summary');
-      const bar = document.querySelector('header')?.getBoundingClientRect().bottom || 0;
-      const top = s.getBoundingClientRect().top;
-      if (top < bar || top > innerHeight) s.scrollIntoView({block: 'center'});
-    }});
+    return el('button', {type: 'button', class: 'closer', text: t('closer'), onclick: e => closeSection(e.currentTarget)});
   }
   function residueSection(r) {
     const keys = residueKeys(r);
@@ -476,7 +477,7 @@
       const items = rows.filter(r => r.category === g.key);
       return el('details', Object.assign({class: 'soil-group'}, g.open ? {open: ''} : {}),
         el('summary', {}, el('span', {class: 'soil-group-title', text: `${t('soil.g.' + g.key)} (${items.length})`}), el('span', {class: 'note', text: t('soil.n.' + g.key)})),
-        el('div', {class: 'soil-group-rows'}, ...items.map(soilRow)));
+        el('div', {class: 'soil-group-rows'}, ...items.map(soilRow)), closer());
     }));
   }
 
@@ -848,6 +849,8 @@
     });
     document.addEventListener('click', e => { if (!e.target.closest('#crop-panel, #crop-chip')) closeCropMenu(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.listOpen) { closeCropMenu(); document.getElementById('crop-chip').focus(); } });
+    /* Close buttons written into the page itself (not built here) use the same behaviour. */
+    document.querySelectorAll('button.closer[data-close]').forEach(btn => btn.addEventListener('click', () => closeSection(btn)));
     document.getElementById('reg-measured').addEventListener('change', e => { state.regMeasured = e.target.checked; state.regShown = 0; drawRegulators(); });
     window.addEventListener('hashchange', () => { closeCropMenu(); route(); window.scrollTo(0, 0); });
     let w = window.innerWidth, timer;
