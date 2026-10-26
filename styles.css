@@ -688,3 +688,13 @@ details.grp.nd > summary { list-style: none; gap: 6px; }
 details.grp.nd > summary::-webkit-details-marker { display: none; }
 details.grp.nd > summary::after { content: "▾"; font-size: 12px; }
 details.grp.nd[open] > summary::after { content: "▴"; }
+
+/* Chinese: Noto Sans SC (only the characters on screen are downloaded) one step heavier than Latin text,
+   because regular-weight Chinese system fonts read thin at these sizes. The serif heading font has no Chinese,
+   so headings use the same sans face. */
+:root[data-lang="zh"] {
+  --sans: "Source Sans 3", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --serif: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+:root[data-lang="zh"] body { font-weight: 500; }
+:root[data-lang="zh"] h1 { font-weight: 700; letter-spacing: 0; }
