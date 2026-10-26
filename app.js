@@ -421,7 +421,7 @@
         soilBadge(r),
         el('span', {class: 'soil-time', text: r.time_summary || 'Not found'})),
       el('p', {}, el('strong', {text: 'Persistence class: '}), r.persistence_class || 'Unknown'),
-      el('p', {}, el('strong', {text: 'Half-life: '}), `lab ${r.soil_dt50_lab_days || 'not found'}; field ${r.soil_dt50_field_days || 'not found'}`),
+      el('p', {}, el('strong', {text: 'Soil half-life (DT₅₀): '}), `lab ${r.soil_dt50_lab_days || 'not found'} days (controlled laboratory soil); field ${r.soil_dt50_field_days || 'not found'} days (real fields, usually more relevant)`),
       r.approx_time_to_97pct_gone ? el('p', {}, el('strong', {text: 'Time to about 97% gone: '}), r.approx_time_to_97pct_gone) : null,
       r.orchard_field_residues && !/^not found/i.test(r.orchard_field_residues) ? el('p', {}, el('strong', {text: 'Measured in orchards: '}), r.orchard_field_residues) : null,
       r.accumulation_note ? el('p', {}, el('strong', {text: 'Repeated use: '}), r.accumulation_note) : null,
