@@ -341,3 +341,25 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 
 .c.nod { color: var(--muted); background: var(--grid); }
 .ct .c { height: auto; min-height: 30px; padding-block: 3px; white-space: normal; text-align: center; line-height: 1.1; }
+
+/* Inline crop list under the crop button */
+.crop-pick-more { font-size: 13px; color: var(--up); font-weight: 600; }
+.crop-pick .caret { transition: transform .15s ease-out; }
+.crop-pick[aria-expanded="true"] .caret { transform: rotate(180deg); }
+.crop-list { display: flex; flex-direction: column; gap: 8px; padding: 12px; margin-bottom: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.crop-list .note { margin: 0; }
+.crop-bar .stepper { margin-left: auto; }
+.crop-bar { flex-wrap: wrap; }
+.crop-pick { flex: 1 1 auto; justify-content: flex-start; max-width: 100%; }
+.crop-pick .caret { margin-left: auto; }
+@media (max-width: 420px) { .crop-pick-name { font-size: 18px; } }
+/* Keep crop button and arrows on one row on phones */
+.crop-bar { flex-wrap: nowrap; }
+.crop-pick { flex: 1 1 0; min-width: 0; }
+.crop-pick-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crop-pick-more { white-space: nowrap; }
+@media (max-width: 420px) {
+  .crop-pick { gap: 8px; padding: 0 12px; }
+  .crop-pick .dots { display: none; }
+  .crop-bar .stepper button { width: 40px; height: 40px; }
+}

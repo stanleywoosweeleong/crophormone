@@ -50,7 +50,7 @@
 
   const data = {};
   const DEFAULT_CROP = 'Durian';
-  const state = {crop: DEFAULT_CROP, stage: 'Flowering', view: 'overview', regCrop: DEFAULT_CROP, regStage: '', regMeasured: false};
+  const state = {crop: DEFAULT_CROP, stage: 'Flowering', view: 'overview', regCrop: DEFAULT_CROP, regStage: '', regMeasured: false, listOpen: false};
   /* The default crop first, then the rest alphabetically. */
   const cropOrder = rows => [...new Set(rows.map(r => r.crop))]
     .sort((a, b) => (b === DEFAULT_CROP) - (a === DEFAULT_CROP) || a.localeCompare(b));
@@ -185,29 +185,17 @@
     return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, summary, table, ev);
   }
 
-  /* The picker: every crop as a compact tile in a sheet; choosing one closes it. */
-  let picker = null;
-  function openPicker() {
-    if (!evidence()) return;
-    if (!picker) {
-      picker = el('dialog', {class: 'sheet picker', 'aria-labelledby': 'picker-title'});
-      picker.addEventListener('click', e => { if (e.target === picker) picker.close(); });
-      document.body.append(picker);
-    }
-    picker.replaceChildren(
-      el('h2', {id: 'picker-title', text: 'Choose a crop'}),
-      el('p', {class: 'note', text: 'Dots show how many of the three stages have at least one measured hormone.'}),
-      el('div', {class: 'tiles'}, ...cropOrder(data.evidence).map(crop => {
+  /* The crop list opens inline under the crop button; choosing a crop closes it again. */
+  function cropList(crops) {
+    return el('div', {class: 'crop-list', id: 'crop-list'},
+      el('p', {class: 'note', text: `All ${crops.length} crops. Dots show how many of the three stages have at least one measured hormone.`}),
+      el('div', {class: 'tiles'}, ...crops.map(crop => {
         const n = measuredStages(crop);
         return el('button', {
           type: 'button', class: 'tile', 'aria-pressed': String(crop === state.crop), 'aria-label': `${crop}, ${n} of 3 stages measured`,
-          onclick: () => { picker.close(); selectCrop(crop); }
+          onclick: () => { state.listOpen = false; selectCrop(crop); }
         }, el('span', {class: 'tile-name', text: crop}), dots(n));
-      })),
-      el('button', {type: 'button', class: 'sheet-close', text: 'Cancel', onclick: () => picker.close()}));
-    picker.showModal();
-    const current = picker.querySelector('[aria-pressed="true"]');
-    if (current) current.focus();
+      })));
   }
 
   function drawCropCard() {
@@ -218,14 +206,21 @@
     const i = crops.indexOf(state.crop);
     const n = measuredStages(state.crop);
     const step = d => selectCrop(crops[(i + d + crops.length) % crops.length]);
+    const toggle = () => {
+      state.listOpen = !state.listOpen;
+      drawCropCard();
+      document.querySelector('.crop-pick').focus();
+    };
     document.getElementById('crop-bar').replaceChildren(
-      el('button', {type: 'button', class: 'crop-pick', 'aria-haspopup': 'dialog', 'aria-label': `${state.crop}, ${n} of 3 stages measured. Change crop`, onclick: openPicker},
-        el('span', {class: 'crop-pick-name', text: state.crop}), dots(n), el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'})),
-      el('span', {class: 'crop-count', text: `${i + 1} of ${crops.length}`}),
+      el('button', {type: 'button', class: 'crop-pick', 'aria-expanded': String(!!state.listOpen), 'aria-controls': 'crop-list',
+        'aria-label': `${state.crop}, ${n} of 3 stages measured. ${state.listOpen ? 'Hide' : 'Show'} all ${crops.length} crops`, onclick: toggle},
+        el('span', {class: 'crop-pick-name', text: state.crop}), dots(n),
+        el('span', {class: 'crop-pick-more', text: state.listOpen ? 'Hide crops' : `${crops.length} crops`}),
+        el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'})),
       el('span', {class: 'stepper'},
         el('button', {type: 'button', 'aria-label': `Previous crop: ${crops[(i - 1 + crops.length) % crops.length]}`, text: '‹', onclick: () => step(-1)}),
         el('button', {type: 'button', 'aria-label': `Next crop: ${crops[(i + 1) % crops.length]}`, text: '›', onclick: () => step(1)})));
-    document.getElementById('crop-detail').replaceChildren(cropPanel(state.crop));
+    document.getElementById('crop-detail').replaceChildren(...[state.listOpen ? cropList(crops) : null, cropPanel(state.crop)].filter(Boolean));
   }
 
   function selectCrop(crop, scroll) {
