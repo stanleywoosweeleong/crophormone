@@ -517,7 +517,6 @@ details.notice p { margin: 6px 0 0; font-size: 14px; }
 
 /* Flowering charts: the chosen crop's cards are marked and shown first */
 .flower-charts { display: flex; flex-direction: column; gap: 16px; }
-@media (min-width: 900px) { .flower-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } .flower-charts > [data-crop="Mango"]:last-child { grid-column: 1 / -1; } }
 .card.mine { border-color: var(--up); box-shadow: inset 0 0 0 1px var(--up); }
 
 /* Stage comparison: one line per hormone, tap to see crop names */
@@ -574,3 +573,6 @@ details.notice[open] > summary::after { content: "▴"; }
 .soil-fn { flex-basis: 100%; font-size: 14px; color: var(--fg); order: 3; }
 .soil-time { order: 4; color: var(--muted); }
 .soil-fn strong, .soil-time strong { font-weight: 600; color: var(--fg); }
+
+/* Chart labels: a halo in the card colour so gridlines pass behind the text */
+.chart text.lbl { paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; }

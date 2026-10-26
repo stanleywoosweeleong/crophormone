@@ -540,7 +540,7 @@
       const y = tops[i], rowH = 32 + lineH * lines[i].length;
       const g = svg.append('g').attr('class', 'row').attr('tabindex', 0).attr('role', 'button').attr('aria-label', lines[i].join(' '));
       const bg = g.append('rect').attr('x', 0).attr('y', y).attr('width', W).attr('height', rowH - 2).attr('rx', 6).style('fill', 'transparent');
-      const lab = g.append('text').style('fill', 'var(--fg)');
+      const lab = g.append('text').attr('class', 'lbl').style('fill', 'var(--fg)');
       lines[i].forEach((l, j) => lab.append('tspan').attr('x', m.l + 4).attr('y', y + 15 + j * lineH).text(l));
       o.mark(g, d, x, y + 15 + lineH * (lines[i].length - 1) + 16);
       const pick = () => {
@@ -650,7 +650,7 @@
         g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).style('stroke', 'var(--down)').style('stroke-width', 10).style('stroke-linecap', 'round');
         g.append('circle').attr('cx', x(d.c)).attr('cy', y).attr('r', 6).style('fill', 'var(--up)').style('stroke', 'var(--panel)').style('stroke-width', 2);
       },
-      select: d => readout('leaf-readout', d.hormone, [`Control: ${fmt(d.c)} ng/g FM`, `Girdled: ${fmt(d.lo)}–${fmt(d.hi)} ng/g FM`], source(d))
+      select: d => readout('leaf-readout', d.hormone, [`Control (untreated branches): ${fmt(d.c)} ng/g fresh mass`, `Girdled branches: ${fmt(d.lo)}–${fmt(d.hi)} ng/g fresh mass`], source(d))
     });
   }
 
@@ -686,6 +686,9 @@
     });
   }
 
+  /* "PBZ vs control" reads as jargon; say what the control trees were. */
+  const plainControl = t => t.replace(/vs control/g, 'vs untreated trees');
+
   function drawPbz() {
     const rows = data.pbz;
     if (rows === null) return failed('pbz-chart');
@@ -698,7 +701,7 @@
       scale: r => d3.scaleLinear([-100, 260], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, narrow() ? [-100, 0, 100, 200] : [-100, -50, 0, 50, 100, 150, 200, 250], y0, y1, t => t > 0 ? '+' + t : String(t), 0),
       padR: 40,
-      label: d => `${d.hormone} · ${d.tissue} · ${d.comparison}`,
+      label: d => `${d.hormone} · ${d.tissue} · ${plainControl(d.comparison)}`,
       mark(g, d, x, y) {
         const a = Math.min(x(0), x(d.p)), w = Math.max(2, Math.abs(x(d.p) - x(0)));
         g.append('rect').attr('x', a).attr('y', y - 7).attr('width', w).attr('height', 14).attr('rx', 5)
@@ -709,7 +712,7 @@
         else if (x(d.p) - 8 - tw >= 0) t.attr('x', x(d.p) - 8).attr('text-anchor', 'end');
         else t.attr('x', x(0) + 8);
       },
-      select: d => readout('pbz-readout', `${d.hormone} · ${d.tissue}`, [d.comparison, value(d)], source(d))
+      select: d => readout('pbz-readout', `${d.hormone} · ${d.tissue}`, [plainControl(d.comparison), value(d)], source(d))
     });
   }
 

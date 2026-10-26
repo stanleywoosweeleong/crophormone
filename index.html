@@ -16,9 +16,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=e5a508af7d">
+<link rel="stylesheet" href="styles.css?v=b91f699c52">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
-<script src="app.js?v=60fcbee26e" defer></script>
+<script src="app.js?v=c729bb7f25" defer></script>
 <script src="update.js?v=4b38a14d43" defer></script>
 <script src="install.js?v=2e7b7407fd" defer></script>
 </head>
@@ -129,8 +129,8 @@
     <div class="grid2 flower-charts">
       <div class="card" data-crop="Mango">
         <h2>Mango leaf, girdled vs control</h2>
-        <p class="note">ng/g fresh mass, LC-MS/MS, log scale. Alphonso, one month after girdling. Girdled rows in the source table were scrambled, so treat ranges as approximate.</p>
-        <div class="key"><span><i class="sw" style="background:var(--up)"></i>Control</span><span><i class="sw" style="background:var(--down)"></i>Girdled (range)</span></div>
+        <p class="note">ng/g fresh mass (FM: weight of fresh, undried leaf), measured by LC-MS/MS, log scale. "Control" means untreated comparison branches. Alphonso, one month after girdling. Girdled rows in the source table were scrambled, so treat ranges as approximate.</p>
+        <div class="key"><span><i class="sw" style="background:var(--up)"></i>Control (untreated, not girdled)</span><span><i class="sw" style="background:var(--down)"></i>Girdled branches (range)</span></div>
         <div class="chart" id="leaf-chart"><div class="loading"></div></div>
         <div class="readout" id="leaf-readout" aria-live="polite"><span class="hint">Tap a hormone for its values.</span></div>
       </div>
@@ -142,7 +142,7 @@
         <div class="readout" id="longan-readout" aria-live="polite"><span class="hint">Tap a bar for its value.</span></div>
         <div class="card" data-crop="Mango">
         <h2>Mango: change with paclobutrazol (PBZ)</h2>
-        <p class="note">Percent change, mostly PBZ-treated vs untreated Alphonso trees (Burondkar 2016, from search snippets). The two "untreated" rows compare dates within control trees.</p>
+        <p class="note">Percent change in PBZ-treated Alphonso trees compared with untreated trees of the same orchard (the "control", left untreated so any difference can be credited to PBZ). Burondkar 2016, from search snippets. The two "untreated trees" rows instead compare two dates within the untreated trees. Orange bars are decreases, blue bars increases, measured from the 0 line.</p>
         <div class="chart" id="pbz-chart"><div class="loading"></div></div>
         <div class="readout" id="pbz-readout" aria-live="polite"><span class="hint">Tap a row for its details and source.</span></div>
       </div>
