@@ -223,7 +223,19 @@
     chip.replaceChildren(el('span', {class: 'chip-label', text: 'Crop'}), el('span', {class: 'chip-name', text: state.crop}),
       el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'}));
     panel.hidden = !state.listOpen;
-    panel.replaceChildren(...(state.listOpen ? [el('div', {class: 'crop-panel-inner'}, cropList(crops))] : []));
+    panel.replaceChildren(...(state.listOpen ? [el('div', {class: 'crop-menu', role: 'group', 'aria-label': 'Choose a crop'},
+      ...crops.map(crop => {
+        const n = measuredStages(crop);
+        return el('button', {type: 'button', class: 'crop-opt', 'aria-pressed': String(crop === state.crop), 'aria-label': `${crop}, ${n} of 3 stages measured`,
+          onclick: () => selectCrop(crop)}, el('span', {text: crop}), dots(n));
+      }),
+      el('p', {class: 'crop-menu-note', text: 'Dots: stages with at least one measured hormone.'}))] : []));
+  }
+  /* The crop menu floats over the page; it closes on a pick, a tap outside it, or Esc. */
+  function closeCropMenu() {
+    if (!state.listOpen) return;
+    state.listOpen = false;
+    drawCropChip();
   }
 
   function cropButton(crops) {
@@ -763,11 +775,14 @@
     document.querySelectorAll('#stage-seg button').forEach(b => b.addEventListener('click', () => { state.stage = b.dataset.stage; drawMatrix(); }));
     document.querySelectorAll('#reg-stage button').forEach(b => b.addEventListener('click', () => { state.regStage = b.dataset.stage; state.regShown = 0; drawRegulators(); }));
     document.getElementById('reg-all').addEventListener('change', e => { state.regAll = e.target.checked; state.regShown = 0; drawRegulators(); });
-    document.getElementById('crop-chip').addEventListener('click', () => {
+    document.getElementById('crop-chip').addEventListener('click', e => {
+      e.stopPropagation();
       state.listOpen = !state.listOpen;
       drawCropChip();
       if (state.listOpen) { const t = document.querySelector('#crop-panel [aria-pressed="true"]'); if (t) t.focus(); }
     });
+    document.addEventListener('click', e => { if (!e.target.closest('#crop-panel, #crop-chip')) closeCropMenu(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.listOpen) { closeCropMenu(); document.getElementById('crop-chip').focus(); } });
     document.getElementById('reg-measured').addEventListener('change', e => { state.regMeasured = e.target.checked; state.regShown = 0; drawRegulators(); });
     window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
     let w = window.innerWidth, timer;
