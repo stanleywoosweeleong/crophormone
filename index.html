@@ -43,30 +43,20 @@
     <p class="lead">Buds lose gibberellin and gain cytokinin and ABA before flowering. Young fruit that drop show rising ABA and ethylene. At ripening, climacteric fruits peak in ethylene and non-climacteric fruits rely on rising ABA. Most crops have only the direction of change, not measured levels.</p>
 
     <div class="card" id="crop-card">
-      <h2 id="crop-title">Through the growth cycle</h2>
-      <div class="chips" id="crop-chips" role="group" aria-label="Crop"></div>
-      <div class="stages" id="crop-stages"></div>
-      <p class="note">Dashed badges are inferred from the crop's fruit type or general tree physiology, not measured in that crop.</p>
+      <h2>Crops through the growth cycle</h2>
+      <p class="note">Each tile previews flowering, fruit set and ripening (rows) for GA, cytokinin, ABA, auxin and ethylene (columns). Tap a crop to open it. Dashed marks are inferred, not measured in that crop.</p>
+      <div class="tiles" id="crop-tiles"><div class="loading"></div></div>
     </div>
 
     <div class="card">
-      <h2>All crops at a glance</h2>
-      <div class="seg narrow-only" id="stage-seg" role="group" aria-label="Stage">
+      <h2>Compare crops by stage</h2>
+      <div class="seg" id="stage-seg" role="group" aria-label="Stage">
         <button type="button" data-stage="Flowering">Flowering</button>
         <button type="button" data-stage="Fruit set">Fruit set</button>
         <button type="button" data-stage="Ripening">Ripening</button>
       </div>
-      <div class="key">
-        <span><i class="c up" aria-hidden="true">▲</i>Rises</span>
-        <span><i class="c peak" aria-hidden="true">▲</i>Peaks</span>
-        <span><i class="c down" aria-hidden="true">▼</i>Falls</span>
-        <span><i class="c low" aria-hidden="true">▽</i>Stays low</span>
-        <span><i class="c mix" aria-hidden="true">◆</i>Mixed</span>
-        <span><i class="c nd" aria-hidden="true">·</i>No data</span>
-        <span><i class="c up inferred" aria-hidden="true">▲</i>Inferred</span>
-      </div>
-      <div id="mx"><div class="loading"></div></div>
-      <p class="note">GA gibberellin · CK cytokinin · ABA abscisic acid · IAA auxin · Eth ethylene. Tap a crop or cell to open it above.</p>
+      <p class="note">For each hormone, crops are grouped by what happens at this stage. Dashed names are inferred, not measured in that crop. Tap a crop to open it above.</p>
+      <div id="mx" class="cmp"><div class="loading"></div></div>
     </div>
   </section>
 

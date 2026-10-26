@@ -79,48 +79,78 @@
     drawView();
   }
 
-  /* ---------- overview: crop card ---------- */
+  /* ---------- overview: crop tiles that expand inline ---------- */
+  const stageRow = (rows, crop, s) => rows.find(x => x.crop === crop && x.stage === s);
+  const slug = crop => 'crop-' + crop.toLowerCase().replace(/[^a-z]+/g, '-');
+
+  /* The three stage cards for one crop, shown in the panel under its tile row. */
+  function cropPanel(rows, crop) {
+    return el('div', {class: 'crop-panel', id: slug(crop) + '-panel', role: 'region', 'aria-label': `${crop} through the growth cycle`},
+      el('header', {},
+        el('h3', {text: `${crop} through the growth cycle`}),
+        el('button', {type: 'button', class: 'collapse', text: 'Collapse', onclick: () => selectCrop(null)})),
+      el('div', {class: 'stages'}, ...STAGES.map(s => {
+        const r = stageRow(rows, crop, s);
+        const basis = r ? r.basis : 'No data';
+        const inferred = basis === 'Inferred';
+        const pillCls = basis === 'Measured' ? 'measured' : basis === 'Partly measured' ? 'partly' : inferred ? 'inferred' : '';
+        return el('article', {class: 'stage-card'},
+          el('header', {}, el('h4', {text: s}), el('span', {class: 'pill ' + pillCls, text: basis})),
+          el('ul', {class: 'hl'}, ...HORMONES.map(h => {
+            const v = r ? r[h.field] : 'No data', d = dir(v);
+            return el('li', {},
+              el('span', {text: h.name}),
+              el('span', {class: `c ${d.cls}${inferred && d.cls !== 'nd' ? ' inferred' : ''}`},
+                el('span', {'aria-hidden': 'true', text: d.glyph}), d.word));
+          })),
+          el('p', {class: 'evidence', text: r ? r.note : ''}));
+      })));
+  }
+
+  /* A tile: crop name plus a 3 × 5 preview of directions (stages down, hormones across). */
+  function cropTile(rows, crop) {
+    const open = crop === state.crop;
+    const preview = el('span', {class: 'mini', 'aria-hidden': 'true'});
+    STAGES.forEach(s => {
+      const r = stageRow(rows, crop, s);
+      const inferred = r && r.basis === 'Inferred';
+      HORMONES.forEach(h => {
+        const d = dir(r ? r[h.field] : 'No data');
+        preview.append(el('i', {class: `c ${d.cls}${inferred && d.cls !== 'nd' ? ' inferred' : ''}`}));
+      });
+    });
+    const measured = STAGES.filter(s => { const r = stageRow(rows, crop, s); return r && /measured/i.test(r.basis); }).length;
+    return el('button', {
+      type: 'button', class: 'tile', 'aria-expanded': String(open), 'aria-controls': slug(crop) + '-panel',
+      onclick: () => selectCrop(open ? null : crop)
+    },
+      el('span', {class: 'tile-head'}, el('span', {class: 'tile-name', text: crop}), el('span', {class: 'chev', 'aria-hidden': 'true', text: '›'})),
+      preview,
+      el('span', {class: 'tile-meta', text: measured ? `${measured} of 3 stages measured` : 'Inferred only'}));
+  }
+
   function drawCropCard() {
     const rows = data.lifecycle;
-    const chips = document.getElementById('crop-chips');
-    const stages = document.getElementById('crop-stages');
+    const grid = document.getElementById('crop-tiles');
+    if (rows === null) return failed('crop-tiles');
     if (!rows) return;
     const crops = [...new Set(rows.map(r => r.crop))];
-    chips.replaceChildren(...crops.map(c => el('button', {
-      type: 'button', 'aria-pressed': String(c === state.crop), text: c,
-      onclick: () => selectCrop(c, false)
-    })));
-    const active = chips.querySelector('[aria-pressed="true"]');
-    /* Keep the chosen chip in view by scrolling the chip row only, never the page. */
-    if (active) {
-      const left = active.offsetLeft - chips.offsetLeft, right = left + active.offsetWidth;
-      if (left < chips.scrollLeft) chips.scrollLeft = left - 8;
-      else if (right > chips.scrollLeft + chips.clientWidth) chips.scrollLeft = right - chips.clientWidth + 8;
-    }
-    document.getElementById('crop-title').textContent = `${state.crop} through the growth cycle`;
-    stages.replaceChildren(...STAGES.map(s => {
-      const r = rows.find(x => x.crop === state.crop && x.stage === s);
-      const basis = r ? r.basis : 'No data';
-      const inferred = basis === 'Inferred';
-      const pillCls = basis === 'Measured' ? 'measured' : basis === 'Partly measured' ? 'partly' : inferred ? 'inferred' : '';
-      return el('article', {class: 'stage-card'},
-        el('header', {}, el('h3', {text: s}), el('span', {class: 'pill ' + pillCls, text: basis})),
-        el('ul', {class: 'hl'}, ...HORMONES.map(h => {
-          const v = r ? r[h.field] : 'No data', d = dir(v);
-          return el('li', {},
-            el('span', {text: h.name}),
-            el('span', {class: `c ${d.cls}${inferred && d.cls !== 'nd' ? ' inferred' : ''}`},
-              el('span', {'aria-hidden': 'true', text: d.glyph}), d.word));
-        })),
-        el('p', {class: 'evidence', text: r ? r.note : ''}));
-    }));
+    const tiles = crops.map(c => cropTile(rows, c));
+    grid.replaceChildren(...tiles);
+    const i = crops.indexOf(state.crop);
+    if (i < 0) return;
+    /* Put the panel right after the last tile in the open tile's row, spanning the full width. */
+    const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').length || 1;
+    const rowEnd = Math.min(crops.length - 1, Math.floor(i / cols) * cols + cols - 1);
+    tiles[rowEnd].after(cropPanel(rows, state.crop));
   }
 
   function selectCrop(crop, scroll) {
     state.crop = crop;
     drawCropCard();
     drawMatrix();
-    if (scroll) document.getElementById('crop-card').scrollIntoView({behavior: 'smooth', block: 'start'});
+    const target = crop && document.getElementById(slug(crop) + '-panel');
+    if (scroll && target) target.scrollIntoView({behavior: 'smooth', block: 'center'});
   }
 
   /* ---------- overview: map of all crops ---------- */
@@ -130,33 +160,29 @@
     if (rows === null) return failed('mx');
     if (!rows) return;
     document.querySelectorAll('#stage-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === state.stage)));
-    const shown = narrow() ? [state.stage] : STAGES;
     const crops = [...new Set(rows.map(r => r.crop))];
     const by = new Map(rows.map(r => [r.crop + '|' + r.stage, r]));
-    const mx = el('div', {class: 'mx', role: 'table', 'aria-label': 'Hormone direction by crop and stage'});
-    mx.style.gridTemplateColumns = `max-content repeat(${shown.length * 5}, minmax(36px, 1fr))`;
-    if (shown.length > 1) {
-      mx.append(el('div'));
-      shown.forEach(s => { const h = el('div', {class: 'stage', text: s}); h.style.gridColumn = 'span 5'; if (s !== shown[0]) h.classList.add('gap'); mx.append(h); });
-    }
-    mx.append(el('div'));
-    shown.forEach((s, si) => HORMONES.forEach((h, i) => mx.append(el('div', {class: 'h' + (i === 0 && si ? ' gap' : ''), text: h.short}))));
-    crops.forEach(crop => {
-      mx.append(el('button', {class: 'crop', type: 'button', 'aria-pressed': String(crop === state.crop), text: crop, onclick: () => selectCrop(crop, true)}));
-      shown.forEach((s, si) => {
-        const r = by.get(crop + '|' + s);
-        HORMONES.forEach((h, i) => {
-          const v = r ? r[h.field] : 'No data', d = dir(v);
-          const inferred = r && r.basis === 'Inferred' && d.cls !== 'nd';
-          mx.append(el('div', {
-            class: `c ${d.cls}${inferred ? ' inferred' : ''}${i === 0 && si ? ' gap' : ''}`, role: 'cell',
-            'aria-label': `${crop}, ${s}, ${h.name}: ${d.word}${inferred ? ' (inferred)' : ''}`, title: `${crop} · ${s} · ${h.name}: ${d.word}`,
-            text: d.glyph, onclick: () => selectCrop(crop, true)
-          }));
-        });
+    /* One card per hormone; inside, crops grouped by direction, in this order. */
+    const ORDER = ['Up', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'No data'];
+    box.replaceChildren(...HORMONES.map(h => {
+      const groups = new Map(ORDER.map(k => [k, []]));
+      crops.forEach(crop => {
+        const r = by.get(crop + '|' + state.stage);
+        const v = r && DIRECTION[r[h.field]] ? r[h.field] : 'No data';
+        groups.get(v).push({crop, inferred: !!r && r.basis === 'Inferred'});
       });
-    });
-    box.replaceChildren(mx);
+      const lines = ORDER.filter(k => groups.get(k).length).map(k => {
+        const d = DIRECTION[k];
+        return el('div', {class: 'grp' + (k === 'No data' ? ' nd' : '')},
+          el('span', {class: `c ${d.cls}`}, el('span', {'aria-hidden': 'true', text: d.glyph}), d.word),
+          el('span', {class: 'names'}, ...groups.get(k).map(g => el('button', {
+            type: 'button', class: 'name' + (g.inferred && k !== 'No data' ? ' inferred' : '') + (g.crop === state.crop ? ' on' : ''),
+            'aria-label': `${g.crop}: ${d.word}${g.inferred ? ', inferred' : ''}. Open ${g.crop}`,
+            text: g.crop, onclick: () => selectCrop(g.crop, true)
+          }))));
+      });
+      return el('article', {class: 'cmp-card'}, el('h3', {text: h.name}), ...lines);
+    }));
   }
 
   /* ---------- charts ---------- */
