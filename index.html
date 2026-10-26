@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=c697f9d785">
+<link rel="stylesheet" href="styles.css?v=fde1717b14">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
 <script src="app.js?v=89f83b785f" defer></script>
 <script src="update.js?v=4b38a14d43" defer></script>
@@ -68,15 +68,16 @@
 
     <div class="card">
       <h2>Boosters and blockers</h2>
-      <p class="note">Most products work in opposing pairs. Choose the side that moves the tree where you want it.</p>
+      <p class="note">For each hormone: products that boost it, products that block it, and the plant hormone that naturally works against it.</p>
       <ul class="pairs">
-        <li><span class="ph">Gibberellin</span><span><b>Boost:</b> GA₃ sprays (fruit set, delaying flowering)</span><span><b>Block:</b> paclobutrazol, uniconazole, prohexadione-calcium (forcing flowering, curbing flush)</span></li>
-        <li><span class="ph">Ethylene</span><span><b>Boost:</b> ethephon, ethylene gas (pineapple forcing, ripening, degreening)</span><span><b>Block:</b> 1-MCP stops its action, AVG stops its production, permanganate absorbs it (shelf life, less drop)</span></li>
-        <li><span class="ph">Auxin</span><span><b>Boost:</b> NAA, 2,4-D, 4-CPA (less fruit drop, bigger fruit)</span><span><b>Block:</b> TIBA (research only); ethylene lowers auxin flow and causes drop</span></li>
-        <li><span class="ph">Cytokinin</span><span><b>Boost:</b> CPPU, 6-BA (fruit set and size); KNO₃ acts partly through cytokinin</span><span><b>Opposed by:</b> auxin at the shoot tip</span></li>
-        <li><span class="ph">ABA</span><span><b>Boost:</b> S-ABA (peel colour); water stress and girdling raise it</span><span><b>Opposed by:</b> gibberellin (growth vs rest)</span></li>
-        <li><span class="ph">Others</span><span><b>Boost:</b> MeJA, salicylic acid, brassinolide, putrescine, melatonin (colour, chilling and browning control, fruit set)</span><span><b>Block:</b> none in commercial use</span></li>
+        <li><span class="ph">Gibberellin</span><span><b>Boost:</b> GA₃ sprays (fruit set, delaying flowering, slowing peel ageing)</span><span><b>Block:</b> paclobutrazol, uniconazole, prohexadione-calcium stop its production (forcing flowering, curbing flush)</span><span><b>Natural opponent:</b> ABA (rest and flowering vs growth)</span></li>
+        <li><span class="ph">Ethylene</span><span><b>Boost:</b> ethephon, ethylene gas (pineapple forcing, ripening, degreening)</span><span><b>Block:</b> 1-MCP stops the plant sensing it; AVG stops its production; permanganate absorbs it from the air (shelf life, less drop)</span><span><b>Natural opponent:</b> auxin (keeps young fruit attached)</span></li>
+        <li><span class="ph">Auxin</span><span><b>Boost:</b> NAA, 2,4-D, 4-CPA (less fruit drop, bigger fruit)</span><span><b>Block:</b> no commercial blocker (TIBA is research only)</span><span><b>Natural opponent:</b> ethylene (lowers auxin flow and causes drop); cytokinin (side-bud growth)</span></li>
+        <li><span class="ph">Cytokinin</span><span><b>Boost:</b> CPPU, 6-BA (fruit set and size); KNO₃ acts partly through cytokinin</span><span><b>Block:</b> no commercial blocker</span><span><b>Natural opponent:</b> auxin at the shoot tip</span></li>
+        <li><span class="ph">ABA</span><span><b>Boost:</b> S-ABA (peel colour); water stress and girdling raise it</span><span><b>Block:</b> no commercial blocker (fluridone is research only)</span><span><b>Natural opponent:</b> gibberellin (growth vs rest)</span></li>
+        <li><span class="ph">Others</span><span><b>Boost:</b> MeJA, salicylic acid, brassinolide, putrescine, melatonin (colour, chilling and browning control, fruit set)</span><span><b>Block:</b> no commercial blockers</span><span><b>Natural opponent:</b> salicylic acid and jasmonates often oppose each other; polyamines compete with ethylene for the same building block</span></li>
       </ul>
+      <p class="note"><b>Block</b> is a product that stops the plant making or sensing a hormone. <b>Natural opponent</b> is another of the plant's own hormones with the opposite effect; where no blocker exists, growers shift the balance through it.</p>
     </div>
 
     <div class="card">
