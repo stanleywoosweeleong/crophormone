@@ -9,7 +9,7 @@ const CDN_CACHE = PREFIX + 'cdn-v1';
 const META_CACHE = PREFIX + 'meta-v1';
 const OLD_CACHES = ['app-v1', 'cdn-v1', 'cdn-v2', 'meta-v1'];
 const APP_FILES = [
-  './', 'index.html', 'styles.css', 'app.js', 'update.js', 'install.js', 'report.html', 'report.md', 'manifest.webmanifest',
+  './', 'index.html', 'styles.css', 'app.js', 'i18n.js', 'update.js', 'install.js', 'report.html', 'report.md', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'data/hormone_evidence.csv', 'data/regulators.csv', 'data/soil_persistence.csv', 'data/fruit_mrls.csv', 'data/ripening_ethylene.csv', 'data/flowering_mango_leaf.csv',
   'data/flowering_longan.csv', 'data/flowering_pct_change.csv', 'data/fruitset_fold.csv'

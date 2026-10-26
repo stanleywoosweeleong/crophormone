@@ -29,23 +29,32 @@
     {key: 'Strigolactones', name: 'Strigolactones', group: 'Other hormones'}
   ];
   const HORMONE_KEYS = new Set(HORMONES.map(h => h.key));
+  /* Display text in the chosen language (i18n.js). Data keys such as crop and stage names stay in English. */
+  const L = window.I18N;
+  const t = (k, v) => L.t(k, v);
+  const cropN = c => L.crop(c);
+  const hName = k => L.hormone(k);
+  const list = items => items.join(t('sep'));
   const DIRECTION = {
-    'Up': {glyph: '▲', cls: 'up', word: 'Rises'},
-    'Up in drop': {glyph: '▲', cls: 'drop', word: 'Rises at drop'},
-    'Down': {glyph: '▼', cls: 'down', word: 'Falls'},
-    'Peak': {glyph: '▲', cls: 'peak', word: 'Peaks'},
-    'Low': {glyph: '▽', cls: 'low', word: 'Stays low'},
-    'Mixed': {glyph: '◆', cls: 'mix', word: 'Mixed'},
-    'Conflicting': {glyph: '◆', cls: 'mix', word: 'Conflicting'},
-    'Not a driver': {glyph: '○', cls: 'nod', word: 'Not a driver'},
-    'Applied': {glyph: '◇', cls: 'trt', word: 'Applied only'},
-    'No data': {glyph: '·', cls: 'nd', word: 'No data'}
+    'Up': {glyph: '▲', cls: 'up', key: 'up'},
+    'Up in drop': {glyph: '▲', cls: 'drop', key: 'drop'},
+    'Down': {glyph: '▼', cls: 'down', key: 'down'},
+    'Peak': {glyph: '▲', cls: 'peak', key: 'peak'},
+    'Low': {glyph: '▽', cls: 'low', key: 'low'},
+    'Mixed': {glyph: '◆', cls: 'mix', key: 'mix'},
+    'Conflicting': {glyph: '◆', cls: 'mix', key: 'conflict'},
+    'Not a driver': {glyph: '○', cls: 'nod', key: 'nod'},
+    'Applied': {glyph: '◇', cls: 'trt', key: 'trt'},
+    'No data': {glyph: '·', cls: 'nd', key: 'nd'}
   };
+  /* The full word for a mark ("Stays low") and the short one used inside table cells ("Low"). */
+  const word = d => t('dir.' + d.key);
+  const shortWord = d => (d.key === 'nd' ? '—' : t('short.' + d.key));
   const VERIFY = {
-    FT: {name: 'Full text', color: 'var(--v-ft)'},
-    ABS: {name: 'Abstract', color: 'var(--v-abs)'},
-    SEC: {name: 'Review or guide', color: 'var(--v-sec)'},
-    SNIP: {name: 'Search snippet', color: 'var(--v-snip)'}
+    FT: {color: 'var(--v-ft)'},
+    ABS: {color: 'var(--v-abs)'},
+    SEC: {color: 'var(--v-sec)'},
+    SNIP: {color: 'var(--v-snip)'}
   };
   const fmt = v => d3.format('~g')(v);
   const dir = v => DIRECTION[v] || DIRECTION['Mixed'];
@@ -61,7 +70,7 @@
 
   /* The default crop first, then the rest alphabetically. */
   const cropOrder = rows => [...new Set(rows.map(r => r.crop))]
-    .sort((a, b) => (b === DEFAULT_CROP) - (a === DEFAULT_CROP) || a.localeCompare(b));
+    .sort((a, b) => (b === DEFAULT_CROP) - (a === DEFAULT_CROP) || cropN(a).localeCompare(cropN(b), document.documentElement.lang));
 
   /* ---------- small DOM helpers ---------- */
   function el(tag, attrs, ...kids) {
@@ -98,7 +107,7 @@
       it.source ? el('span', {class: 'm'}, ` · ${it.source.level} · `, cite(it.source.name, it.source.url, it.source.doi)) : null)));
   }
   function failed(id) {
-    document.getElementById(id).replaceChildren(el('div', {class: 'fail', text: 'Failed to load'}));
+    document.getElementById(id).replaceChildren(el('div', {class: 'fail', text: t('fail')}));
   }
 
   /* ---------- routing ---------- */
@@ -141,28 +150,27 @@
     return c;
   }
   const dots = n => el('span', {class: 'dots', 'aria-hidden': 'true'}, ...STAGES.map((s, i) => el('i', {class: i < n ? 'on' : ''})));
-  const SHORT = {up: 'Rises', drop: 'At drop', peak: 'Peaks', down: 'Falls', low: 'Low', mix: 'Mixed', nod: 'Not a driver', trt: 'Applied', nd: '—'};
-  const verName = v => (VERIFY[v] ? VERIFY[v].name : '');
+  /* How a value was checked (Full text, Abstract…), in the chosen language; unknown codes are shown as they are. */
+  const verName = v => (v ? (t('v.' + v) === 'v.' + v ? v : t('v.' + v)) : '');
 
   /* ---------- overview: one crop at a time, chosen from a picker ---------- */
   function badge(r) {
     const v = shown(r), d = DIRECTION[v];
     const inferred = !!r && r.basis === 'Inferred' && d.cls !== 'nd';
-    const word = v === 'Conflicting' ? 'Conflict' : SHORT[d.cls];
-    return el('span', {class: `c ${d.cls}${inferred ? ' inferred' : ''}`, title: d.word + (inferred ? ' (inferred)' : '')},
-      d.cls === 'nd' ? null : el('span', {'aria-hidden': 'true', text: d.glyph}), word);
+    return el('span', {class: `c ${d.cls}${inferred ? ' inferred' : ''}`, title: word(d) + (inferred ? t('inferred') : '')},
+      d.cls === 'nd' ? null : el('span', {'aria-hidden': 'true', text: d.glyph}), shortWord(d));
   }
 
   function evidenceLine(name, r) {
-    const tag = [r.basis === 'Treatment only' ? 'Applied only' : r.basis, verName(r.verification)].filter(Boolean).join(' · ');
+    const tag = [r.basis ? t('basis.' + r.basis) : '', verName(r.verification)].filter(Boolean).join(' · ');
     const value = r.value ? ` (${r.value}${r.units ? ' ' + r.units : ''}${r.tissue ? ', ' + r.tissue : ''})` : '';
-    return el('p', {}, el('strong', {text: name + ': '}), (r.note || '') + value, ' ',
+    return el('p', {}, el('strong', {text: name + t('colon')}), (r.note || '') + value, ' ',
       el('span', {class: 'src'}, `${tag}${r.source ? ' · ' : ''}`, r.source ? cite(r.source, r.source_url, r.doi) : null));
   }
 
   /* The evidence behind one stage: the shared note for the classic hormones, then each other hormone and signal. */
   function stageEvidence(crop, stage) {
-    const parts = [el('h3', {text: stage})];
+    const parts = [el('h3', {text: L.stage(stage)})];
     const byNote = new Map();
     HORMONES.filter(h => h.group === 'Classic hormones').forEach(h => {
       const r = cell(crop, stage, h.key);
@@ -171,69 +179,56 @@
       entry.names.push(h.key);
       byNote.set(r.note, entry);
     });
-    byNote.forEach(({names, r}) => parts.push(byNote.size === 1 ? el('p', {}, el('strong', {text: 'Classic hormones: '}), r.note)
-      : evidenceLine(names.join(', '), r)));
+    byNote.forEach(({names, r}) => parts.push(byNote.size === 1 ? el('p', {}, el('strong', {text: t('group.Classic hormones') + t('colon')}), r.note)
+      : evidenceLine(list(names.map(hName)), r)));
     const none = [];
     HORMONES.filter(h => h.group === 'Other hormones').forEach(h => {
       const r = cell(crop, stage, h.key);
       if (!r || r.basis === 'No data') { none.push(h.key); return; }
-      parts.push(evidenceLine(h.name, r));
+      parts.push(evidenceLine(hName(h.key), r));
     });
     signals(crop, stage).forEach(r => parts.push(evidenceLine(r.hormone, r)));
-    if (none.length) parts.push(el('p', {class: 'none', text: `No study found for: ${none.join(', ')}.`}));
+    if (none.length) parts.push(el('p', {class: 'none', text: t('ev.none', {list: list(none.map(hName))})}));
     return el('section', {class: 'ev-stage'}, ...parts);
   }
 
   /* The chosen crop: one compact table (hormones down, stages across), evidence folded away below it. */
   function cropPanel(crop) {
-    const table = el('div', {class: 'ct', role: 'table', 'aria-label': `${crop}: hormone direction by stage`});
+    const table = el('div', {class: 'ct', role: 'table', 'aria-label': t('table.aria', {crop: cropN(crop)})});
     const row = (...cells) => el('div', {class: 'ct-row', role: 'row'}, ...cells);
-    table.append(row(el('div', {role: 'columnheader'}), ...STAGES.map(s => el('div', {class: 'ct-stage', role: 'columnheader', text: s}))));
+    table.append(row(el('div', {role: 'columnheader'}), ...STAGES.map(s => el('div', {class: 'ct-stage', role: 'columnheader', text: L.stage(s)}))));
     let group = null;
     /* Hormones with no study at any stage are listed in one line under the table instead of three dashes each. */
     const empty = HORMONES.filter(h => STAGES.every(s => shown(cell(crop, s, h.key)) === 'No data'));
     HORMONES.filter(h => !empty.includes(h)).forEach(h => {
-      if (h.group !== group) { group = h.group; table.append(row(el('div', {class: 'ct-group', role: 'rowheader', text: group}))); }
-      table.append(row(el('div', {class: 'ct-h', role: 'rowheader', text: h.name}), ...STAGES.map(s => {
+      if (h.group !== group) { group = h.group; table.append(row(el('div', {class: 'ct-group', role: 'rowheader', text: t('group.' + group)}))); }
+      table.append(row(el('div', {class: 'ct-h', role: 'rowheader', text: hName(h.key)}), ...STAGES.map(s => {
         const r = cell(crop, s, h.key);
-        return el('div', {role: 'cell', 'aria-label': `${h.name}, ${s}: ${DIRECTION[shown(r)].word}`}, badge(r));
+        return el('div', {role: 'cell', 'aria-label': `${hName(h.key)}, ${L.stage(s)}: ${word(DIRECTION[shown(r)])}`}, badge(r));
       })));
     });
     const c = coverage(crop);
     const summary = el('p', {class: 'cov'},
-      el('strong', {text: `${c.measured} of 30`}), ' hormone × stage cells measured or partly measured · ', `${c.inferred} inferred · ${c.applied} applied only · ${c.none} no data`);
-    const ev = el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}), ...STAGES.map(s => stageEvidence(crop, s)));
+      el('strong', {text: t('cov.count', {m: c.measured})}), t('cov.rest', {i: c.inferred, a: c.applied, n: c.none}));
+    const ev = el('details', {class: 'ev'}, el('summary', {text: t('ev.summary')}), ...STAGES.map(s => stageEvidence(crop, s)));
     const marks = STAGES.flatMap(s => HORMONES.map(h => cell(crop, s, h.key)))
       .filter(r => r && r.direction_note && ['Mixed', 'Up in drop'].includes(shown(r)));
     /* One line for all At-drop cells (they share a reason), one per Mixed cell. */
     const drops = marks.filter(r => r.direction === 'Up in drop');
     const why = el('div', {class: 'mark-why'},
-      drops.length ? el('p', {}, el('span', {class: 'c drop'}, el('span', {'aria-hidden': 'true', text: '▲'}), 'At drop'), ' ',
-        el('strong', {text: `${drops.map(r => HORMONES.find(h => h.key === r.hormone)?.name || r.hormone).join(' and ')} at ${drops[0].stage.toLowerCase()}: `}),
+      drops.length ? el('p', {}, el('span', {class: 'c drop'}, el('span', {'aria-hidden': 'true', text: '▲'}), t('short.drop')), ' ',
+        el('strong', {text: t('why.head', {hormones: drops.map(r => hName(r.hormone)).join(t('and')), stage: L.stageL(drops[0].stage)})}),
         /* Inferred cells borrow the pattern from other fruit, so say that before stating it. */
-        drops.every(r => r.basis === 'Inferred') ? el('em', {text: `Inferred general pattern; not measured in ${crop}. `}) : null,
-        (drops.every(r => r.basis === 'Inferred') ? 'In fruit that has been studied, they rise' : drops.length > 1 ? 'Both rise' : 'Rises')
-          + drops[0].direction_note.replace(/^Rises/, '')) : null,
+        drops.every(r => r.basis === 'Inferred') ? el('em', {text: t('why.inferred', {crop: cropN(crop)})}) : null,
+        t(drops.every(r => r.basis === 'Inferred') ? 'why.dropInferred' : drops.length > 1 ? 'why.drop2' : 'why.drop1')) : null,
       ...marks.filter(r => r.direction === 'Mixed').map(r => el('p', {},
-        el('span', {class: 'c mix'}, el('span', {'aria-hidden': 'true', text: '◆'}), 'Mixed'), ' ',
-        el('strong', {text: `${HORMONES.find(h => h.key === r.hormone)?.name || r.hormone} at ${r.stage.toLowerCase()}: `}), r.direction_note)));
-    const gaps = empty.length ? el('p', {class: 'gaps'}, el('strong', {text: 'No study found yet: '}), empty.map(h => h.name).join(', '),
-      '. These are open research gaps, not zero levels.') : null;
+        el('span', {class: 'c mix'}, el('span', {'aria-hidden': 'true', text: '◆'}), t('short.mix')), ' ',
+        el('strong', {text: t('why.head', {hormones: hName(r.hormone), stage: L.stageL(r.stage)})}), L.field(r, 'direction_note'))));
+    const gaps = empty.length ? el('p', {class: 'gaps'}, el('strong', {text: t('gaps.label')}), list(empty.map(h => hName(h.key))),
+      t('gaps.rest')) : null;
     return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, summary, table, marks.length ? why : null, gaps, ev);
   }
 
-  /* The crop list opens inline under the crop button; choosing a crop closes it again. */
-  function cropList(crops) {
-    return el('div', {class: 'crop-list', id: 'crop-list'},
-      el('p', {class: 'note', text: `All ${crops.length} crops. Dots show how many of the three stages have at least one measured hormone.`}),
-      el('div', {class: 'tiles'}, ...crops.map(crop => {
-        const n = measuredStages(crop);
-        return el('button', {
-          type: 'button', class: 'tile', 'aria-pressed': String(crop === state.crop), 'aria-label': `${crop}, ${n} of 3 stages measured`,
-          onclick: () => selectCrop(crop)
-        }, el('span', {class: 'tile-name', text: crop}), dots(n));
-      })));
-  }
 
   /* The chosen crop lives in the top bar on every tab; its tile list opens in a panel under the bar. */
   function drawCropChip() {
@@ -244,17 +239,17 @@
     if (!crops.includes(state.crop)) state.crop = crops[0];
     chip.hidden = false;
     chip.setAttribute('aria-expanded', String(!!state.listOpen));
-    chip.setAttribute('aria-label', `Crop: ${state.crop}. ${state.listOpen ? 'Hide' : 'Show'} all ${crops.length} crops`);
-    chip.replaceChildren(el('span', {class: 'chip-label', text: 'Crop'}), el('span', {class: 'chip-name', text: state.crop}),
+    chip.setAttribute('aria-label', t('chip.aria', {crop: cropN(state.crop), action: t(state.listOpen ? 'chip.hide' : 'chip.show'), n: crops.length}));
+    chip.replaceChildren(el('span', {class: 'chip-label', text: t('chip.label')}), el('span', {class: 'chip-name', text: cropN(state.crop)}),
       el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'}));
     panel.hidden = !state.listOpen;
-    panel.replaceChildren(...(state.listOpen ? [el('div', {class: 'crop-menu', role: 'group', 'aria-label': 'Choose a crop'},
+    panel.replaceChildren(...(state.listOpen ? [el('div', {class: 'crop-menu', role: 'group', 'aria-label': t('menu.aria')},
       ...crops.map(crop => {
         const n = measuredStages(crop);
-        return el('button', {type: 'button', class: 'crop-opt', 'aria-pressed': String(crop === state.crop), 'aria-label': `${crop}, ${n} of 3 stages measured`,
-          onclick: () => selectCrop(crop)}, el('span', {text: crop}), dots(n));
+        return el('button', {type: 'button', class: 'crop-opt', 'aria-pressed': String(crop === state.crop), 'aria-label': t('opt.aria', {crop: cropN(crop), n}),
+          onclick: () => selectCrop(crop)}, el('span', {text: cropN(crop)}), dots(n));
       }),
-      el('p', {class: 'crop-menu-note', text: 'Dots: stages with at least one measured hormone.'}))] : []));
+      el('p', {class: 'crop-menu-note', text: t('menu.note')}))] : []));
   }
   /* The crop menu floats over the page; it closes on a pick, a tap outside it, or Esc. */
   function closeCropMenu() {
@@ -263,27 +258,13 @@
     drawCropChip();
   }
 
-  function cropButton(crops) {
-    const n = measuredStages(state.crop);
-    const toggle = () => {
-      state.listOpen = !state.listOpen;
-      drawView();
-      const b = document.querySelector(`#view-${state.view} .crop-pick`);
-      if (b) b.focus();
-    };
-    return el('button', {type: 'button', class: 'crop-pick', 'aria-expanded': String(!!state.listOpen), 'aria-controls': 'crop-list',
-      'aria-label': `${state.crop}, ${n} of 3 stages measured. ${state.listOpen ? 'Hide' : 'Show'} all ${crops.length} crops`, onclick: toggle},
-      el('span', {class: 'crop-pick-name', text: state.crop}), dots(n),
-      el('span', {class: 'crop-pick-more', text: state.listOpen ? 'Hide crops' : `${crops.length} crops`}),
-      el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'}));
-  }
 
   function drawCropCard() {
     if (data.evidence === null) return failed('crop-detail');
     if (!evidence()) return;
     const crops = cropOrder(data.evidence);
     if (!crops.includes(state.crop)) state.crop = crops[0];
-    document.getElementById('crop-title').textContent = `${state.crop} through the growth cycle`;
+    document.getElementById('crop-title').textContent = t('overview.cropTitle', {crop: cropN(state.crop)});
     document.getElementById('crop-detail').replaceChildren(cropPanel(state.crop));
   }
 
@@ -291,7 +272,7 @@
   function cropNote(id, inChart, what) {
     const n = document.getElementById(id);
     n.hidden = false;
-    n.textContent = inChart ? `${state.crop} is highlighted below.` : `No ${what} found for ${state.crop} yet. The chart shows the crops that have them.`;
+    n.textContent = inChart ? t('note.highlighted', {crop: cropN(state.crop)}) : t('note.missing', {what: t(what), crop: cropN(state.crop)});
     n.classList.toggle('missing', !inChart);
   }
 
@@ -314,8 +295,8 @@
     state.stage = stage;
     const crops = cropOrder(data.evidence);
     const head = document.getElementById('cmp-head-' + state.view);
-    if (head) head.replaceChildren(`All crops at ${stage.toLowerCase()}. ${state.crop} is highlighted. `,
-      el('a', {href: '#overview', text: `See ${state.crop} through the whole cycle`}), '.');
+    if (head) head.replaceChildren(t('cmp.head', {stage: L.stageL(stage), crop: cropN(state.crop)}),
+      el('a', {href: '#overview', text: t('cmp.link', {crop: cropN(state.crop)})}), L.lang === 'zh' ? '。' : '.');
     /* One card per hormone; inside, crops grouped by direction, in this order. */
     const ORDER = ['Up', 'Up in drop', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not a driver', 'Applied', 'No data'];
     let group = null;
@@ -325,9 +306,10 @@
     HORMONES.forEach(h => {
       if (h.group !== group) {
         group = h.group;
-        cards.push(el('h3', {class: 'cmp-group', text: group}));
+        cards.push(el('h3', {class: 'cmp-group', text: t('group.' + group)}));
         const none = HORMONES.filter(x => x.group === group && blank(x));
-        if (none.length) cards.push(el('p', {class: 'gaps cmp-gaps'}, el('strong', {text: `No crop has data at ${state.stage.toLowerCase()} for: `}), none.map(x => x.name).join(', ') + '.'));
+        if (none.length) cards.push(el('p', {class: 'gaps cmp-gaps'}, el('strong', {text: t('cmp.none', {stage: L.stageL(state.stage)})}),
+          list(none.map(x => hName(x.key))) + (L.lang === 'zh' ? '。' : '.')));
       }
       if (blank(h)) return;
       const groups = new Map(ORDER.map(k => [k, []]));
@@ -342,37 +324,36 @@
           /* Crops without a study fold away behind a count. */
           const names = groups.get(k);
           return el('details', {class: 'grp nd'},
-            el('summary', {text: `+${names.length} ${names.length === 1 ? 'crop' : 'crops'} with no study`}),
-            el('span', {class: 'names'}, ...names.map(g => el('button', {type: 'button', class: 'name', text: g.crop, onclick: () => selectCrop(g.crop)}))));
+            el('summary', {text: names.length === 1 ? t('cmp.noStudy1') : t('cmp.noStudy', {n: names.length})}),
+            el('span', {class: 'names'}, ...names.map(g => el('button', {type: 'button', class: 'name', text: cropN(g.crop), onclick: () => selectCrop(g.crop)}))));
         }
         return el('div', {class: 'grp'},
-          el('span', {class: `c ${d.cls}`}, el('span', {'aria-hidden': 'true', text: d.glyph}), d.word),
-          k === 'Conflicting' ? el('span', {class: 'why', text: 'Studies disagree. Open the crop and read Evidence and sources for why.'}) : null,
-          k === 'Up in drop' ? el('span', {class: 'why', text: 'In fruit that has been studied, it rises in fruitlets the tree sheds, triggering the drop; fruit that stays on does not show this rise.'
-            + (groups.get(k).some(g => g.inferred) ? ' Dashed crop names are inferred from this pattern, not measured.' : '')}) : null,
-          k === 'Mixed' ? el('span', {class: 'why', text: 'Results go both ways, depending on variety, tissue or study:'}) : null,
+          el('span', {class: `c ${d.cls}`}, el('span', {'aria-hidden': 'true', text: d.glyph}), word(d)),
+          k === 'Conflicting' ? el('span', {class: 'why', text: t('why.conflict')}) : null,
+          k === 'Up in drop' ? el('span', {class: 'why', text: t('why.dropStage') + (groups.get(k).some(g => g.inferred) ? t('why.dashed') : '')}) : null,
+          k === 'Mixed' ? el('span', {class: 'why', text: t('why.mixed')}) : null,
           k === 'Mixed' ? el('ul', {class: 'mix-list'}, ...groups.get(k).map(g => el('li', {},
-            el('button', {type: 'button', class: 'name' + (g.crop === state.crop ? ' on' : ''), text: g.crop, onclick: () => selectCrop(g.crop)}),
-            ' ' + (cell(g.crop, state.stage, h.key).direction_note || '')))) : null,
-          k === 'Applied' ? el('span', {class: 'why', text: 'Tested as a spray or dip; the natural level was not measured.'}) : null,
-          k === 'Not a driver' ? el('span', {class: 'why', text: 'The level changes, but studies show it does not cause this stage.'}) : null,
+            el('button', {type: 'button', class: 'name' + (g.crop === state.crop ? ' on' : ''), text: cropN(g.crop), onclick: () => selectCrop(g.crop)}),
+            ' ' + L.field(cell(g.crop, state.stage, h.key), 'direction_note')))) : null,
+          k === 'Applied' ? el('span', {class: 'why', text: t('why.applied')}) : null,
+          k === 'Not a driver' ? el('span', {class: 'why', text: t('why.nod')}) : null,
           k === 'Mixed' ? null : el('span', {class: 'names'}, ...groups.get(k).map(g => el('button', {
             type: 'button', class: 'name' + (g.inferred && k !== 'No data' ? ' inferred' : '') + (g.crop === state.crop ? ' on' : ''),
-            'aria-label': `${g.crop}: ${d.word}${g.inferred ? ', inferred' : ''}. Open ${g.crop}`,
-            text: g.crop, onclick: () => selectCrop(g.crop)
+            'aria-label': t('cmp.open', {crop: cropN(g.crop), dir: word(d), inf: g.inferred ? t('inferredShort') : ''}),
+            text: cropN(g.crop), onclick: () => selectCrop(g.crop)
           }))));
       });
       /* One summary line per hormone: the chosen crop's direction and how many crops go each way; tap for names. */
       const mine = cell(state.crop, state.stage, h.key);
       const counts = ORDER.filter(k => k !== 'No data' && groups.get(k).length).map(k =>
-        el('span', {class: `cnt-chip c ${DIRECTION[k].cls}`, title: DIRECTION[k].word}, el('span', {'aria-hidden': 'true', text: DIRECTION[k].glyph}), String(groups.get(k).length)));
+        el('span', {class: `cnt-chip c ${DIRECTION[k].cls}`, title: word(DIRECTION[k])}, el('span', {'aria-hidden': 'true', text: DIRECTION[k].glyph}), String(groups.get(k).length)));
       const noData = groups.get('No data').length;
       cards.push(el('details', {class: 'cmp-card', name: 'cmp-line'},
         el('summary', {},
-          el('span', {class: 'cmp-name', text: h.name}),
-          el('span', {class: 'cmp-mine'}, `${state.crop}: `, badge(mine)),
-          el('span', {class: 'cmp-counts', role: 'img', 'aria-label': `${measured} of ${crops.length} crops measured`}, ...counts,
-            noData ? el('span', {class: 'cnt', text: `${noData} no data`}) : null)),
+          el('span', {class: 'cmp-name', text: hName(h.key)}),
+          el('span', {class: 'cmp-mine'}, cropN(state.crop) + t('colon'), badge(mine)),
+          el('span', {class: 'cmp-counts', role: 'img', 'aria-label': t('cmp.measured', {m: measured, n: crops.length})}, ...counts,
+            noData ? el('span', {class: 'cnt', text: t('cmp.noData', {n: noData})}) : null)),
         ...lines));
     });
     box.replaceChildren(...cards);
@@ -401,7 +382,7 @@
 
   /* A close button at the end of a long section, so readers need not scroll back up to its heading. */
   function closer() {
-    return el('button', {type: 'button', class: 'closer', text: 'Close ▴', onclick: e => {
+    return el('button', {type: 'button', class: 'closer', text: t('closer'), onclick: e => {
       const d = e.currentTarget.closest('details');
       d.open = false;
       const s = d.querySelector('summary');
@@ -417,52 +398,51 @@
     keys.forEach(k => {
       const soil = data.soil.find(x => x.key === k);
       const limits = (data.mrls || []).filter(x => x.key === k && mrlCropMatch(r.crop, x.crop));
-      const name = soil ? soil.active_ingredient : k;
+      const name = soil ? L.field(soil, 'active_ingredient') : k;
       parts.push(el('h4', {text: name}));
-      if (soil && soil.function) parts.push(el('p', {}, el('strong', {text: 'What it does: '}), soil.function));
-      if (soil && soil.concern) parts.push(el('p', {}, el('strong', {text: 'Main concern: '}), soil.concern));
+      if (soil && soil.function) parts.push(el('p', {}, el('strong', {text: t('res.does')}), L.field(soil, 'function')));
+      if (soil && soil.concern) parts.push(el('p', {}, el('strong', {text: t('res.concern')}), L.field(soil, 'concern')));
       if (soil) {
         parts.push(el('p', {}, soilBadge(soil),
-          ' ', el('strong', {text: 'Time to about 97% gone in soil: '}), soil.time_summary || 'not found',
+          ' ', el('strong', {text: t('res.time97')}), L.field(soil, 'time_summary') || t('res.notFound'),
           soil.approx_time_to_97pct_gone ? el('span', {class: 'src', text: ` (${soil.approx_time_to_97pct_gone})`}) : null));
-        if (soil.orchard_field_residues && !/^not found/i.test(soil.orchard_field_residues)) parts.push(el('p', {}, el('strong', {text: 'Measured in orchards: '}), soil.orchard_field_residues));
-        if (soil.accumulation_note && !/^no data/i.test(soil.accumulation_note)) parts.push(el('p', {}, el('strong', {text: 'Repeated use: '}), soil.accumulation_note));
-        if (soil.effects_on_trees_and_following_crops && !/^no .*found/i.test(soil.effects_on_trees_and_following_crops)) parts.push(el('p', {}, el('strong', {text: 'Effects on trees and later crops: '}), soil.effects_on_trees_and_following_crops));
-        if (soil.leaching_water_note) parts.push(el('p', {}, el('strong', {text: 'Water: '}), soil.leaching_water_note));
-        if (soil.restrictions && !/^not found/i.test(soil.restrictions)) parts.push(el('p', {}, el('strong', {text: 'Restrictions: '}), soil.restrictions));
+        if (soil.orchard_field_residues && !/^not found/i.test(soil.orchard_field_residues)) parts.push(el('p', {}, el('strong', {text: t('res.orchard')}), soil.orchard_field_residues));
+        if (soil.accumulation_note && !/^no data/i.test(soil.accumulation_note)) parts.push(el('p', {}, el('strong', {text: t('res.repeat')}), soil.accumulation_note));
+        if (soil.effects_on_trees_and_following_crops && !/^no .*found/i.test(soil.effects_on_trees_and_following_crops)) parts.push(el('p', {}, el('strong', {text: t('res.effects')}), soil.effects_on_trees_and_following_crops));
+        if (soil.leaching_water_note) parts.push(el('p', {}, el('strong', {text: t('res.water')}), soil.leaching_water_note));
+        if (soil.restrictions && !/^not found/i.test(soil.restrictions)) parts.push(el('p', {}, el('strong', {text: t('res.restrict')}), soil.restrictions));
         parts.push(el('p', {class: 'src'}, `${verName(soil.verification) || soil.verification} · `, cite(soil.source, firstUrl(soil.source_url), soil.doi)));
       }
       if (limits.length) {
-        parts.push(el('p', {}, el('strong', {text: `Fruit residue limits for ${r.crop}:`})));
+        parts.push(el('p', {}, el('strong', {text: t('res.limits', {crop: cropN(r.crop)})})));
         parts.push(el('ul', {class: 'mrl'}, ...limits.map(m => el('li', {},
-          `${m.market}: `, el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : m.note ? 'see note' : 'no value found'}),
-          `${m.crop && !/^all/i.test(m.crop) ? ` (${m.crop})` : ''}${m.limit_type ? ' · ' + m.limit_type : ''}${m.measured_fruit_residues ? ' · measured: ' + m.measured_fruit_residues : ''}`,
+          m.market + t('colon'), el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : m.note ? t('res.seeNote') : t('res.noValue')}),
+          `${m.crop && !/^all/i.test(m.crop) ? ` (${m.crop})` : ''}${m.limit_type ? ' · ' + m.limit_type : ''}${m.measured_fruit_residues ? t('res.measured') + m.measured_fruit_residues : ''}`,
           /* The note carries caveats such as a superseded or unchecked limit, so it is shown with every value. */
           m.note ? el('span', {class: 'mrl-note', text: m.note}) : null,
-          el('span', {class: 'src mrl-src'}, `${verName(m.verification) || m.verification}${m.verification ? ' · ' : ''}`, cite(m.source || 'source', firstUrl(m.source_url), m.doi))))));
+          el('span', {class: 'src mrl-src'}, `${verName(m.verification) || m.verification}${m.verification ? ' · ' : ''}`, cite(m.source || t('source'), firstUrl(m.source_url), m.doi))))));
       } else {
-        parts.push(el('p', {class: 'none', text: `No fruit residue limit found for ${r.crop} in the markets checked (China, US, EU, Codex, Japan). Where no limit is set, many markets apply a default of 0.01 mg/kg: check your export market.`}));
+        parts.push(el('p', {class: 'none', text: t('res.noLimit', {crop: cropN(r.crop)})}));
       }
     });
-    return el('details', {class: 'res'}, el('summary', {text: 'Residues: soil and fruit'}), ...parts, closer());
+    return el('details', {class: 'res'}, el('summary', {text: t('res.summary')}), ...parts, closer());
   }
 
   /* How long each regulator lasts in soil, longest first. */
   const PERSIST_ORDER = {high: 0, mid: 1, low: 2, unknown: 3};
   const days = v => {
-    if (!v || /not found/i.test(v)) return 'not found';
+    if (!v || /not found/i.test(v)) return t('res.notFound');
     if (/\b(days?|weeks?|months?|years?|yr)\b|\d\s*d\b/i.test(v)) return v;
     return v.replace(/^([~<>≈]?\s*\d[\d.,\-–\s]*)/, m => m.trim() + ' days ');
   };
   /* Short, consistent badge text; the full class wording is shown when a row is opened. */
-  const PERSIST_LABEL = {high: 'Long-lasting', mid: 'Moderate', low: 'Short-lived', unknown: 'Unknown'};
-  const soilBadge = r => r.badge ? el('span', {class: 'persist role', text: r.badge})
-    : el('span', {class: `persist ${persistClass(r.persistence_class)}`, text: PERSIST_LABEL[persistClass(r.persistence_class)]});
+  const soilBadge = r => r.badge ? el('span', {class: 'persist role', text: L.field(r, 'badge')})
+    : el('span', {class: `persist ${persistClass(r.persistence_class)}`, text: t('persist.' + persistClass(r.persistence_class))});
   function drawSoilTable() {
     const box = document.getElementById('soil-table');
     if (data.soil === null) return failed('soil-table');
-    if (!box || !data.soil || box.dataset.drawn) return;
-    box.dataset.drawn = '1';
+    if (!box || !data.soil || box.dataset.drawn === L.lang) return;
+    box.dataset.drawn = L.lang;
     /* Only products that appear in a regulator entry; others stay in the data file but are not listed. */
     const used = new Set((data.regulators || []).flatMap(residueKeys));
     /* Fertiliser and bud-break entries add no residue warning, so they stay in their regulator cards only. */
@@ -471,30 +451,28 @@
       .sort((a, b) => PERSIST_ORDER[persistClass(a.persistence_class)] - PERSIST_ORDER[persistClass(b.persistence_class)]);
     const soilRow = r => el('details', {class: 'soil-row', name: 'soil-row'},
       el('summary', {},
-        el('span', {class: 'soil-name', text: r.active_ingredient}),
+        el('span', {class: 'soil-name', text: L.field(r, 'active_ingredient')}),
         soilBadge(r),
-        r.function ? el('span', {class: 'soil-fn'}, el('strong', {text: 'What it does: '}), r.function) : null,
-        r.concern ? el('span', {class: 'soil-fn soil-concern'}, el('strong', {text: 'Main concern: '}), r.concern) : null,
-        el('span', {class: 'soil-time'}, el('strong', {text: 'Lasts in soil: '}), r.time_summary || 'Not found')),
-      el('p', {}, el('strong', {text: 'Persistence class: '}), r.persistence_class || 'Unknown'),
-      el('p', {}, el('strong', {text: 'Soil half-life (DT₅₀): '}), `lab (controlled laboratory soil): ${days(r.soil_dt50_lab_days).trim()}; field (real fields, usually more relevant): ${days(r.soil_dt50_field_days).trim()}`),
-      r.approx_time_to_97pct_gone ? el('p', {}, el('strong', {text: 'Time to about 97% gone: '}), r.approx_time_to_97pct_gone) : null,
-      r.orchard_field_residues && !/^not found/i.test(r.orchard_field_residues) ? el('p', {}, el('strong', {text: 'Measured in orchards: '}), r.orchard_field_residues) : null,
-      r.accumulation_note ? el('p', {}, el('strong', {text: 'Repeated use: '}), r.accumulation_note) : null,
-      r.effects_on_trees_and_following_crops ? el('p', {}, el('strong', {text: 'Effects on trees and later crops: '}), r.effects_on_trees_and_following_crops) : null,
-      r.leaching_water_note ? el('p', {}, el('strong', {text: 'Water: '}), r.leaching_water_note) : null,
-      r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: 'Restrictions: '}), r.restrictions) : null,
+        r.function ? el('span', {class: 'soil-fn'}, el('strong', {text: t('res.does')}), L.field(r, 'function')) : null,
+        r.concern ? el('span', {class: 'soil-fn soil-concern'}, el('strong', {text: t('res.concern')}), L.field(r, 'concern')) : null,
+        el('span', {class: 'soil-time'}, el('strong', {text: t('soil.lasts')}), L.field(r, 'time_summary') || t('soil.notFound'))),
+      el('p', {}, el('strong', {text: t('soil.class')}), r.persistence_class || t('persist.unknown')),
+      el('p', {}, el('strong', {text: t('soil.dt50')}), t('soil.dt50val', {lab: days(r.soil_dt50_lab_days).trim(), field: days(r.soil_dt50_field_days).trim()})),
+      r.approx_time_to_97pct_gone ? el('p', {}, el('strong', {text: t('soil.97')}), r.approx_time_to_97pct_gone) : null,
+      r.orchard_field_residues && !/^not found/i.test(r.orchard_field_residues) ? el('p', {}, el('strong', {text: t('res.orchard')}), r.orchard_field_residues) : null,
+      r.accumulation_note ? el('p', {}, el('strong', {text: t('res.repeat')}), r.accumulation_note) : null,
+      r.effects_on_trees_and_following_crops ? el('p', {}, el('strong', {text: t('res.effects')}), r.effects_on_trees_and_following_crops) : null,
+      r.leaching_water_note ? el('p', {}, el('strong', {text: t('res.water')}), r.leaching_water_note) : null,
+      r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: t('res.restrict')}), r.restrictions) : null,
       el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, cite(r.source, firstUrl(r.source_url), r.doi)), closer());
     /* Three groups so fertilisers and natural compounds are not read as harmful residues; synthetic regulators open first. */
     const GROUPS = [
-      {key: 'synthetic', title: 'Synthetic growth regulators', note: 'Where real soil residue concerns are. Longest-lasting first.', open: true},
-      {key: 'natural', title: 'Natural hormones and hormone-like compounds', note: 'Compounds plants make themselves; few have formal soil studies.'},
-      {key: 'other', title: 'Other chemicals with residue concerns', note: 'Not hormones themselves, but used to force flowering or ripening, with real residue risks.'}
+      {key: 'synthetic', open: true}, {key: 'natural'}, {key: 'other'}
     ];
     box.replaceChildren(...GROUPS.map(g => {
       const items = rows.filter(r => r.category === g.key);
       return el('details', Object.assign({class: 'soil-group'}, g.open ? {open: ''} : {}),
-        el('summary', {}, el('span', {class: 'soil-group-title', text: `${g.title} (${items.length})`}), el('span', {class: 'note', text: g.note})),
+        el('summary', {}, el('span', {class: 'soil-group-title', text: `${t('soil.g.' + g.key)} (${items.length})`}), el('span', {class: 'note', text: t('soil.n.' + g.key)})),
         el('div', {class: 'soil-group-rows'}, ...items.map(soilRow)));
     }));
   }
@@ -512,22 +490,23 @@
     return el('article', {class: 'reg'},
       el('header', {},
         el('h3', {text: r.regulator}),
-        el('span', {class: `act ${(r.action || '').toLowerCase()}`, text: `${r.action} ${r.target_hormone}`.trim()})),
-      el('p', {class: 'reg-meta'}, `${r.crop} · ${r.stage} `, el('span', {class: `ev-badge ${evCls}`, text: r.evidence})),
+        el('span', {class: `act ${(r.action || '').toLowerCase()}`,
+          text: [r.action ? t('act.' + r.action) : '', r.target_hormone ? L.hs(r.target_hormone) : ''].filter(Boolean).join(' ')})),
+      el('p', {class: 'reg-meta'}, `${cropN(r.crop)} · ${L.stage(r.stage)} `, el('span', {class: `ev-badge ${evCls}`, text: t('ev.' + r.evidence)})),
       el('ol', {class: 'chain'},
-        chainStep('Hormone changes', r.hormone_changes, 'Hormones were not measured in this study'),
-        chainStep('What you see', r.visible_effect, 'Visible effect not reported in the sources we could read')),
-      el('details', {class: 'reg-more'}, el('summary', {text: 'Product, aim, side effects and source'}),
+        chainStep(t('reg.hc'), r.hormone_changes, t('reg.hcEmpty')),
+        chainStep(t('reg.see'), r.visible_effect, t('reg.seeEmpty'))),
+      el('details', {class: 'reg-more'}, el('summary', {text: t('reg.more')}),
         el('ol', {class: 'chain'},
-          chainStep('Used in the study (not a recommendation)', applied, 'Product details not reported in the sources we could read'),
-          chainStep('Aim', r.purpose, 'Not stated'),
-          missingText(r.side_effects) ? null : chainStep('Watch for', r.side_effects, '')),
+          chainStep(t('reg.used'), applied, t('reg.usedEmpty')),
+          chainStep(t('reg.aim'), r.purpose, t('reg.notStated')),
+          missingText(r.side_effects) ? null : chainStep(t('reg.watch'), r.side_effects, '')),
         r.note ? el('p', {text: r.note}) : null,
         el('p', {class: 'src'}, `${verName(r.verification) || r.verification}${r.source ? ' · ' : ''}`, r.source ? cite(r.source, r.source_url, r.doi) : null), closer()),
       residueSection(r));
   }
   function drawRegulators() {
-    const list = document.getElementById('reg-list');
+    const listBox = document.getElementById('reg-list');
     if (data.regulators === null) return failed('reg-list');
     if (!data.regulators) return;
     document.getElementById('reg-stage-sel').value = state.regStage;
@@ -536,11 +515,11 @@
       .filter(r => (state.regAll || r.crop === state.crop) && (!state.regStage || r.stage === state.regStage) && (!state.regMeasured || r.evidence === 'Hormones measured'))
       .sort((a, b) => (EVIDENCE_ORDER[a.evidence] ?? 3) - (EVIDENCE_ORDER[b.evidence] ?? 3) || a.regulator.localeCompare(b.regulator));
     document.getElementById('reg-count').textContent =
-      `${rows.length} ${rows.length === 1 ? 'entry' : 'entries'}${state.regAll ? ' for all crops' : ' for ' + state.crop}. Chains with measured hormone changes come first.`;
-    const allBtn = el('button', {type: 'button', class: 'soil-toggle', text: state.regAll ? `Show ${state.crop} only` : 'Show entries for all crops',
+      (rows.length === 1 ? t('reg.entry1') : t('reg.entries', {n: rows.length})) + (state.regAll ? t('reg.forAll') : t('reg.forCrop', {crop: cropN(state.crop)})) + t('reg.order');
+    const allBtn = el('button', {type: 'button', class: 'soil-toggle', text: state.regAll ? t('reg.onlyCrop', {crop: cropN(state.crop)}) : t('reg.all'),
       onclick: () => { state.regAll = !state.regAll; state.regShown = 0; drawRegulators(); }});
     if (!rows.length) {
-      list.replaceChildren(el('p', {class: 'none', text: `No regulator studies found for ${state.crop} at this stage.`}), allBtn);
+      listBox.replaceChildren(el('p', {class: 'none', text: t('reg.none', {crop: cropN(state.crop)})}), allBtn);
       return;
     }
     /* Six cards at a time keeps long lists short on phones. */
@@ -548,8 +527,8 @@
     const shownCount = Math.min(rows.length, state.regShown || PAGE);
     const more = rows.length - shownCount;
     /* replaceChildren prints null as text, so drop the missing "Show more" button before passing the list. */
-    list.replaceChildren(...[...rows.slice(0, shownCount).map(regulatorCard),
-      more > 0 ? el('button', {type: 'button', class: 'soil-toggle reg-more-btn', text: `Show ${Math.min(PAGE, more)} more of ${more}`,
+    listBox.replaceChildren(...[...rows.slice(0, shownCount).map(regulatorCard),
+      more > 0 ? el('button', {type: 'button', class: 'soil-toggle reg-more-btn', text: t('reg.moreBtn', {k: Math.min(PAGE, more), n: more}),
         onclick: () => { state.regShown = shownCount + PAGE; drawRegulators(); }}) : null, allBtn].filter(Boolean));
   }
 
@@ -561,8 +540,7 @@
     box.replaceChildren();
     const ro = document.getElementById(id.replace('-chart', '-readout'));
     if (ro) {
-      if (!ro.dataset.hint) ro.dataset.hint = ro.textContent.trim();
-      ro.replaceChildren(el('span', {class: 'hint', text: ro.dataset.hint}));
+      ro.replaceChildren(el('span', {class: 'hint', text: t(ro.dataset.hint || 'hint.row')}));
     }
     return d3.select(box).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', W).attr('height', H).attr('role', 'group');
   }
@@ -630,7 +608,7 @@
 
   function source(d) {
     const v = VERIFY[d.verification];
-    return {level: v ? v.name : d.verification, name: d.source, url: d.source_url, doi: d.doi};
+    return {level: v ? verName(d.verification) : d.verification, name: d.source, url: d.source_url, doi: d.doi};
   }
 
   /* One row per crop: a hollow dot at harvest, filled marks at the ripening peak (one per source, coloured by how
@@ -648,27 +626,27 @@
       return {crop, items, peaks, harvest, top, others: items.filter(d => d.role === 'other')};
     }).sort((a, b) => (b.top ?? 0) - (a.top ?? 0));
     const summary = c => {
-      if (!c.peaks.length) return `At harvest ${value(c.harvest)}; peak not measured`;
+      if (!c.peaks.length) return t('ripe.harvestOnly', {v: value(c.harvest)});
       const lo = d3.min(c.peaks, d => d.lo), hi = c.top;
-      const from = c.harvest ? ` · from ${value(c.harvest)} at harvest` : '';
+      const from = c.harvest ? t('ripe.from', {v: value(c.harvest)}) : '';
       /* Sources more than 10 times apart are shown separately, not merged into one range. */
       if (new Set(c.peaks.map(d => d.source)).size > 1 && hi / Math.max(lo, 1e-6) > 10)
-        return `Peak ${c.peaks.map(value).join(' or ')} (sources disagree)${from}`;
-      return `Peak ${lo === hi ? fmt(hi) : fmt(lo) + '–' + fmt(hi)}${from}`;
+        return t('ripe.disagree', {v: c.peaks.map(value).join(t('or')), from});
+      return t('ripe.peak', {v: lo === hi ? fmt(hi) : fmt(lo) + '–' + fmt(hi), from});
     };
     const ripeHas = crops.some(c => c.crop === state.crop);
-    cropNote('ripe-crop-note', ripeHas, 'ripening ethylene values');
+    cropNote('ripe-crop-note', ripeHas, 'what.ripe');
     rowChart('ripe-chart', crops, {
       isSelected: c => c.crop === state.crop,
-      title: 'Ethylene production by crop: at harvest and at the ripening peak, log scale',
+      title: t('ripe.aria'),
       scale: r => d3.scaleLog([0.01, 1000], r),
       axis(svg, x, y0, y1) {
         /* Shade the low range where non-climacteric fruit stay. */
         svg.append('rect').attr('x', x(0.01)).attr('y', y0).attr('width', x(1) - x(0.01)).attr('height', y1 - y0).style('fill', 'var(--grid)').style('opacity', 0.6);
-        muted(svg.append('text').attr('x', x(0.01) + 4).attr('y', y1 - 4).style('font-size', '12px').text('Low: under 1'));
+        muted(svg.append('text').attr('x', x(0.01) + 4).attr('y', y1 - 4).style('font-size', '12px').text(t('ripe.low')));
         gridX(svg, x, [0.01, 0.1, 1, 10, 100, 1000], y0, y1, fmt);
       },
-      label: c => `${c.crop} — ${summary(c)}${c.others.length ? ` (+${c.others.length} more in details)` : ''}`,
+      label: c => `${cropN(c.crop)} — ${summary(c)}${c.others.length ? t('ripe.more', {n: c.others.length}) : ''}`,
       mark(g, c, x, y) {
         const h = c.harvest;
         if (h && c.top) {
@@ -685,10 +663,10 @@
       },
       select(c) {
         const lines = c.items.map(d => ({
-          text: `${d.role === 'harvest' ? 'At harvest' : d.role === 'peak' ? 'Peak' : 'Other'}: ${value(d)} µL/kg/h — ${d.crop !== c.crop ? d.crop + ', ' : ''}${d.condition}${d.cultivar && !/^(not stated|general)$/i.test(d.cultivar) ? ` (${d.cultivar})` : ''}`,
+          text: `${t('role.' + (d.role === 'harvest' || d.role === 'peak' ? d.role : 'other'))}${t('colon')}${value(d)} µL/kg/h — ${d.crop !== c.crop ? cropN(d.crop) + ', ' : ''}${d.condition}${d.cultivar && !/^(not stated|general)$/i.test(d.cultivar) ? ` (${d.cultivar})` : ''}`,
           source: source(d)
         }));
-        readoutList('ripe-readout', c.crop, lines);
+        readoutList('ripe-readout', cropN(c.crop), lines);
       }
     });
   }
@@ -699,7 +677,7 @@
     if (!rows) return;
     const list = rows.map(r => ({...r, c: +r.control, lo: +r.girdled_low, hi: +r.girdled_high}));
     rowChart('leaf-chart', list, {
-      title: 'Mango leaf hormone levels, control vs girdled, log scale',
+      title: t('leaf.aria'),
       scale: r => d3.scaleLog([0.05, 500], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, [0.1, 1, 10, 100], y0, y1, fmt),
       label: d => d.hormone,
@@ -707,7 +685,7 @@
         g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).style('stroke', 'var(--down)').style('stroke-width', 10).style('stroke-linecap', 'round');
         g.append('circle').attr('cx', x(d.c)).attr('cy', y).attr('r', 6).style('fill', 'var(--up)').style('stroke', 'var(--panel)').style('stroke-width', 2);
       },
-      select: d => readout('leaf-readout', d.hormone, [`Control (untreated branches): ${fmt(d.c)} ng/g fresh mass`, `Girdled branches: ${fmt(d.lo)}–${fmt(d.hi)} ng/g fresh mass`], source(d))
+      select: d => readout('leaf-readout', d.hormone, [t('leaf.control', {v: fmt(d.c)}), t('leaf.girdled', {v: `${fmt(d.lo)}–${fmt(d.hi)}`})], source(d))
     });
   }
 
@@ -718,7 +696,7 @@
     const list = rows.map(r => ({...r, v: +r.value}));
     const box = document.getElementById('longan-chart');
     const W = Math.max(280, box.clientWidth), H = 240, m = {t: 22, r: 4, b: 30, l: 30};
-    const svg = svgFor('longan-chart', W, H).attr('aria-label', 'Longan shoot tip hormone levels');
+    const svg = svgFor('longan-chart', W, H).attr('aria-label', t('longan.aria'));
     const x = d3.scaleBand(list.map(d => d.hormone), [m.l, W - m.r]).padding(0.25);
     const y = d3.scaleLinear([0, 70], [H - m.b, m.t]);
     [0, 20, 40, 60].forEach(t => {
@@ -730,14 +708,14 @@
     list.forEach(d => {
       const isGA = d.hormone.startsWith('GA');
       const cx = x(d.hormone) + x.bandwidth() / 2, bw = Math.min(36, x.bandwidth());
-      const g = svg.append('g').attr('class', 'row').attr('tabindex', 0).attr('role', 'button').attr('aria-label', `${d.hormone}: about ${fmt(d.v)} ng/g DW`);
+      const g = svg.append('g').attr('class', 'row').attr('tabindex', 0).attr('role', 'button').attr('aria-label', t('longan.bar', {h: d.hormone, v: fmt(d.v)}));
       g.append('rect').attr('x', x(d.hormone)).attr('y', m.t).attr('width', x.bandwidth()).attr('height', H - m.b - m.t).style('fill', 'transparent');
       const bar = g.append('rect').attr('x', cx - bw / 2).attr('y', y(d.v)).attr('width', bw).attr('height', y(0) - y(d.v)).attr('rx', 5).style('fill', isGA ? 'var(--up)' : 'var(--brand)');
       muted(g.append('text').attr('x', cx).attr('y', y(d.v) - 6).attr('text-anchor', 'middle').text('~' + fmt(d.v)));
       g.append('text').attr('x', cx).attr('y', H - m.b + 18).attr('text-anchor', 'middle').style('fill', 'var(--fg)').text(d.hormone);
       const pick = () => {
         bars.forEach(b => b.style('opacity', 0.45)); bar.style('opacity', 1);
-        readout('longan-readout', d.hormone, [d.group, `About ${fmt(d.v)} ng/g dry weight`], source(d));
+        readout('longan-readout', d.hormone, [d.group, t('longan.about', {v: fmt(d.v)})], source(d));
       };
       g.on('click', () => { tapped['longan-chart'] = d.hormone; pick(); })
         .on('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); tapped['longan-chart'] = d.hormone; pick(); } });
@@ -758,7 +736,7 @@
     const sign = v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v)) + '%';
     const value = d => (d.qualifier ? d.qualifier + ' ' : '') + sign(d.p);
     rowChart('pbz-chart', list, {
-      title: 'Percent change in mango hormones with paclobutrazol',
+      title: t('pbz.aria'),
       scale: r => d3.scaleLinear([-100, 260], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, narrow() ? [-100, 0, 100, 200] : [-100, -50, 0, 50, 100, 150, 200, 250], y0, y1, t => t > 0 ? '+' + t : String(t), 0),
       padR: 40,
@@ -786,20 +764,20 @@
     const list = rows.map(r => ({...r, f: +r.fold})).sort((a, b) => b.f - a.f);
     const value = d => (d.qualifier ? d.qualifier + ' ' : '') + fmt(d.f) + '×';
     const foldHas = list.some(d => sameCrop(d.crop));
-    cropNote('fold-crop-note', foldHas, 'fruit-set fold changes');
+    cropNote('fold-crop-note', foldHas, 'what.fold');
     rowChart('fold-chart', list, {
       isSelected: d => sameCrop(d.crop),
-      title: 'Fold change in hormones around fruit set',
+      title: t('fold.aria'),
       scale: r => d3.scaleLog([1, 30], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, [1, 2, 5, 10, 20], y0, y1, t => t + '×', 1),
       padR: 64,
-      label: d => `${d.crop} · ${d.hormone} · ${d.comparison}`,
+      label: d => `${cropN(d.crop)} · ${d.hormone} · ${d.comparison}`,
       mark(g, d, x, y) {
         g.append('rect').attr('x', x(1)).attr('y', y - 7).attr('width', Math.max(2, x(d.f) - x(1))).attr('height', 14).attr('rx', 5)
           .style('fill', (VERIFY[d.verification] || VERIFY.SNIP).color);
         muted(g.append('text').attr('x', x(d.f) + 8).attr('y', y + 4).text(value(d)));
       },
-      select: d => readout('fold-readout', `${d.crop} · ${d.cultivar}`, [`${d.hormone}: ${d.comparison}`, value(d)], source(d))
+      select: d => readout('fold-readout', `${cropN(d.crop)} · ${d.cultivar}`, [`${d.hormone}: ${d.comparison}`, value(d)], source(d))
     });
   }
 
@@ -815,8 +793,7 @@
     });
     const note = document.getElementById('flower-crop-note');
     note.hidden = false;
-    note.textContent = FLOWER_CHARTS[state.crop] ? `${state.crop}'s charts are marked and shown first.`
-      : `No measured flowering hormone values found for ${state.crop} yet. Charts below are for the crops that have them.`;
+    note.textContent = t(FLOWER_CHARTS[state.crop] ? 'flower.mine' : 'flower.none', {crop: cropN(state.crop)});
     note.classList.toggle('missing', !FLOWER_CHARTS[state.crop]);
     Object.values(FLOWER_CHARTS).flat().forEach(f => f());
   }
@@ -849,10 +826,13 @@
 
   function init() {
     const verKey = document.getElementById('ver-key');
-    verKey.replaceChildren(...Object.values(VERIFY).map(v => {
+    const drawVerKey = () => verKey.replaceChildren(...Object.entries(VERIFY).map(([code, v]) => {
       const sw = el('i', {class: 'sw'}); sw.style.background = v.color;
-      return el('span', {}, sw, v.name);
+      return el('span', {}, sw, verName(code));
     }));
+    drawVerKey();
+    /* A new language redraws everything the app built; i18n.js has already swapped the static text. */
+    window.addEventListener('langchange', () => { drawVerKey(); drawView(); });
     document.getElementById('reg-stage-sel').addEventListener('change', e => { state.regStage = e.target.value; state.regShown = 0; drawRegulators(); });
     document.getElementById('crop-chip').addEventListener('click', e => {
       e.stopPropagation();
@@ -873,7 +853,7 @@
     route();
     if (typeof d3 === 'undefined') {
       /* The chart library comes from a CDN; the service worker keeps a copy after the first online visit. */
-      document.querySelectorAll('.loading').forEach(n => n.replaceWith(el('div', {class: 'fail', text: 'Needs one online visit before it works offline. Connect and reload.'})));
+      document.querySelectorAll('.loading').forEach(n => n.replaceWith(el('div', {class: 'fail', text: t('offline')})));
       return;
     }
     load().then(() => {

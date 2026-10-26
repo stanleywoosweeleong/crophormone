@@ -28,37 +28,37 @@
     const chrome = /Chrome|CriOS/.test(ua) && !edge && !samsung;
     const macSafari = !iOS && /Macintosh/.test(ua) && /Safari/.test(ua) && !chrome && !edge && !firefox;
 
-    /* Each step is [lead, rest]: the lead is what to tap, shown in bold. */
+    /* Each step is [lead, rest]: the lead is what to tap, shown in bold. Menu names follow the browser's own
+       wording in the chosen language. */
+    const t = k => (window.I18N ? window.I18N.t(k) : k);
     if (iOS) return {
-      title: 'Install on iPhone or iPad',
-      list: [['Tap Share', ' (the square with an arrow) in the browser toolbar.'],
-             ['Scroll and tap Add to Home Screen.', ''],
-             ['Tap Add.', ' The app opens from your Home Screen and works offline.']],
-      note: firefox ? 'In Firefox, Share is in the menu (☰).' : 'Works in Safari, and in Chrome and Edge on iOS 16.4 or later.'
+      title: t('inst.ios.title'),
+      list: [[t('inst.ios.1a'), t('inst.ios.1b')], [t('inst.ios.2a'), ''], [t('inst.ios.3a'), t('inst.ios.3b')]],
+      note: t(firefox ? 'inst.ios.ff' : 'inst.ios.note')
     };
     if (android && firefox) return {
-      title: 'Install on Android',
-      list: [['Tap the menu', ' (⋮).'], ['Tap Install', ' or Add to Home screen.']]
+      title: t('inst.and.title'),
+      list: [[t('inst.and.menu'), t('inst.and.menuFf')], [t('inst.and.ffInstall'), t('inst.and.orHome')]]
     };
     if (android) return {
-      title: 'Install on Android',
-      list: [['Tap the menu', samsung ? ' (☰) at the bottom.' : ' (⋮) at the top right.'],
-             [samsung ? 'Tap Add page to, then Home screen.' : 'Tap Install app', samsung ? '' : ' or Add to Home screen.'],
-             ['Confirm with Install.', ' The app opens from your home screen and works offline.']]
+      title: t('inst.and.title'),
+      list: [[t('inst.and.menu'), t(samsung ? 'inst.and.menuSam' : 'inst.and.menuTop')],
+             [samsung ? t('inst.and.sam') : t('inst.and.install'), samsung ? '' : t('inst.and.orHome')],
+             [t('inst.and.confirm'), t('inst.and.after')]]
     };
     if (macSafari) return {
-      title: 'Install on a Mac',
-      list: [['In the menu bar, choose File', ' › Add to Dock (Safari 17 or later).'], ['Click Add.', '']]
+      title: t('inst.mac.title'),
+      list: [[t('inst.mac.1a'), t('inst.mac.1b')], [t('inst.mac.2a'), '']]
     };
     if (firefox) return {
-      title: 'Install this app',
-      list: [['Firefox on a computer can’t install web apps.', ' Open this page in Chrome or Edge to install it.']]
+      title: t('inst.ff.title'),
+      list: [[t('inst.ff.1a'), t('inst.ff.1b')]]
     };
     return {
-      title: 'Install on this computer',
-      list: [['Click the install icon', ' at the right end of the address bar (a screen with a down arrow).'],
-             ['Or open the menu', edge ? ' (…) › Apps › Install this site as an app.' : ' (⋮) › Cast, save and share › Install page as app.'],
-             ['Click Install.', ' The app gets its own window and works offline.']]
+      title: t('inst.pc.title'),
+      list: [[t('inst.pc.1a'), t('inst.pc.1b')],
+             [t('inst.pc.2a'), t(edge ? 'inst.pc.2edge' : 'inst.pc.2chrome')],
+             [t('inst.pc.3a'), t('inst.pc.3b')]]
     };
   }
 
@@ -81,7 +81,7 @@
     });
     const parts = [h, ol];
     if (s.note) { const p = document.createElement('p'); p.className = 'note'; p.textContent = s.note; parts.push(p); }
-    const done = document.createElement('button'); done.type = 'button'; done.className = 'sheet-close'; done.textContent = 'Got it';
+    const done = document.createElement('button'); done.type = 'button'; done.className = 'sheet-close'; done.textContent = window.I18N ? window.I18N.t('inst.done') : 'Got it';
     done.addEventListener('click', closeSheet);
     parts.push(done);
     sheet.replaceChildren(...parts);

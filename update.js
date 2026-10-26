@@ -5,6 +5,9 @@
 (function () {
   'use strict';
   if (!('serviceWorker' in navigator)) return;
+  /* Messages in the chosen language when i18n.js is loaded, English otherwise. */
+  const EN = {'toast.updated': 'App updated to the latest version.', 'toast.new': 'A new version is available.', 'toast.reload': 'Reload', 'toast.ok': 'OK'};
+  const t = k => (window.I18N ? window.I18N.t(k) : EN[k]);
 
   function toast(message, action) {
     let box = document.getElementById('update-toast');
@@ -20,7 +23,7 @@
     text.textContent = message;
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = action ? action.label : 'OK';
+    button.textContent = action ? action.label : t('toast.ok');
     button.addEventListener('click', () => { box.hidden = true; if (action) action.run(); });
     box.replaceChildren(text, button);
     box.hidden = false;
@@ -31,8 +34,8 @@
   navigator.serviceWorker.addEventListener('message', event => {
     const msg = event.data;
     if (!msg || msg.type !== 'UPDATE_CHECKED' || !msg.changed) return;
-    if (msg.reason === 'open') toast('App updated to the latest version.');
-    else toast('A new version is available.', {label: 'Reload', run: () => location.reload()});
+    if (msg.reason === 'open') toast(t('toast.updated'));
+    else toast(t('toast.new'), {label: t('toast.reload'), run: () => location.reload()});
   });
 
   window.addEventListener('load', () => {

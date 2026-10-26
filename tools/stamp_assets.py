@@ -10,7 +10,7 @@ import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PAGES = ["index.html", "report.html"]
-ASSETS = ["styles.css", "app.js", "update.js", "install.js"]
+ASSETS = ["styles.css", "i18n.js", "app.js", "update.js", "install.js"]
 
 
 def fingerprint(name):
