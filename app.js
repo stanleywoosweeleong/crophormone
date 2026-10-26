@@ -39,7 +39,7 @@
   const narrow = () => window.matchMedia('(max-width: 899px)').matches;
 
   const data = {};
-  const state = {crop: 'Mango', stage: 'Flowering', view: 'overview'};
+  const state = {crop: 'Durian', stage: 'Flowering', view: 'overview'};
 
   /* ---------- small DOM helpers ---------- */
   function el(tag, attrs, ...kids) {
