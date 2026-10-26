@@ -411,7 +411,9 @@
     box.dataset.drawn = '1';
     /* Only products that appear in a regulator entry; others stay in the data file but are not listed. */
     const used = new Set((data.regulators || []).flatMap(residueKeys));
-    const rows = data.soil.filter(r => used.has(r.key))
+    /* Fertiliser and bud-break entries add no residue warning, so they stay in their regulator cards only. */
+    const NOT_LISTED = new Set(['kno3', 'thiourea']);
+    const rows = data.soil.filter(r => used.has(r.key) && !NOT_LISTED.has(r.key))
       .sort((a, b) => PERSIST_ORDER[persistClass(a.persistence_class)] - PERSIST_ORDER[persistClass(b.persistence_class)]);
     const soilRow = r => el('details', {class: 'soil-row'},
       el('summary', {},
@@ -431,7 +433,7 @@
     const GROUPS = [
       {key: 'synthetic', title: 'Synthetic growth regulators', note: 'Where real soil residue concerns are. Longest-lasting first.', open: true},
       {key: 'natural', title: 'Natural hormones and hormone-like compounds', note: 'Compounds plants make themselves; few have formal soil studies.'},
-      {key: 'other', title: 'Fertilisers and other treatments that act on hormones', note: 'Not hormones themselves; each note says what the real concern is.'}
+      {key: 'other', title: 'Other chemicals with residue concerns', note: 'Not hormones themselves, but used to force flowering or ripening, with real residue risks.'}
     ];
     box.replaceChildren(...GROUPS.map(g => {
       const items = rows.filter(r => r.category === g.key);
