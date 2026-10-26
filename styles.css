@@ -537,3 +537,8 @@ details.notice p { margin: 6px 0 0; font-size: 14px; }
 .cmp-counts { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: auto; }
 .cnt-chip { height: 22px; padding: 0 6px; gap: 3px; font-size: 12px; font-weight: 600; border-radius: 6px; }
 .cmp-group { margin-top: 10px; }
+
+/* Dosing notice uses the same expand marker as the rest of the app */
+details.notice > summary { position: relative; padding-right: 22px; }
+details.notice > summary::after { content: "▾"; position: absolute; right: 0; top: 2px; color: var(--warn); font-weight: 400; font-size: 12px; }
+details.notice[open] > summary::after { content: "▴"; }
