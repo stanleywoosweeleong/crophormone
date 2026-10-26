@@ -459,3 +459,19 @@ details.grp.nd .names { margin-top: 6px; }
   grid-column: 1 / -1; justify-self: start; margin-top: 10px; min-height: 40px; padding: 0 14px; cursor: pointer;
   border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--up); font-weight: 600;
 }
+
+/* Phones: tighter headings, intros and cards so screens are not padded out */
+@media (max-width: 600px) {
+  main { padding-block: 12px 20px; }
+  .view { gap: 12px; }
+  h1 { font-size: 26px; margin-top: 0; }
+  .lead { font-size: 15px; line-height: 1.45; }
+  .card { padding: 14px; gap: 10px; }
+  .chart, .chart .loading, .fail { min-height: 0; }
+  .readout { min-height: 0; padding: 8px 10px; }
+  .reg { padding: 12px; gap: 6px; }
+  .chain { gap: 6px; }
+  .sh-row { min-height: 30px; }
+  .site-foot { margin-top: 12px; }
+}
+.reg-more .chain { margin: 6px 0; }

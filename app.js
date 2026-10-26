@@ -259,7 +259,8 @@
     const crops = cropOrder(data.evidence);
     if (!crops.includes(state.crop)) state.crop = crops[0];
     const measured = HORMONES.filter(h => isMeasured(cell(state.crop, stage, h.key))).length;
-    const list = el('div', {class: 'sh-list', role: 'list'}, ...HORMONES.map(h => {
+    const blank = HORMONES.filter(h => shown(cell(state.crop, stage, h.key)) === 'No data');
+    const list = el('div', {class: 'sh-list', role: 'list'}, ...HORMONES.filter(h => !blank.includes(h)).map(h => {
       const r = cell(state.crop, stage, h.key);
       return el('div', {class: 'sh-row', role: 'listitem', 'aria-label': `${h.name}: ${DIRECTION[shown(r)].word}`},
         el('span', {text: h.name}), badge(r));
@@ -268,6 +269,7 @@
       el('h2', {text: `${state.crop} at ${stage.toLowerCase()}`}),
       el('p', {class: 'cov'}, el('strong', {text: `${measured} of ${HORMONES.length}`}), ` hormones measured at this stage for ${state.crop}.`),
       list,
+      blank.length ? el('p', {class: 'gaps'}, el('strong', {text: 'No study found yet: '}), blank.map(h => h.name).join(', ') + '.') : null,
       el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}), stageEvidence(state.crop, stage)));
   }
 
@@ -282,6 +284,7 @@
   function selectCrop(crop, scroll) {
     state.crop = crop;
     state.listOpen = false;
+    state.regShown = 0;
     drawView();
     if (scroll && state.view === 'overview') document.getElementById('crop-card').scrollIntoView({behavior: 'smooth', block: 'start'});
   }
@@ -446,15 +449,16 @@
         el('span', {class: `act ${(r.action || '').toLowerCase()}`, text: `${r.action} ${r.target_hormone}`.trim()})),
       el('p', {class: 'reg-meta'}, `${r.crop} · ${r.stage} `, el('span', {class: `ev-badge ${evCls}`, text: r.evidence})),
       el('ol', {class: 'chain'},
-        chainStep('Used in the study (not a recommendation)', applied, 'Product details not reported in the sources we could read'),
-        chainStep('Aim', r.purpose, 'Not stated'),
         chainStep('Hormone changes', r.hormone_changes, 'Hormones were not measured in this study'),
-        chainStep('What you see', r.visible_effect, 'Visible effect not reported in the sources we could read'),
-        missingText(r.side_effects) ? null : chainStep('Watch for', r.side_effects, '')),
-      residueSection(r),
-      el('details', {class: 'reg-more'}, el('summary', {text: 'Notes and source'}),
+        chainStep('What you see', r.visible_effect, 'Visible effect not reported in the sources we could read')),
+      el('details', {class: 'reg-more'}, el('summary', {text: 'Product, aim, side effects and source'}),
+        el('ol', {class: 'chain'},
+          chainStep('Used in the study (not a recommendation)', applied, 'Product details not reported in the sources we could read'),
+          chainStep('Aim', r.purpose, 'Not stated'),
+          missingText(r.side_effects) ? null : chainStep('Watch for', r.side_effects, '')),
         r.note ? el('p', {text: r.note}) : null,
-        el('p', {class: 'src'}, `${verName(r.verification) || r.verification}${r.source ? ' · ' : ''}`, r.source ? safeLink(r.source, r.source_url) : null)));
+        el('p', {class: 'src'}, `${verName(r.verification) || r.verification}${r.source ? ' · ' : ''}`, r.source ? safeLink(r.source, r.source_url) : null)),
+      residueSection(r));
   }
   function drawRegulators() {
     const list = document.getElementById('reg-list');
@@ -468,8 +472,17 @@
       .sort((a, b) => (EVIDENCE_ORDER[a.evidence] ?? 3) - (EVIDENCE_ORDER[b.evidence] ?? 3) || a.regulator.localeCompare(b.regulator));
     document.getElementById('reg-count').textContent =
       `${rows.length} ${rows.length === 1 ? 'entry' : 'entries'}${state.regAll ? ' for all crops' : ' for ' + state.crop}. Chains with measured hormone changes come first.`;
-    list.replaceChildren(...(rows.length ? rows.map(regulatorCard)
-      : [el('p', {class: 'none', text: `No regulator studies found for ${state.crop} at this stage. Tick "Show all crops" or pick another stage.`})]));
+    if (!rows.length) {
+      list.replaceChildren(el('p', {class: 'none', text: `No regulator studies found for ${state.crop} at this stage. Tick "Show all crops" or pick another stage.`}));
+      return;
+    }
+    /* Six cards at a time keeps long lists short on phones. */
+    const PAGE = 6;
+    const shownCount = Math.min(rows.length, state.regShown || PAGE);
+    const more = rows.length - shownCount;
+    list.replaceChildren(...rows.slice(0, shownCount).map(regulatorCard),
+      more > 0 ? el('button', {type: 'button', class: 'soil-toggle reg-more-btn', text: `Show ${Math.min(PAGE, more)} more of ${more}`,
+        onclick: () => { state.regShown = shownCount + PAGE; drawRegulators(); }}) : null);
   }
 
   /* ---------- charts ---------- */
@@ -748,14 +761,14 @@
       return el('span', {}, sw, v.name);
     }));
     document.querySelectorAll('#stage-seg button').forEach(b => b.addEventListener('click', () => { state.stage = b.dataset.stage; drawMatrix(); }));
-    document.querySelectorAll('#reg-stage button').forEach(b => b.addEventListener('click', () => { state.regStage = b.dataset.stage; drawRegulators(); }));
-    document.getElementById('reg-all').addEventListener('change', e => { state.regAll = e.target.checked; drawRegulators(); });
+    document.querySelectorAll('#reg-stage button').forEach(b => b.addEventListener('click', () => { state.regStage = b.dataset.stage; state.regShown = 0; drawRegulators(); }));
+    document.getElementById('reg-all').addEventListener('change', e => { state.regAll = e.target.checked; state.regShown = 0; drawRegulators(); });
     document.getElementById('crop-chip').addEventListener('click', () => {
       state.listOpen = !state.listOpen;
       drawCropChip();
       if (state.listOpen) { const t = document.querySelector('#crop-panel [aria-pressed="true"]'); if (t) t.focus(); }
     });
-    document.getElementById('reg-measured').addEventListener('change', e => { state.regMeasured = e.target.checked; drawRegulators(); });
+    document.getElementById('reg-measured').addEventListener('change', e => { state.regMeasured = e.target.checked; state.regShown = 0; drawRegulators(); });
     window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
     let w = window.innerWidth, timer;
     window.addEventListener('resize', () => {
