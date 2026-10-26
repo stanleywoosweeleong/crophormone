@@ -665,7 +665,7 @@
       axis(svg, x, y0, y1) {
         /* Shade the low range where non-climacteric fruit stay. */
         svg.append('rect').attr('x', x(0.01)).attr('y', y0).attr('width', x(1) - x(0.01)).attr('height', y1 - y0).style('fill', 'var(--grid)').style('opacity', 0.6);
-        muted(svg.append('text').attr('x', x(0.01) + 4).attr('y', y1 - 4).style('font-size', '11px').text('Low: under 1'));
+        muted(svg.append('text').attr('x', x(0.01) + 4).attr('y', y1 - 4).style('font-size', '12px').text('Low: under 1'));
         gridX(svg, x, [0.01, 0.1, 1, 10, 100, 1000], y0, y1, fmt);
       },
       label: c => `${c.crop} — ${summary(c)}${c.others.length ? ` (+${c.others.length} more in details)` : ''}`,

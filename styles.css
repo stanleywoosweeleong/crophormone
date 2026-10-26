@@ -18,7 +18,7 @@
   --shadow: 0 1px 2px rgba(20, 40, 30, .06), 0 4px 16px rgba(20, 40, 30, .05);
   --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
   --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --fs-cap: 13px;
+  --fs-cap: 14px;
   --fs-body: 16px;
   --radius: 12px;
   --nav-h: 64px;
@@ -152,7 +152,9 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 .c.low { color: var(--down); }
 .c.mix { color: var(--warn); background: color-mix(in srgb, var(--warn) 15%, transparent); }
 .c.nd { color: var(--muted); }
-.c.inferred { opacity: .55; outline: 1.5px dashed currentColor; outline-offset: -1.5px; }
+/* Inferred: hollow with a dashed edge, text at full strength so it stays readable (fading it failed contrast). */
+.c.inferred { background: transparent; outline: 1.5px dashed currentColor; outline-offset: -1.5px; }
+.c.peak.inferred { color: var(--up); }
 .key .c { width: 26px; height: 22px; }
 
 /* Compare by stage: one card per hormone, crops grouped by direction as wrapping tags. */
@@ -198,7 +200,7 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 }
 .crop-pick-name { font-size: 20px; font-weight: 600; }
 .caret { color: var(--up); font-size: 14px; }
-.crop-count { color: var(--muted); font-size: 13px; margin-left: auto; white-space: nowrap; }
+.crop-count { color: var(--muted); font-size: 14px; margin-left: auto; white-space: nowrap; }
 .stepper { display: inline-flex; gap: 6px; }
 .stepper button {
   width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel);
@@ -213,8 +215,8 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 /* Compact table: hormone names down the side, one column per stage. */
 .ct { display: grid; grid-template-columns: minmax(5.5rem, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 4px 6px; align-items: center; font-size: 14px; }
 .ct-row { display: contents; }
-.ct-stage { display: flex; flex-direction: column; align-items: center; gap: 3px; font-weight: 600; font-size: 13px; text-align: center; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
-.ct-stage .pill { font-size: 11px; padding: 0 7px; }
+.ct-stage { display: flex; flex-direction: column; align-items: center; gap: 3px; font-weight: 600; font-size: 14px; text-align: center; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.ct-stage .pill { font-size: 12px; padding: 0 7px; }
 .ct-h { color: var(--fg); line-height: 1.2; }
 .ct .c { height: 30px; gap: 4px; font-size: 13px; font-weight: 600; white-space: nowrap; }
 .ct .c.nd { color: var(--muted); }
@@ -222,8 +224,8 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 .ev p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 .ev strong { color: var(--fg); }
 @media (max-width: 420px) {
-  .ct-h { font-size: 13px; }
-  .ct .c { font-size: 12px; padding: 0 2px; }
+  .ct-h { font-size: 14px; line-height: 1.25; }
+  .ct .c { font-size: 13px; padding: 0 2px; }
 }
 .pill { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
 .pill.measured { color: var(--brand); border-color: currentColor; }
@@ -287,15 +289,15 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 .ev-stage p strong { color: var(--fg); }
 .src { color: var(--muted); font-size: 13px; white-space: normal; }
 a.doi { overflow-wrap: anywhere; }
-.closer { display: block; margin: 8px 0 0 auto; min-height: 32px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 16px; background: transparent; color: var(--up); font: inherit; font-size: 13px; cursor: pointer; }
+.closer { display: block; margin: 8px 0 0 auto; min-height: 32px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 16px; background: transparent; color: var(--up); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
 .none { color: var(--muted); font-style: italic; }
 
 /* Compare: group headings and per-card counts */
 .cmp-group { grid-column: 1 / -1; margin: 6px 0 -2px; font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .cmp-card > header { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .cmp-card h4 { margin: 0; font-size: 16px; font-weight: 600; }
-.cnt { font-size: 12px; color: var(--muted); white-space: nowrap; }
-.grp .why { font-size: 12px; color: var(--muted); }
+.cnt { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.grp .why { font-size: 14px; line-height: 1.45; color: var(--muted); }
 
 /* Regulators: booster/blocker pairs */
 .pairs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -325,7 +327,7 @@ a.doi { overflow-wrap: anywhere; }
 .act.boosts, .act.releases, .act.mimics { background: color-mix(in srgb, var(--up) 15%, transparent); color: var(--up); }
 .act.blocks { background: color-mix(in srgb, var(--down) 16%, transparent); color: var(--down); }
 .act.indirect, .act.several { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
-.reg-meta { margin: 0; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.reg-meta { margin: 0; font-size: 14px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .ev-badge { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 1px 9px; border: 1px solid currentColor; }
 .ev-badge.measured { color: var(--brand); }
 .ev-badge.effect { color: var(--up); }
@@ -341,7 +343,7 @@ a.doi { overflow-wrap: anywhere; }
 
 /* Six items in the bottom nav */
 .bottom-nav { grid-template-columns: repeat(6, 1fr); }
-.bottom-nav a { font-size: 11px; }
+.bottom-nav a { font-size: 12px; }
 
 .c.nod { color: var(--muted); background: var(--grid); }
 .ct .c { height: auto; min-height: 30px; padding-block: 3px; white-space: normal; text-align: center; line-height: 1.1; }
@@ -418,7 +420,7 @@ a.doi { overflow-wrap: anywhere; }
 .gaps { margin: 0; font-size: 14px; color: var(--muted); }
 .gaps strong { color: var(--fg); }
 .cmp-gaps { grid-column: 1 / -1; }
-details.grp.nd > summary { cursor: pointer; color: var(--muted); font-size: 13px; min-height: 28px; display: flex; align-items: center; }
+details.grp.nd > summary { cursor: pointer; color: var(--muted); font-size: 14px; min-height: 28px; display: flex; align-items: center; }
 details.grp.nd .names { margin-top: 6px; }
 
 /* Residues */
@@ -428,7 +430,8 @@ details.grp.nd .names { margin-top: 6px; }
 .res p strong, .res li strong { color: var(--fg); }
 .res ul.mrl { margin: 4px 0 0; padding-left: 18px; }
 .res ul.mrl li { margin-bottom: 6px; }
-.mrl-note, .mrl-src { display: block; font-size: 13px; color: var(--muted); }
+.mrl-note { display: block; font-size: 14px; color: var(--muted); }
+.mrl-src { display: block; font-size: 13px; color: var(--muted); }
 .persist { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 1px 9px; white-space: nowrap; border: 1px solid currentColor; }
 .persist.high { color: var(--bad); }
 .persist.mid { color: var(--warn); }
@@ -438,7 +441,7 @@ details.grp.nd .names { margin-top: 6px; }
 .soil-row { border-bottom: 1px solid var(--line); }
 .soil-row > summary { cursor: pointer; display: grid; grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1fr); gap: 10px; align-items: center; min-height: 44px; font-size: 14px; }
 .soil-name { font-weight: 600; text-transform: capitalize; }
-.soil-time { color: var(--muted); font-size: 13px; text-align: right; }
+.soil-time { color: var(--muted); font-size: 14px; text-align: right; }
 .soil-row p { margin: 4px 0 6px; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
 .soil-row p strong { color: var(--fg); }
 @media (max-width: 520px) { .soil-row > summary { grid-template-columns: 1fr auto; } .soil-time { grid-column: 1 / -1; text-align: left; } }
@@ -499,7 +502,7 @@ details.grp.nd .names { margin-top: 6px; }
 .crop-opt[aria-pressed="true"] { background: var(--up); border-color: var(--up); color: var(--panel); }
 .crop-opt[aria-pressed="true"] .dots i { outline-color: var(--panel); background: transparent; }
 .crop-opt[aria-pressed="true"] .dots i.on { background: var(--panel); }
-.crop-menu-note { flex-basis: 100%; margin: 4px 2px 0; font-size: 12px; color: var(--muted); }
+.crop-menu-note { flex-basis: 100%; margin: 4px 2px 0; font-size: 13px; color: var(--muted); }
 
 /* Current tab: a highlighted pill behind the icon, bold label and a bar along the top */
 .bottom-nav a { position: relative; }
@@ -537,10 +540,10 @@ details.notice p { margin: 6px 0 0; font-size: 14px; }
 .cmp-card[open] > summary::after { content: "▴"; }
 .cmp-card[open] { padding-bottom: 12px; }
 .cmp-name { font-weight: 600; font-size: 15px; flex-basis: 100%; }
-.cmp-mine { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
-.cmp-mine .c { height: 24px; padding: 0 8px; gap: 4px; font-size: 12px; font-weight: 600; }
+.cmp-mine { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.cmp-mine .c { height: 24px; padding: 0 8px; gap: 4px; font-size: 13px; font-weight: 600; }
 .cmp-counts { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: auto; }
-.cnt-chip { height: 22px; padding: 0 6px; gap: 3px; font-size: 12px; font-weight: 600; border-radius: 6px; }
+.cnt-chip { height: 24px; padding: 0 7px; gap: 3px; font-size: 13px; font-weight: 600; border-radius: 6px; }
 .cmp-group { margin-top: 10px; }
 
 /* Dosing notice uses the same expand marker as the rest of the app */
@@ -588,5 +591,5 @@ details.notice[open] > summary::after { content: "▴"; }
 /* Why a cell is Mixed or At drop, under the crop table and in stage lines. */
 .mark-why { margin: 10px 0 0; display: grid; gap: 6px; }
 .mark-why p { margin: 0; font-size: 14px; line-height: 1.45; }
-.mark-why .c { display: inline-flex; height: 22px; padding: 0 6px; gap: 3px; margin-right: 2px; font-size: 12px; font-weight: 600; border-radius: 6px; vertical-align: 1px; }
+.mark-why .c { display: inline-flex; height: 22px; padding: 0 6px; gap: 3px; margin-right: 2px; font-size: 13px; font-weight: 600; border-radius: 6px; vertical-align: 1px; }
 .mix-list { margin: 4px 0 0; padding-left: 0; list-style: none; display: grid; gap: 4px; font-size: 14px; color: var(--muted); }
