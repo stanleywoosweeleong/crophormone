@@ -279,7 +279,7 @@
         el('span', {class: `act ${(r.action || '').toLowerCase()}`, text: `${r.action} ${r.target_hormone}`.trim()})),
       el('p', {class: 'reg-meta'}, `${r.crop} · ${r.stage} `, el('span', {class: `ev-badge ${evCls}`, text: r.evidence})),
       el('ol', {class: 'chain'},
-        chainStep('Applied', applied, 'Product details not reported in the sources we could read'),
+        chainStep('Used in the study (not a recommendation)', applied, 'Product details not reported in the sources we could read'),
         chainStep('Aim', r.purpose, 'Not stated'),
         chainStep('Hormone changes', r.hormone_changes, 'Hormones were not measured in this study'),
         chainStep('What you see', r.visible_effect, 'Visible effect not reported in the sources we could read'),

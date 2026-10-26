@@ -366,3 +366,10 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 
 /* Arrows removed: the crop button has room for its dots again on phones */
 @media (max-width: 420px) { .crop-pick .dots { display: inline-flex; } }
+
+/* Safety notice on the Regulators view */
+.notice {
+  border: 1px solid var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent);
+  border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5;
+}
+.notice strong { color: var(--warn); }
