@@ -262,29 +262,6 @@
     document.getElementById('crop-detail').replaceChildren(cropPanel(state.crop));
   }
 
-  /* The chosen crop at one stage: every hormone's direction, how much is measured, and the evidence. */
-  function drawStageCard(stage) {
-    const box = document.getElementById('stage-' + state.view);
-    if (!box) return;
-    if (data.evidence === null) return failed(box.id);
-    if (!evidence()) return;
-    const crops = cropOrder(data.evidence);
-    if (!crops.includes(state.crop)) state.crop = crops[0];
-    const measured = HORMONES.filter(h => isMeasured(cell(state.crop, stage, h.key))).length;
-    const blank = HORMONES.filter(h => shown(cell(state.crop, stage, h.key)) === 'No data');
-    const list = el('div', {class: 'sh-list', role: 'list'}, ...HORMONES.filter(h => !blank.includes(h)).map(h => {
-      const r = cell(state.crop, stage, h.key);
-      return el('div', {class: 'sh-row', role: 'listitem', 'aria-label': `${h.name}: ${DIRECTION[shown(r)].word}`},
-        el('span', {text: h.name}), badge(r));
-    }));
-    box.replaceChildren(
-      el('h2', {text: `${state.crop} at ${stage.toLowerCase()}`}),
-      el('p', {class: 'cov'}, el('strong', {text: `${measured} of ${HORMONES.length}`}), ` hormones measured at this stage for ${state.crop}.`),
-      list,
-      blank.length ? el('p', {class: 'gaps'}, el('strong', {text: 'No study found yet: '}), blank.map(h => h.name).join(', ') + '.') : null,
-      el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}), stageEvidence(state.crop, stage)));
-  }
-
   /* Note above a cross-crop chart: whether the chosen crop is in it. */
   function cropNote(id, inChart, what) {
     const n = document.getElementById(id);
@@ -302,12 +279,16 @@
   }
 
   /* ---------- overview: compare all crops at one stage ---------- */
-  function drawMatrix() {
-    const box = document.getElementById('mx');
-    if (data.evidence === null) return failed('mx');
+  function drawCompare(stage) {
+    const box = document.getElementById('cmp-' + state.view);
+    if (!box) return;
+    if (data.evidence === null) return failed(box.id);
     if (!evidence()) return;
-    document.querySelectorAll('#stage-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === state.stage)));
+    state.stage = stage;
     const crops = cropOrder(data.evidence);
+    const head = document.getElementById('cmp-head-' + state.view);
+    if (head) head.replaceChildren(`All crops at ${stage.toLowerCase()}. ${state.crop} is highlighted. `,
+      el('a', {href: '#overview', text: `See ${state.crop} through the whole cycle`}), '.');
     /* One card per hormone; inside, crops grouped by direction, in this order. */
     const ORDER = ['Up', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not a driver', 'Applied', 'No data'];
     let group = null;
@@ -335,7 +316,7 @@
           const names = groups.get(k);
           return el('details', {class: 'grp nd'},
             el('summary', {text: `+${names.length} ${names.length === 1 ? 'crop' : 'crops'} with no study`}),
-            el('span', {class: 'names'}, ...names.map(g => el('button', {type: 'button', class: 'name', text: g.crop, onclick: () => selectCrop(g.crop, true)}))));
+            el('span', {class: 'names'}, ...names.map(g => el('button', {type: 'button', class: 'name', text: g.crop, onclick: () => selectCrop(g.crop)}))));
         }
         return el('div', {class: 'grp'},
           el('span', {class: `c ${d.cls}`}, el('span', {'aria-hidden': 'true', text: d.glyph}), d.word),
@@ -345,11 +326,21 @@
           el('span', {class: 'names'}, ...groups.get(k).map(g => el('button', {
             type: 'button', class: 'name' + (g.inferred && k !== 'No data' ? ' inferred' : '') + (g.crop === state.crop ? ' on' : ''),
             'aria-label': `${g.crop}: ${d.word}${g.inferred ? ', inferred' : ''}. Open ${g.crop}`,
-            text: g.crop, onclick: () => selectCrop(g.crop, true)
+            text: g.crop, onclick: () => selectCrop(g.crop)
           }))));
       });
-      cards.push(el('article', {class: 'cmp-card'},
-        el('header', {}, el('h4', {text: h.name}), el('span', {class: 'cnt', text: `${measured} of ${crops.length} measured`})), ...lines));
+      /* One summary line per hormone: the chosen crop's direction and how many crops go each way; tap for names. */
+      const mine = cell(state.crop, state.stage, h.key);
+      const counts = ORDER.filter(k => k !== 'No data' && groups.get(k).length).map(k =>
+        el('span', {class: `cnt-chip c ${DIRECTION[k].cls}`, title: DIRECTION[k].word}, el('span', {'aria-hidden': 'true', text: DIRECTION[k].glyph}), String(groups.get(k).length)));
+      const noData = groups.get('No data').length;
+      cards.push(el('details', {class: 'cmp-card'},
+        el('summary', {},
+          el('span', {class: 'cmp-name', text: h.name}),
+          el('span', {class: 'cmp-mine'}, `${state.crop}: `, badge(mine)),
+          el('span', {class: 'cmp-counts', 'aria-label': `${measured} of ${crops.length} crops measured`}, ...counts,
+            noData ? el('span', {class: 'cnt', text: `${noData} no data`}) : null)),
+        ...lines));
     });
     box.replaceChildren(...cards);
   }
@@ -735,28 +726,28 @@
   /* Which flowering charts belong to which crop. */
   const FLOWER_CHARTS = {Mango: [drawLeaf, drawPbz], Longan: [drawLongan]};
   function drawFlowering() {
-    drawStageCard('Flowering');
-    document.querySelectorAll('#view-flowering [data-crop]').forEach(c => { c.hidden = c.dataset.crop !== state.crop; });
-    const grid = document.querySelector('#view-flowering .grid2');
-    grid.hidden = ![...grid.children].some(c => !c.hidden);
-    const none = document.getElementById('flower-none');
-    const charts = FLOWER_CHARTS[state.crop];
-    none.hidden = !!charts;
-    if (charts) { charts.forEach(f => f()); return; }
-    none.replaceChildren(
-      el('h2', {text: 'Measured flowering values'}),
-      el('p', {class: 'note', text: `No study we found reports measured flowering hormone concentrations for ${state.crop}; the directions above come from the sources listed under Evidence. Measured-value charts exist for:`}),
-      el('div', {class: 'names'}, ...Object.keys(FLOWER_CHARTS).map(c => el('button', {type: 'button', class: 'name', text: c, onclick: () => selectCrop(c)}))));
+    drawCompare('Flowering');
+    document.querySelectorAll('#view-flowering [data-crop]').forEach(c => {
+      const mine = c.dataset.crop === state.crop;
+      c.classList.toggle('mine', mine);
+      c.style.order = mine ? -1 : 0;
+    });
+    const note = document.getElementById('flower-crop-note');
+    note.hidden = false;
+    note.textContent = FLOWER_CHARTS[state.crop] ? `${state.crop}'s charts are marked and shown first.`
+      : `No measured flowering hormone values found for ${state.crop} yet. Charts below are for the crops that have them.`;
+    note.classList.toggle('missing', !FLOWER_CHARTS[state.crop]);
+    Object.values(FLOWER_CHARTS).flat().forEach(f => f());
   }
 
   function drawView() {
     if (typeof d3 === 'undefined') return;
     drawCropChip();
-    if (state.view === 'overview') { drawCropCard(); drawMatrix(); }
+    if (state.view === 'overview') drawCropCard();
     if (state.view === 'regulators') drawRegulators();
-    if (state.view === 'ripening') { drawStageCard('Ripening'); drawRipening(); }
     if (state.view === 'flowering') drawFlowering();
-    if (state.view === 'fruitset') { drawStageCard('Fruit set'); drawFold(); }
+    if (state.view === 'fruitset') { drawCompare('Fruit set'); drawFold(); }
+    if (state.view === 'ripening') { drawCompare('Ripening'); drawRipening(); }
   }
 
   function load() {
@@ -773,7 +764,6 @@
       const sw = el('i', {class: 'sw'}); sw.style.background = v.color;
       return el('span', {}, sw, v.name);
     }));
-    document.querySelectorAll('#stage-seg button').forEach(b => b.addEventListener('click', () => { state.stage = b.dataset.stage; drawMatrix(); }));
     document.getElementById('reg-stage-sel').addEventListener('change', e => { state.regStage = e.target.value; state.regShown = 0; drawRegulators(); });
     document.getElementById('crop-chip').addEventListener('click', e => {
       e.stopPropagation();

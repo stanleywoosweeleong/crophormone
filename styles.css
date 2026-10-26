@@ -514,3 +514,26 @@ details.notice > summary::after { content: " More"; color: var(--up); font-weigh
 details.notice[open] > summary::after { content: " Less"; }
 details.notice p { margin: 6px 0 0; font-size: 14px; }
 .reg-list > .soil-toggle { grid-column: 1 / -1; }
+
+/* Flowering charts: the chosen crop's cards are marked and shown first */
+.flower-charts { display: flex; flex-direction: column; gap: 16px; }
+@media (min-width: 900px) { .flower-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } .flower-charts > [data-crop="Mango"]:last-child { grid-column: 1 / -1; } }
+.card.mine { border-color: var(--up); box-shadow: inset 0 0 0 1px var(--up); }
+
+/* Stage comparison: one line per hormone, tap to see crop names */
+.cmp { gap: 0 24px; }
+.cmp-card { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0; gap: 8px; }
+.cmp-card > summary {
+  cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px;
+  padding: 10px 22px 10px 0; position: relative;
+}
+.cmp-card > summary::-webkit-details-marker { display: none; }
+.cmp-card > summary::after { content: "▾"; position: absolute; right: 2px; top: 12px; color: var(--muted); font-size: 12px; }
+.cmp-card[open] > summary::after { content: "▴"; }
+.cmp-card[open] { padding-bottom: 12px; }
+.cmp-name { font-weight: 600; font-size: 15px; flex-basis: 100%; }
+.cmp-mine { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.cmp-mine .c { height: 24px; padding: 0 8px; gap: 4px; font-size: 12px; font-weight: 600; }
+.cmp-counts { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: auto; }
+.cnt-chip { height: 22px; padding: 0 6px; gap: 3px; font-size: 12px; font-weight: 600; border-radius: 6px; }
+.cmp-group { margin-top: 10px; }
