@@ -83,50 +83,49 @@
   const stageRow = (rows, crop, s) => rows.find(x => x.crop === crop && x.stage === s);
   const slug = crop => 'crop-' + crop.toLowerCase().replace(/[^a-z]+/g, '-');
 
-  /* The three stage cards for one crop, shown in the panel under its tile row. */
-  function cropPanel(rows, crop) {
-    return el('div', {class: 'crop-panel', id: slug(crop) + '-panel', role: 'region', 'aria-label': `${crop} through the growth cycle`},
-      el('header', {},
-        el('h3', {text: `${crop} through the growth cycle`}),
-        el('button', {type: 'button', class: 'collapse', text: 'Collapse', onclick: () => selectCrop(null)})),
-      el('div', {class: 'stages'}, ...STAGES.map(s => {
-        const r = stageRow(rows, crop, s);
-        const basis = r ? r.basis : 'No data';
-        const inferred = basis === 'Inferred';
-        const pillCls = basis === 'Measured' ? 'measured' : basis === 'Partly measured' ? 'partly' : inferred ? 'inferred' : '';
-        return el('article', {class: 'stage-card'},
-          el('header', {}, el('h4', {text: s}), el('span', {class: 'pill ' + pillCls, text: basis})),
-          el('ul', {class: 'hl'}, ...HORMONES.map(h => {
-            const v = r ? r[h.field] : 'No data', d = dir(v);
-            return el('li', {},
-              el('span', {text: h.name}),
-              el('span', {class: `c ${d.cls}${inferred && d.cls !== 'nd' ? ' inferred' : ''}`},
-                el('span', {'aria-hidden': 'true', text: d.glyph}), d.word));
-          })),
-          el('p', {class: 'evidence', text: r ? r.note : ''}));
-      })));
-  }
+  const SHORT = {up: 'Rises', peak: 'Peaks', down: 'Falls', low: 'Low', mix: 'Mixed', nd: '—'};
+  const basisClass = b => b === 'Measured' ? 'measured' : b === 'Partly measured' ? 'partly' : b === 'Inferred' ? 'inferred' : '';
 
-  /* A tile: crop name plus a 3 × 5 preview of directions (stages down, hormones across). */
-  function cropTile(rows, crop) {
-    const open = crop === state.crop;
-    const preview = el('span', {class: 'mini', 'aria-hidden': 'true'});
-    STAGES.forEach(s => {
-      const r = stageRow(rows, crop, s);
-      const inferred = r && r.basis === 'Inferred';
-      HORMONES.forEach(h => {
-        const d = dir(r ? r[h.field] : 'No data');
-        preview.append(el('i', {class: `c ${d.cls}${inferred && d.cls !== 'nd' ? ' inferred' : ''}`}));
+  /* The open crop: one compact table (hormones down, stages across), evidence folded away below it. */
+  function cropPanel(rows, crop) {
+    const byStage = STAGES.map(s => stageRow(rows, crop, s));
+    const table = el('div', {class: 'ct', role: 'table', 'aria-label': `${crop}: hormone direction by stage`});
+    table.append(el('div', {role: 'columnheader'}));
+    STAGES.forEach((s, i) => {
+      const basis = byStage[i] ? byStage[i].basis : 'No data';
+      table.append(el('div', {class: 'ct-stage', role: 'columnheader'},
+        el('span', {text: s}), el('span', {class: 'pill ' + basisClass(basis), text: basis.replace('Partly measured', 'Partly')})));
+    });
+    HORMONES.forEach(h => {
+      table.append(el('div', {class: 'ct-h', role: 'rowheader', text: h.name}));
+      byStage.forEach((r, i) => {
+        const v = r ? r[h.field] : 'No data', d = dir(v);
+        const inferred = r && r.basis === 'Inferred' && d.cls !== 'nd';
+        table.append(el('div', {role: 'cell', 'aria-label': `${STAGES[i]}: ${d.word}${inferred ? ' (inferred)' : ''}`},
+          el('span', {class: `c ${d.cls}${inferred ? ' inferred' : ''}`, title: d.word},
+            d.cls === 'nd' ? null : el('span', {'aria-hidden': 'true', text: d.glyph}), SHORT[d.cls])));
       });
     });
+    const evidence = el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}),
+      ...STAGES.map((s, i) => el('p', {}, el('strong', {text: s + ': '}), byStage[i] ? byStage[i].note : 'No data found.')));
+    return el('div', {class: 'crop-panel', id: slug(crop) + '-panel', role: 'region', 'aria-label': crop},
+      el('header', {},
+        el('h3', {text: crop}),
+        el('button', {type: 'button', class: 'collapse', 'aria-label': `Collapse ${crop}`, text: 'Close', onclick: () => selectCrop(null)})),
+      table, evidence);
+  }
+
+  /* A compact tile: the crop name and how many of its three stages have measurements. */
+  function cropTile(rows, crop) {
+    const open = crop === state.crop;
     const measured = STAGES.filter(s => { const r = stageRow(rows, crop, s); return r && /measured/i.test(r.basis); }).length;
+    const dots = el('span', {class: 'dots', title: `${measured} of 3 stages measured`},
+      ...STAGES.map((s, i) => el('i', {class: i < measured ? 'on' : ''})));
     return el('button', {
       type: 'button', class: 'tile', 'aria-expanded': String(open), 'aria-controls': slug(crop) + '-panel',
+      'aria-label': `${crop}, ${measured} of 3 stages measured`,
       onclick: () => selectCrop(open ? null : crop)
-    },
-      el('span', {class: 'tile-head'}, el('span', {class: 'tile-name', text: crop}), el('span', {class: 'chev', 'aria-hidden': 'true', text: '›'})),
-      preview,
-      el('span', {class: 'tile-meta', text: measured ? `${measured} of 3 stages measured` : 'Inferred only'}));
+    }, el('span', {class: 'tile-name', text: crop}), dots);
   }
 
   function drawCropCard() {
