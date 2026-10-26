@@ -491,9 +491,10 @@
     const PAGE = 6;
     const shownCount = Math.min(rows.length, state.regShown || PAGE);
     const more = rows.length - shownCount;
-    list.replaceChildren(...rows.slice(0, shownCount).map(regulatorCard),
+    /* replaceChildren prints null as text, so drop the missing "Show more" button before passing the list. */
+    list.replaceChildren(...[...rows.slice(0, shownCount).map(regulatorCard),
       more > 0 ? el('button', {type: 'button', class: 'soil-toggle reg-more-btn', text: `Show ${Math.min(PAGE, more)} more of ${more}`,
-        onclick: () => { state.regShown = shownCount + PAGE; drawRegulators(); }}) : null, allBtn);
+        onclick: () => { state.regShown = shownCount + PAGE; drawRegulators(); }}) : null, allBtn].filter(Boolean));
   }
 
   /* ---------- charts ---------- */
