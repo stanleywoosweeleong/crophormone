@@ -376,3 +376,8 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 /* Pairs now have three parts: boost, block, natural opponent */
 .pairs li { grid-template-columns: 7rem repeat(3, 1fr); }
 @media (max-width: 900px) { .pairs li { grid-template-columns: 1fr; gap: 3px; } }
+
+/* Ripening chart: hollow "at harvest" swatch, and one line per measurement in the readout */
+.sw.ring { background: var(--panel); border: 2px solid var(--muted); width: 10px; height: 10px; }
+.readout .ro-item { display: block; padding-top: 4px; border-top: 1px solid var(--line); margin-top: 4px; }
+.readout .ro-item:first-of-type { border-top: 0; margin-top: 0; }

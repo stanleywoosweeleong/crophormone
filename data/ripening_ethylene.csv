@@ -1,17 +1,17 @@
-id,crop,cultivar,condition,low,high,bound,verification,source,source_url
-mango-s1,Mango,Tommy Atkins,"25 °C, maturity stage 1, peak day 9",9.56,9.56,,FT,Chomba et al. 2025,https://www.frontiersin.org/journals/horticulture/articles/10.3389/fhort.2025.1509989/full
-mango-s2,Mango,Tommy Atkins,"25 °C, maturity stage 2, peak day 6",13.29,13.29,,FT,Chomba et al. 2025,https://www.frontiersin.org/journals/horticulture/articles/10.3389/fhort.2025.1509989/full
-mango-mcp1,Mango,Tommy Atkins,"1-MCP 1.0 ppm, peak day 12",5.95,5.95,,FT,Chomba et al. 2025,https://www.frontiersin.org/journals/horticulture/articles/10.3389/fhort.2025.1509989/full
-mango-mcp4,Mango,Tommy Atkins,"1-MCP sachet 4.0 ppm, peak day 21",3.89,3.89,,FT,Chomba et al. 2025,https://www.frontiersin.org/journals/horticulture/articles/10.3389/fhort.2025.1509989/full
-durian-pre,Durian,Chanee,"22 °C, harvest to day 2",0.02,0.02,below,FT,Tongdee 1989,https://rfcarchives.org.au/Next/Fruits/Durian/DurianRespiration9-89.htm
-durian-peak,Durian,Chanee,"22 °C, peak day 8",8.5,10.4,,FT,Tongdee 1989,https://rfcarchives.org.au/Next/Fruits/Durian/DurianRespiration9-89.htm
-durian-husk,Durian (husk only),Not verified,Climacteric peak,170,170,,SNIP,RFC harvest maturity page,https://rfcarchives.org.au/Next/Fruits/Durian/HarvestMaturity9-89.htm
-papaya-0,Papaya,Golden,"23 °C, harvested green, peak day 7",2.1,2.1,,FT,Bron and Jacomino 2006,https://scielo.br/j/bjpp/a/NbrHVhtmcjpVgsVskW9W3Wv/?lang=en
-papaya-1,Papaya,Golden,"23 °C, up to 15% yellow, peak day 6",1.3,1.3,,FT,Bron and Jacomino 2006,https://scielo.br/j/bjpp/a/NbrHVhtmcjpVgsVskW9W3Wv/?lang=en
-papaya-23,Papaya,Golden,"23 °C, riper harvest, no rise",0.57,0.57,,FT,Bron and Jacomino 2006,https://scielo.br/j/bjpp/a/NbrHVhtmcjpVgsVskW9W3Wv/?lang=en
-mtn-papaya,Mountain papaya (related species),Not stated,Maximum (converted from µmol),40,72,,SNIP,AGRIS record,https://agris.fao.org/search/en/records/65df7cf7b766d82b1801f1dc
-passion-w,Passion fruit (yellow),P. edulis f. flavicarpa,"Green fruit, highest mean",7.25,7.25,,ABS,Winkler et al. 2002,https://www.scielo.br/j/rbf/a/Q3G4TBpYvkLYvLHF4Pdnb9G/abstract/?lang=en
-passion-h,Passion fruit,Not stated,"20 °C, climacteric peak (Hawaii guideline)",160,400,,SNIP,CTAHR guideline,https://mail.growables.org/information/TropicalFruit/documents/PassHawaii2.pdf
-rambutan-ucd,Rambutan,General,"25 °C, postharvest",0.1,0.7,,SEC,UC Davis postharvest,https://postharvest.ucdavis.edu/node/7981
-rambutan-rfc,Rambutan,General,Postharvest (healthy fruit),0.04,0.04,below,SEC,RFC rambutan review,https://rfcarchives.org.au/Next/Fruits/Rambutan/RambutanPostharvest11-92.htm
-mangosteen,Mangosteen,Not stated,Pre-climacteric baseline,0.029,0.029,,SNIP,Review citing Noichinda 1992,https://corpora.tika.apache.org/base/docs/govdocs1/522/522074.pdf
+id,crop,cultivar,condition,low,high,bound,verification,source,source_url,role,crop_group
+mango-s1,Mango,Tommy Atkins,"25 °C, maturity stage 1, peak day 9",9.56,9.56,,FT,Chomba et al. 2025,https://www.frontiersin.org/journals/horticulture/articles/10.3389/fhort.2025.1509989/full,peak,Mango
+mango-s2,Mango,Tommy Atkins,"25 °C, maturity stage 2, peak day 6",13.29,13.29,,FT,Chomba et al. 2025,https://www.frontiersin.org/journals/horticulture/articles/10.3389/fhort.2025.1509989/full,peak,Mango
+mango-mcp1,Mango,Tommy Atkins,"1-MCP 1.0 ppm, peak day 12",5.95,5.95,,FT,Chomba et al. 2025,https://www.frontiersin.org/journals/horticulture/articles/10.3389/fhort.2025.1509989/full,other,Mango
+mango-mcp4,Mango,Tommy Atkins,"1-MCP sachet 4.0 ppm, peak day 21",3.89,3.89,,FT,Chomba et al. 2025,https://www.frontiersin.org/journals/horticulture/articles/10.3389/fhort.2025.1509989/full,other,Mango
+durian-pre,Durian,Chanee,"22 °C, harvest to day 2",0.02,0.02,below,FT,Tongdee 1989,https://rfcarchives.org.au/Next/Fruits/Durian/DurianRespiration9-89.htm,harvest,Durian
+durian-peak,Durian,Chanee,"22 °C, peak day 8",8.5,10.4,,FT,Tongdee 1989,https://rfcarchives.org.au/Next/Fruits/Durian/DurianRespiration9-89.htm,peak,Durian
+durian-husk,Durian (husk only),Not verified,Climacteric peak,170,170,,SNIP,RFC harvest maturity page,https://rfcarchives.org.au/Next/Fruits/Durian/HarvestMaturity9-89.htm,other,Durian
+papaya-0,Papaya,Golden,"23 °C, harvested green, peak day 7",2.1,2.1,,FT,Bron and Jacomino 2006,https://scielo.br/j/bjpp/a/NbrHVhtmcjpVgsVskW9W3Wv/?lang=en,peak,Papaya
+papaya-1,Papaya,Golden,"23 °C, up to 15% yellow, peak day 6",1.3,1.3,,FT,Bron and Jacomino 2006,https://scielo.br/j/bjpp/a/NbrHVhtmcjpVgsVskW9W3Wv/?lang=en,peak,Papaya
+papaya-23,Papaya,Golden,"23 °C, riper harvest, no rise",0.57,0.57,,FT,Bron and Jacomino 2006,https://scielo.br/j/bjpp/a/NbrHVhtmcjpVgsVskW9W3Wv/?lang=en,other,Papaya
+mtn-papaya,Mountain papaya (related species),Not stated,Maximum (converted from µmol),40,72,,SNIP,AGRIS record,https://agris.fao.org/search/en/records/65df7cf7b766d82b1801f1dc,other,Papaya
+passion-w,Passion fruit (yellow),P. edulis f. flavicarpa,"Green fruit, highest mean",7.25,7.25,,ABS,Winkler et al. 2002,https://www.scielo.br/j/rbf/a/Q3G4TBpYvkLYvLHF4Pdnb9G/abstract/?lang=en,peak,Passion fruit
+passion-h,Passion fruit,Not stated,"20 °C, climacteric peak (Hawaii guideline)",160,400,,SNIP,CTAHR guideline,https://mail.growables.org/information/TropicalFruit/documents/PassHawaii2.pdf,peak,Passion fruit
+rambutan-ucd,Rambutan,General,"25 °C, postharvest",0.1,0.7,,SEC,UC Davis postharvest,https://postharvest.ucdavis.edu/node/7981,peak,Rambutan
+rambutan-rfc,Rambutan,General,Postharvest (healthy fruit),0.04,0.04,below,SEC,RFC rambutan review,https://rfcarchives.org.au/Next/Fruits/Rambutan/RambutanPostharvest11-92.htm,peak,Rambutan
+mangosteen,Mangosteen,Not stated,Pre-climacteric baseline,0.029,0.029,,SNIP,Review citing Noichinda 1992,https://corpora.tika.apache.org/base/docs/govdocs1/522/522074.pdf,harvest,Mangosteen

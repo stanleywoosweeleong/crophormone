@@ -16,9 +16,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=fde1717b14">
+<link rel="stylesheet" href="styles.css?v=4fb2d18ed3">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
-<script src="app.js?v=89f83b785f" defer></script>
+<script src="app.js?v=debf4af984" defer></script>
 <script src="update.js?v=4b38a14d43" defer></script>
 <script src="install.js?v=2e7b7407fd" defer></script>
 </head>
@@ -105,7 +105,8 @@
     <p class="lead">Climacteric fruits (mango, durian, papaya, passion fruit, avocado) show an ethylene peak after harvest. Non-climacteric fruits such as rambutan stay low.</p>
     <div class="card">
       <h2>Ethylene production by crop</h2>
-      <p class="note">µL C₂H₄ per kg per hour, log scale. Bars are reported ranges; an arrow means "below this value". Colour shows how the value was checked.</p>
+      <p class="note">One row per crop. Hollow dot: ethylene at harvest. Filled mark: the ripening peak (a bar is a reported range; two marks mean two sources). The dashed arrow shows the rise. µL ethylene per kg of fruit per hour, log scale; each gridline is 10 times the last. Tap a crop for every measurement and its source.</p>
+      <div class="key"><span><i class="sw ring"></i>At harvest</span></div>
       <div class="key" id="ver-key"></div>
       <div class="chart" id="ripe-chart"><div class="loading"></div></div>
       <div class="readout" id="ripe-readout" aria-live="polite"><span class="hint">Tap a row for its details and source.</span></div>

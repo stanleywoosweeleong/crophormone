@@ -77,6 +77,12 @@
     lines.forEach(l => box.append(el('span', {text: l})));
     if (source) box.append(el('span', {class: 'm'}, `${source.level} · `, safeLink(source.name, source.url)));
   }
+  function readoutList(id, title, items) {
+    const box = document.getElementById(id);
+    box.replaceChildren(el('span', {class: 't', text: title}));
+    items.forEach(it => box.append(el('span', {class: 'ro-item'}, it.text,
+      it.source ? el('span', {class: 'm'}, ` · ${it.source.level} · `, safeLink(it.source.name, it.source.url)) : null)));
+  }
   function failed(id) {
     document.getElementById(id).replaceChildren(el('div', {class: 'fail', text: 'Failed to load'}));
   }
@@ -375,31 +381,60 @@
     return {level: v ? v.name : d.verification, name: d.source, url: d.source_url};
   }
 
+  /* One row per crop: a hollow dot at harvest, filled marks at the ripening peak (one per source, coloured by how
+     it was checked), an arrow between them when both are known. Treatments and other tissues stay in the readout. */
   function drawRipening() {
     const rows = data.ripening;
     if (rows === null) return failed('ripe-chart');
     if (!rows) return;
-    const list = rows.map(r => ({...r, lo: +r.low, hi: +r.high})).sort((a, b) => b.hi - a.hi);
+    const all = rows.map(r => ({...r, lo: +r.low, hi: +r.high}));
     const value = d => d.bound === 'below' ? `< ${fmt(d.hi)}` : d.hi > d.lo ? `${fmt(d.lo)}–${fmt(d.hi)}` : fmt(d.hi);
-    rowChart('ripe-chart', list, {
-      title: 'Ethylene production rate by crop, log scale',
+    const crops = [...d3.group(all, d => d.crop_group)].map(([crop, items]) => {
+      const peaks = items.filter(d => d.role === 'peak');
+      const harvest = items.find(d => d.role === 'harvest');
+      const top = peaks.length ? d3.max(peaks, d => d.hi) : null;
+      return {crop, items, peaks, harvest, top, others: items.filter(d => d.role === 'other')};
+    }).sort((a, b) => (b.top ?? 0) - (a.top ?? 0));
+    const summary = c => {
+      if (!c.peaks.length) return `At harvest ${value(c.harvest)}; peak not measured`;
+      const lo = d3.min(c.peaks, d => d.lo), hi = c.top;
+      const from = c.harvest ? ` · from ${value(c.harvest)} at harvest` : '';
+      /* Sources more than 10 times apart are shown separately, not merged into one range. */
+      if (new Set(c.peaks.map(d => d.source)).size > 1 && hi / Math.max(lo, 1e-6) > 10)
+        return `Peak ${c.peaks.map(value).join(' or ')} (sources disagree)${from}`;
+      return `Peak ${lo === hi ? fmt(hi) : fmt(lo) + '–' + fmt(hi)}${from}`;
+    };
+    rowChart('ripe-chart', crops, {
+      title: 'Ethylene production by crop: at harvest and at the ripening peak, log scale',
       scale: r => d3.scaleLog([0.01, 1000], r),
-      axis: (svg, x, y0, y1) => gridX(svg, x, [0.01, 0.1, 1, 10, 100, 1000], y0, y1, fmt),
-      label: d => `${d.crop} · ${d.condition}`,
-      mark(g, d, x, y) {
-        const c = (VERIFY[d.verification] || VERIFY.SNIP).color;
-        if (d.bound === 'below') {
-          g.append('line').attr('x1', x(d.hi)).attr('x2', x(d.hi) - 22).attr('y1', y).attr('y2', y).style('stroke', c).style('stroke-width', 2);
-          g.append('path').attr('d', `M${x(d.hi) - 24},${y} l7,-5 l0,10 z`).style('fill', c);
-          g.append('circle').attr('cx', x(d.hi)).attr('cy', y).attr('r', 5).style('fill', 'var(--panel)').style('stroke', c).style('stroke-width', 2);
-        } else if (d.hi > d.lo) {
-          g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).style('stroke', c).style('stroke-width', 10).style('stroke-linecap', 'round');
-        } else {
-          g.append('circle').attr('cx', x(d.hi)).attr('cy', y).attr('r', 6).style('fill', c);
-        }
-        placeValue(g, value(d), x(d.hi) + 4, x(d.lo) - (d.bound === 'below' ? 26 : 4), y, x.range()[1] + 10);
+      axis(svg, x, y0, y1) {
+        /* Shade the low range where non-climacteric fruit stay. */
+        svg.append('rect').attr('x', x(0.01)).attr('y', y0).attr('width', x(1) - x(0.01)).attr('height', y1 - y0).style('fill', 'var(--grid)').style('opacity', 0.6);
+        muted(svg.append('text').attr('x', x(0.01) + 4).attr('y', y1 - 4).style('font-size', '11px').text('Low: under 1'));
+        gridX(svg, x, [0.01, 0.1, 1, 10, 100, 1000], y0, y1, fmt);
       },
-      select: d => readout('ripe-readout', `${d.crop} · ${d.cultivar}`, [d.condition, `${value(d)} µL C₂H₄/kg/h`], source(d))
+      label: c => `${c.crop} — ${summary(c)}${c.others.length ? ` (+${c.others.length} more in details)` : ''}`,
+      mark(g, c, x, y) {
+        const h = c.harvest;
+        if (h && c.top) {
+          g.append('line').attr('x1', x(h.hi) + 7).attr('x2', x(d3.min(c.peaks, d => d.lo)) - 9).attr('y1', y).attr('y2', y)
+            .style('stroke', 'var(--axis)').style('stroke-width', 2).style('stroke-dasharray', '4 3');
+          g.append('path').attr('d', `M${x(d3.min(c.peaks, d => d.lo)) - 9},${y} l-7,-4 l0,8 z`).style('fill', 'var(--axis)');
+        }
+        if (h) g.append('circle').attr('cx', x(h.hi)).attr('cy', y).attr('r', 5.5).style('fill', 'var(--panel)').style('stroke', 'var(--muted)').style('stroke-width', 2);
+        c.peaks.forEach(d => {
+          const col = (VERIFY[d.verification] || VERIFY.SNIP).color;
+          if (d.hi > d.lo) g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).style('stroke', col).style('stroke-width', 10).style('stroke-linecap', 'round');
+          else g.append('circle').attr('cx', x(d.hi)).attr('cy', y).attr('r', 6).style('fill', col);
+        });
+      },
+      select(c) {
+        const lines = c.items.map(d => ({
+          text: `${d.role === 'harvest' ? 'At harvest' : d.role === 'peak' ? 'Peak' : 'Other'}: ${value(d)} µL/kg/h — ${d.crop !== c.crop ? d.crop + ', ' : ''}${d.condition}${d.cultivar && !/^(not stated|general)$/i.test(d.cultivar) ? ` (${d.cultivar})` : ''}`,
+          source: source(d)
+        }));
+        readoutList('ripe-readout', c.crop, lines);
+      }
     });
   }
 
