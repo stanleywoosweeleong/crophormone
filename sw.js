@@ -4,7 +4,7 @@ const APP_CACHE = 'app-v1';
 const CDN_CACHE = 'cdn-v1';
 const META_CACHE = 'meta-v1';
 const APP_FILES = [
-  './', 'index.html', 'styles.css', 'app.js', 'update.js', 'report.html', 'report.md', 'manifest.webmanifest',
+  './', 'index.html', 'styles.css', 'app.js', 'update.js', 'install.js', 'report.html', 'report.md', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'data/lifecycle_direction.csv', 'data/ripening_ethylene.csv', 'data/flowering_mango_leaf.csv',
   'data/flowering_longan.csv', 'data/flowering_pct_change.csv', 'data/fruitset_fold.csv'

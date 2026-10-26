@@ -2,14 +2,14 @@
 
 How gibberellin (GA), cytokinin, abscisic acid (ABA), auxin (IAA) and ethylene change through flowering, fruit set and ripening in 13 tropical fruit crops: mango, litchi, longan, durian, mangosteen, rambutan, banana, papaya, pineapple, guava, passion fruit, avocado and citrus.
 
-Live site: https://stanleywoosweeleong.github.io/crophormone/ (served by GitHub Pages from the root of `main`). It is a Progressive Web App: on a phone, use "Add to Home screen" or the Install button, and it keeps working offline after the first visit.
+Live site: https://stanleywoosweeleong.github.io/crophormone/ (served by GitHub Pages from the root of `main`). It is a Progressive Web App: tap **Install app** in the top bar. Chrome and Edge open their install prompt when they offer one; other browsers (iPhone, iPad, Firefox, Safari on Mac) get the steps for that browser. It keeps working offline after the first visit.
 
 ## Files
 
 - `index.html`, `styles.css`, `app.js` – the app: Overview, Ripening, Flowering and Fruit set views
 - `report.html` – renders `report.md`, the full research report with gaps, conflicts and DOI status
 - `data/*.csv` – the values behind each chart, with verification level and source for every row
-- `manifest.webmanifest`, `sw.js`, `update.js`, `icons/` – install, offline support and update notices
+- `manifest.webmanifest`, `sw.js`, `update.js`, `install.js`, `icons/` – install, offline support and update notices
 - `.nojekyll` – serve files as they are, without a Jekyll build
 
 Updates need no version bump. The service worker fingerprints the app and data files; when any of them change, readers see "App updated to the latest version" the next time they open the app, or a "Reload" prompt if it is already open (checked when the app returns to the foreground and every 30 minutes). A new file must be added to `APP_FILES` in `sw.js` to be cached and watched.

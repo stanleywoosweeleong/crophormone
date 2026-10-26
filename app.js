@@ -370,14 +370,6 @@
     ));
   }
 
-  /* ---------- install and offline ---------- */
-  let installEvent = null;
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault(); installEvent = e;
-    document.getElementById('install').hidden = false;
-  });
-  window.addEventListener('appinstalled', () => { document.getElementById('install').hidden = true; });
-
   function init() {
     const verKey = document.getElementById('ver-key');
     verKey.replaceChildren(...Object.values(VERIFY).map(v => {
@@ -385,13 +377,6 @@
       return el('span', {}, sw, v.name);
     }));
     document.querySelectorAll('#stage-seg button').forEach(b => b.addEventListener('click', () => { state.stage = b.dataset.stage; drawMatrix(); }));
-    document.getElementById('install').addEventListener('click', async () => {
-      if (!installEvent) return;
-      installEvent.prompt();
-      await installEvent.userChoice;
-      installEvent = null;
-      document.getElementById('install').hidden = true;
-    });
     window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
     let w = window.innerWidth, timer;
     window.addEventListener('resize', () => {
