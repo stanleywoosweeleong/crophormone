@@ -476,16 +476,17 @@
     const list = document.getElementById('reg-list');
     if (data.regulators === null) return failed('reg-list');
     if (!data.regulators) return;
-    document.getElementById('reg-all').checked = state.regAll;
+    document.getElementById('reg-stage-sel').value = state.regStage;
     drawSoilTable();
-    document.querySelectorAll('#reg-stage button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === state.regStage)));
     const rows = data.regulators
       .filter(r => (state.regAll || r.crop === state.crop) && (!state.regStage || r.stage === state.regStage) && (!state.regMeasured || r.evidence === 'Hormones measured'))
       .sort((a, b) => (EVIDENCE_ORDER[a.evidence] ?? 3) - (EVIDENCE_ORDER[b.evidence] ?? 3) || a.regulator.localeCompare(b.regulator));
     document.getElementById('reg-count').textContent =
       `${rows.length} ${rows.length === 1 ? 'entry' : 'entries'}${state.regAll ? ' for all crops' : ' for ' + state.crop}. Chains with measured hormone changes come first.`;
+    const allBtn = el('button', {type: 'button', class: 'soil-toggle', text: state.regAll ? `Show ${state.crop} only` : 'Show entries for all crops',
+      onclick: () => { state.regAll = !state.regAll; state.regShown = 0; drawRegulators(); }});
     if (!rows.length) {
-      list.replaceChildren(el('p', {class: 'none', text: `No regulator studies found for ${state.crop} at this stage. Tick "Show all crops" or pick another stage.`}));
+      list.replaceChildren(el('p', {class: 'none', text: `No regulator studies found for ${state.crop} at this stage.`}), allBtn);
       return;
     }
     /* Six cards at a time keeps long lists short on phones. */
@@ -494,7 +495,7 @@
     const more = rows.length - shownCount;
     list.replaceChildren(...rows.slice(0, shownCount).map(regulatorCard),
       more > 0 ? el('button', {type: 'button', class: 'soil-toggle reg-more-btn', text: `Show ${Math.min(PAGE, more)} more of ${more}`,
-        onclick: () => { state.regShown = shownCount + PAGE; drawRegulators(); }}) : null);
+        onclick: () => { state.regShown = shownCount + PAGE; drawRegulators(); }}) : null, allBtn);
   }
 
   /* ---------- charts ---------- */
@@ -773,8 +774,7 @@
       return el('span', {}, sw, v.name);
     }));
     document.querySelectorAll('#stage-seg button').forEach(b => b.addEventListener('click', () => { state.stage = b.dataset.stage; drawMatrix(); }));
-    document.querySelectorAll('#reg-stage button').forEach(b => b.addEventListener('click', () => { state.regStage = b.dataset.stage; state.regShown = 0; drawRegulators(); }));
-    document.getElementById('reg-all').addEventListener('change', e => { state.regAll = e.target.checked; state.regShown = 0; drawRegulators(); });
+    document.getElementById('reg-stage-sel').addEventListener('change', e => { state.regStage = e.target.value; state.regShown = 0; drawRegulators(); });
     document.getElementById('crop-chip').addEventListener('click', e => {
       e.stopPropagation();
       state.listOpen = !state.listOpen;

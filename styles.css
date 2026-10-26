@@ -494,3 +494,23 @@ details.grp.nd .names { margin-top: 6px; }
 .crop-opt[aria-pressed="true"] .dots i { outline-color: var(--panel); background: transparent; }
 .crop-opt[aria-pressed="true"] .dots i.on { background: var(--panel); }
 .crop-menu-note { flex-basis: 100%; margin: 4px 2px 0; font-size: 12px; color: var(--muted); }
+
+/* Current tab: a highlighted pill behind the icon, bold label and a bar along the top */
+.bottom-nav a { position: relative; }
+.bottom-nav a svg { padding: 3px 12px; width: 24px; height: 24px; border-radius: 999px; box-sizing: content-box; }
+.bottom-nav a[aria-current="page"] { color: var(--brand); font-weight: 700; }
+.bottom-nav a[aria-current="page"] svg { background: color-mix(in srgb, var(--brand) 16%, transparent); }
+.bottom-nav a[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: var(--brand); }
+.tabs a[aria-current="page"] { color: var(--brand); font-weight: 700; background: color-mix(in srgb, var(--brand) 12%, transparent); }
+
+/* Regulators: one compact filter row and a one-line notice */
+.reg-filters { gap: 8px 14px; }
+.reg-filters .field select { min-width: 0; min-height: 40px; }
+.reg-filters .check { min-height: 40px; }
+details.notice { padding: 8px 12px; }
+details.notice > summary { cursor: pointer; list-style: none; font-size: 14px; }
+details.notice > summary::-webkit-details-marker { display: none; }
+details.notice > summary::after { content: " More"; color: var(--up); font-weight: 500; }
+details.notice[open] > summary::after { content: " Less"; }
+details.notice p { margin: 6px 0 0; font-size: 14px; }
+.reg-list > .soil-toggle { grid-column: 1 / -1; }
