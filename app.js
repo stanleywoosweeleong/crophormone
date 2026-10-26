@@ -203,9 +203,7 @@
     if (!evidence()) return;
     const crops = cropOrder(data.evidence);
     if (!crops.includes(state.crop)) state.crop = crops[0];
-    const i = crops.indexOf(state.crop);
     const n = measuredStages(state.crop);
-    const step = d => selectCrop(crops[(i + d + crops.length) % crops.length]);
     const toggle = () => {
       state.listOpen = !state.listOpen;
       drawCropCard();
@@ -216,10 +214,7 @@
         'aria-label': `${state.crop}, ${n} of 3 stages measured. ${state.listOpen ? 'Hide' : 'Show'} all ${crops.length} crops`, onclick: toggle},
         el('span', {class: 'crop-pick-name', text: state.crop}), dots(n),
         el('span', {class: 'crop-pick-more', text: state.listOpen ? 'Hide crops' : `${crops.length} crops`}),
-        el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'})),
-      el('span', {class: 'stepper'},
-        el('button', {type: 'button', 'aria-label': `Previous crop: ${crops[(i - 1 + crops.length) % crops.length]}`, text: '‹', onclick: () => step(-1)}),
-        el('button', {type: 'button', 'aria-label': `Next crop: ${crops[(i + 1) % crops.length]}`, text: '›', onclick: () => step(1)})));
+        el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'})));
     document.getElementById('crop-detail').replaceChildren(...[state.listOpen ? cropList(crops) : null, cropPanel(state.crop)].filter(Boolean));
   }
 
