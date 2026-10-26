@@ -3,8 +3,6 @@
    Open Graph tags in index.html. */
 (function () {
   'use strict';
-  const button = document.getElementById('share-btn');
-  if (!button) return;
   const t = (k, v) => (window.I18N ? window.I18N.t(k, v) : k);
 
   /* QR library, loaded only when the sheet first opens; the service worker keeps a copy for offline use. */
@@ -130,6 +128,5 @@
       .catch(() => qrBox.replaceChildren(el('p', {class: 'note', text: t('share.qrFail')})));
   }
 
-  button.hidden = false;
-  button.addEventListener('click', open);
+  window.Share = {open};
 })();

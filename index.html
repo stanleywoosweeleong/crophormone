@@ -26,18 +26,20 @@
 <meta property="og:locale:alternate" content="zh_CN">
 <meta property="og:locale:alternate" content="ms_MY">
 <meta name="twitter:card" content="summary_large_image">
+<script>try{var t=localStorage.getItem('crophormone.theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=49ea7de53c">
+<link rel="stylesheet" href="styles.css?v=2dda0236a6">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" integrity="sha512-M7nHCiNUOwFt6Us3r8alutZLm9qMt4s9951uo8jqO4UwJ1hziseL6O3ndFyigx6+LREfZqnhHxYjKRJ8ZQ69DQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-<script src="i18n.js?v=a7084b43ab" defer></script>
+<script src="i18n.js?v=9c0dd93d4c" defer></script>
 <script src="app.js?v=36b97a9080" defer></script>
 <script src="update.js?v=0bbce73020" defer></script>
-<script src="share.js?v=702c629919" defer></script>
+<script src="settings.js?v=19d5d1dfa1" defer></script>
+<script src="share.js?v=5796cbb24a" defer></script>
 <script src="install.js?v=69bf8850de" defer></script>
 </head>
 <body data-title-key="app.title">
@@ -53,9 +55,10 @@
       <a href="#ripening" data-i18n="tab.ripening">Ripening</a>
       <a href="report.html" data-i18n="tab.report">Report</a>
     </nav>
-    <button type="button" id="share-btn" class="share-btn" aria-label="Share" data-i18n-aria="share.btn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/></svg></button>
-    <button type="button" id="lang-btn" class="lang-btn" aria-label="Language">EN</button>
-    <button type="button" id="install" class="install" hidden><span class="ins-full" data-i18n="install.btn">Install app</span><span class="ins-short" data-i18n="install.short">Install</span></button>
+    <div class="bar-actions">
+      <button type="button" id="install" class="install" hidden><span class="ins-full" data-i18n="install.btn">Install app</span><span class="ins-short" data-i18n="install.short">Install</span></button>
+      <button type="button" id="settings-btn" class="icon-btn" aria-label="Settings" data-i18n-aria="settings.btn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
   </div>
   <div id="crop-panel" class="crop-panel-global" hidden></div>
 </header>
@@ -187,11 +190,6 @@
     </div>
   </section>
 
-  <footer class="site-foot">
-    <span data-i18n-html="foot.data_html">Values compiled from published studies, abstracts, reviews and extension guides. Every value's verification level and source are in the <a href="https://github.com/stanleywoosweeleong/crophormone/tree/main/data" target="_blank" rel="noopener">data files (CSV, opens in GitHub)</a>; CSV files open in any spreadsheet app.</span>
-    <span data-i18n-html="foot.report_html">Full write-up with sources, gaps and conflicts: <a href="report.html">research report</a>.</span>
-    <span data-i18n="lang.dataNote" data-i18n-hide-en hidden></span>
-  </footer>
 </main>
 
 <nav class="bottom-nav" aria-label="Sections, bottom bar" data-i18n-aria="aria.sectionsBottom">

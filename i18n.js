@@ -362,6 +362,19 @@
     'report.loading': ['Loading report…', '正在加载报告…', 'Memuatkan laporan…'],
     'report.fail': ['The report could not be loaded. Check your connection and try again.', '无法加载报告。请检查网络连接后重试。', 'Laporan tidak dapat dimuatkan. Semak sambungan anda dan cuba lagi.'],
 
+    /* ---------- settings ---------- */
+    'settings.btn': ['Settings', '设置', 'Tetapan'],
+    'settings.title': ['Settings', '设置', 'Tetapan'],
+    'settings.language': ['Language', '语言', 'Bahasa'],
+    'settings.theme': ['Appearance', '外观', 'Paparan'],
+    'theme.auto': ['Auto', '自动', 'Auto'],
+    'theme.light': ['Light', '浅色', 'Cerah'],
+    'theme.dark': ['Dark', '深色', 'Gelap'],
+    'theme.hint': ['Auto follows your phone’s light or dark setting.', '“自动”会跟随手机的浅色或深色设置。', 'Auto mengikut tetapan cerah atau gelap telefon anda.'],
+    'settings.share': ['Share', '分享', 'Kongsi'],
+    'settings.shareHint': ['QR code, WhatsApp or copy link', '二维码、WhatsApp 或复制链接', 'Kod QR, WhatsApp atau salin pautan'],
+    'settings.about': ['About the data', '关于数据', 'Tentang data'],
+
     /* ---------- share ---------- */
     'share.btn': ['Share', '分享', 'Kongsi'],
     'share.title': ['Share this app', '分享此应用', 'Kongsi aplikasi ini'],
@@ -456,8 +469,6 @@
     document.querySelectorAll('[data-i18n-title]').forEach(e => e.setAttribute('title', t(e.dataset.i18nTitle)));
     document.querySelectorAll('[data-i18n-hide-en]').forEach(e => { e.hidden = lang === 'en'; });
     if (document.body.dataset.titleKey) document.title = t(document.body.dataset.titleKey);
-    const b = document.getElementById('lang-btn');
-    if (b) { b.textContent = LANGS[lang].short; b.setAttribute('aria-label', `${t('lang.button')}: ${LANGS[lang].label}`); }
   }
 
   function set(l) {
@@ -517,8 +528,6 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     apply();
-    const b = document.getElementById('lang-btn');
-    if (b) b.addEventListener('click', () => picker(false));
     if (!saved() && typeof HTMLDialogElement === 'function') picker(true);
   });
 })();
