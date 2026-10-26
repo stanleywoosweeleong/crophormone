@@ -122,7 +122,7 @@
     'or': [' or ', ' 或 ', ' atau '],
     'fail': ['Failed to load', '加载失败', 'Gagal dimuatkan'],
     'offline': ['Needs one online visit before it works offline. Connect and reload.', '需要先联网打开一次才能离线使用。请联网后重新加载。', 'Perlu dibuka sekali dalam talian sebelum boleh digunakan luar talian. Sambung ke internet dan muat semula.'],
-    'closer': ['Close ▴', '收起 ▴', 'Tutup ▴'],
+    'closer': ['Close ▴', '关闭 ▴', 'Tutup ▴'],
     'source': ['source', '来源', 'sumber'],
 
     /* ---------- Crop tab ---------- */
