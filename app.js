@@ -31,6 +31,7 @@
   const HORMONE_KEYS = new Set(HORMONES.map(h => h.key));
   const DIRECTION = {
     'Up': {glyph: '▲', cls: 'up', word: 'Rises'},
+    'Up in drop': {glyph: '▲', cls: 'drop', word: 'Rises at drop'},
     'Down': {glyph: '▼', cls: 'down', word: 'Falls'},
     'Peak': {glyph: '▲', cls: 'peak', word: 'Peaks'},
     'Low': {glyph: '▽', cls: 'low', word: 'Stays low'},
@@ -140,7 +141,7 @@
     return c;
   }
   const dots = n => el('span', {class: 'dots', 'aria-hidden': 'true'}, ...STAGES.map((s, i) => el('i', {class: i < n ? 'on' : ''})));
-  const SHORT = {up: 'Rises', peak: 'Peaks', down: 'Falls', low: 'Low', mix: 'Mixed', nod: 'Not a driver', trt: 'Applied', nd: '—'};
+  const SHORT = {up: 'Rises', drop: 'At drop', peak: 'Peaks', down: 'Falls', low: 'Low', mix: 'Mixed', nod: 'Not a driver', trt: 'Applied', nd: '—'};
   const verName = v => (VERIFY[v] ? VERIFY[v].name : '');
 
   /* ---------- overview: one crop at a time, chosen from a picker ---------- */
@@ -202,9 +203,19 @@
     const summary = el('p', {class: 'cov'},
       el('strong', {text: `${c.measured} of 30`}), ' hormone × stage cells measured or partly measured · ', `${c.inferred} inferred · ${c.applied} applied only · ${c.none} no data`);
     const ev = el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}), ...STAGES.map(s => stageEvidence(crop, s)));
+    const marks = STAGES.flatMap(s => HORMONES.map(h => cell(crop, s, h.key)))
+      .filter(r => r && r.direction_note && ['Mixed', 'Up in drop'].includes(shown(r)));
+    /* One line for all At-drop cells (they share a reason), one per Mixed cell. */
+    const drops = marks.filter(r => r.direction === 'Up in drop');
+    const why = el('div', {class: 'mark-why'},
+      drops.length ? el('p', {}, el('span', {class: 'c drop'}, el('span', {'aria-hidden': 'true', text: '▲'}), 'At drop'), ' ',
+        el('strong', {text: `${drops.map(r => HORMONES.find(h => h.key === r.hormone)?.name || r.hormone).join(' and ')} at ${drops[0].stage.toLowerCase()}: `}), drops[0].direction_note) : null,
+      ...marks.filter(r => r.direction === 'Mixed').map(r => el('p', {},
+        el('span', {class: 'c mix'}, el('span', {'aria-hidden': 'true', text: '◆'}), 'Mixed'), ' ',
+        el('strong', {text: `${HORMONES.find(h => h.key === r.hormone)?.name || r.hormone} at ${r.stage.toLowerCase()}: `}), r.direction_note)));
     const gaps = empty.length ? el('p', {class: 'gaps'}, el('strong', {text: 'No study found yet: '}), empty.map(h => h.name).join(', '),
       '. These are open research gaps, not zero levels.') : null;
-    return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, summary, table, gaps, ev);
+    return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, summary, table, marks.length ? why : null, gaps, ev);
   }
 
   /* The crop list opens inline under the crop button; choosing a crop closes it again. */
@@ -302,7 +313,7 @@
     if (head) head.replaceChildren(`All crops at ${stage.toLowerCase()}. ${state.crop} is highlighted. `,
       el('a', {href: '#overview', text: `See ${state.crop} through the whole cycle`}), '.');
     /* One card per hormone; inside, crops grouped by direction, in this order. */
-    const ORDER = ['Up', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not a driver', 'Applied', 'No data'];
+    const ORDER = ['Up', 'Up in drop', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not a driver', 'Applied', 'No data'];
     let group = null;
     const cards = [];
     /* Hormones no crop has any data for at this stage get one summary line per group, not a card each. */
@@ -333,9 +344,14 @@
         return el('div', {class: 'grp'},
           el('span', {class: `c ${d.cls}`}, el('span', {'aria-hidden': 'true', text: d.glyph}), d.word),
           k === 'Conflicting' ? el('span', {class: 'why', text: 'Studies disagree. Open the crop and read Evidence and sources for why.'}) : null,
+          k === 'Up in drop' ? el('span', {class: 'why', text: 'Rises in fruitlets the tree sheds, triggering the drop; fruit that stays on does not show this rise.'}) : null,
+          k === 'Mixed' ? el('span', {class: 'why', text: 'Results go both ways, depending on variety, tissue or study:'}) : null,
+          k === 'Mixed' ? el('ul', {class: 'mix-list'}, ...groups.get(k).map(g => el('li', {},
+            el('button', {type: 'button', class: 'name' + (g.crop === state.crop ? ' on' : ''), text: g.crop, onclick: () => selectCrop(g.crop)}),
+            ' ' + (cell(g.crop, state.stage, h.key).direction_note || '')))) : null,
           k === 'Applied' ? el('span', {class: 'why', text: 'Tested as a spray or dip; the natural level was not measured.'}) : null,
           k === 'Not a driver' ? el('span', {class: 'why', text: 'The level changes, but studies show it does not cause this stage.'}) : null,
-          el('span', {class: 'names'}, ...groups.get(k).map(g => el('button', {
+          k === 'Mixed' ? null : el('span', {class: 'names'}, ...groups.get(k).map(g => el('button', {
             type: 'button', class: 'name' + (g.inferred && k !== 'No data' ? ' inferred' : '') + (g.crop === state.crop ? ' on' : ''),
             'aria-label': `${g.crop}: ${d.word}${g.inferred ? ', inferred' : ''}. Open ${g.crop}`,
             text: g.crop, onclick: () => selectCrop(g.crop)

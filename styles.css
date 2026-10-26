@@ -146,6 +146,7 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 /* Direction glyphs, shared by the map and the crop card */
 .c { display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 14px; line-height: 1; }
 .c.up { color: var(--up); background: color-mix(in srgb, var(--up) 15%, transparent); }
+.c.drop { color: var(--up); background: color-mix(in srgb, var(--up) 8%, transparent); border: 1px solid color-mix(in srgb, var(--up) 35%, transparent); }
 .c.peak { color: var(--panel); background: var(--up); }
 .c.down { color: var(--down); background: color-mix(in srgb, var(--down) 16%, transparent); }
 .c.low { color: var(--down); }
@@ -583,3 +584,9 @@ details.notice[open] > summary::after { content: "▴"; }
 .chart text.lbl { paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; }
 
 .soil-concern strong { color: var(--bad); }
+
+/* Why a cell is Mixed or At drop, under the crop table and in stage lines. */
+.mark-why { margin: 10px 0 0; display: grid; gap: 6px; }
+.mark-why p { margin: 0; font-size: 14px; line-height: 1.45; }
+.mark-why .c { display: inline-flex; height: 22px; padding: 0 6px; gap: 3px; margin-right: 2px; font-size: 12px; font-weight: 600; border-radius: 6px; vertical-align: 1px; }
+.mix-list { margin: 4px 0 0; padding-left: 0; list-style: none; display: grid; gap: 4px; font-size: 14px; color: var(--muted); }
