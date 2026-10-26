@@ -182,23 +182,33 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
   border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 0 10px 0 12px; min-height: 44px;
 }
 .tile:hover { border-color: var(--up); }
-.tile[aria-expanded="true"] { border-color: var(--up); background: var(--up); color: var(--panel); }
+.tile[aria-pressed="true"] { border-color: var(--up); background: var(--up); color: var(--panel); }
 .tile-name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dots { display: inline-flex; gap: 3px; flex: none; }
 .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--grid); outline: 1px solid var(--axis); outline-offset: -1px; }
 .dots i.on { background: var(--brand); outline: 0; }
-.tile[aria-expanded="true"] .dots i { outline-color: var(--panel); }
-.tile[aria-expanded="true"] .dots i.on { background: var(--panel); }
-.crop-panel {
-  grid-column: 1 / -1; border: 1px solid var(--up); border-radius: 12px; padding: 12px;
-  display: flex; flex-direction: column; gap: 10px; background: var(--panel);
+.tile[aria-pressed="true"] .dots i { outline-color: var(--panel); background: transparent; }
+.tile[aria-pressed="true"] .dots i.on { background: var(--panel); }
+/* Crop bar: the chosen crop opens the picker; arrows step through crops in the same order. */
+.crop-bar { display: flex; align-items: center; gap: 10px; }
+.crop-pick {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 14px; cursor: pointer;
+  border: 1px solid var(--up); background: var(--sel); border-radius: 12px; color: var(--fg);
 }
-.crop-panel > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.crop-panel h3 { margin: 0; font-size: 17px; font-weight: 600; }
-.collapse {
-  border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 4px 14px; min-height: 36px;
-  cursor: pointer; font-weight: 500; white-space: nowrap;
+.crop-pick-name { font-size: 20px; font-weight: 600; }
+.caret { color: var(--up); font-size: 14px; }
+.crop-count { color: var(--muted); font-size: 13px; margin-left: auto; white-space: nowrap; }
+.stepper { display: inline-flex; gap: 6px; }
+.stepper button {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel);
+  font-size: 22px; line-height: 1; cursor: pointer; color: var(--fg);
 }
+.stepper button:hover, .crop-pick:hover { border-color: var(--up); }
+.crop-panel { display: flex; flex-direction: column; gap: 10px; }
+.picker .tiles { margin-bottom: 14px; max-height: 60vh; overflow-y: auto; }
+.picker .note { margin-bottom: 12px; }
+@media (min-width: 760px) { .picker { width: min(640px, calc(100% - 32px)); } }
+@media (max-width: 380px) { .crop-count { display: none; } }
 /* Compact table: hormone names down the side, one column per stage. */
 .ct { display: grid; grid-template-columns: minmax(5.5rem, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 4px 6px; align-items: center; font-size: 14px; }
 .ct-stage { display: flex; flex-direction: column; align-items: center; gap: 3px; font-weight: 600; font-size: 13px; text-align: center; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
@@ -212,10 +222,6 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 @media (max-width: 420px) {
   .ct-h { font-size: 13px; }
   .ct .c { font-size: 12px; padding: 0 2px; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .crop-panel { animation: open .18s ease-out; }
-  @keyframes open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 }
 .pill { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
 .pill.measured { color: var(--brand); border-color: currentColor; }

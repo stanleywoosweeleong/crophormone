@@ -83,14 +83,15 @@
     drawView();
   }
 
-  /* ---------- overview: crop tiles that expand inline ---------- */
+  /* ---------- overview: one crop at a time, chosen from a picker ---------- */
   const stageRow = (rows, crop, s) => rows.find(x => x.crop === crop && x.stage === s);
-  const slug = crop => 'crop-' + crop.toLowerCase().replace(/[^a-z]+/g, '-');
+  const measuredStages = (rows, crop) => STAGES.filter(s => { const r = stageRow(rows, crop, s); return r && /measured/i.test(r.basis); }).length;
+  const dots = n => el('span', {class: 'dots', 'aria-hidden': 'true'}, ...STAGES.map((s, i) => el('i', {class: i < n ? 'on' : ''})));
 
   const SHORT = {up: 'Rises', peak: 'Peaks', down: 'Falls', low: 'Low', mix: 'Mixed', nd: '—'};
   const basisClass = b => b === 'Measured' ? 'measured' : b === 'Partly measured' ? 'partly' : b === 'Inferred' ? 'inferred' : '';
 
-  /* The open crop: one compact table (hormones down, stages across), evidence folded away below it. */
+  /* The chosen crop: one compact table (hormones down, stages across), evidence folded away below it. */
   function cropPanel(rows, crop) {
     const byStage = STAGES.map(s => stageRow(rows, crop, s));
     const table = el('div', {class: 'ct', role: 'table', 'aria-label': `${crop}: hormone direction by stage`});
@@ -112,48 +113,59 @@
     });
     const evidence = el('details', {class: 'ev'}, el('summary', {text: 'Evidence and sources'}),
       ...STAGES.map((s, i) => el('p', {}, el('strong', {text: s + ': '}), byStage[i] ? byStage[i].note : 'No data found.')));
-    return el('div', {class: 'crop-panel', id: slug(crop) + '-panel', role: 'region', 'aria-label': crop},
-      el('header', {},
-        el('h3', {text: crop}),
-        el('button', {type: 'button', class: 'collapse', 'aria-label': `Collapse ${crop}`, text: 'Close', onclick: () => selectCrop(null)})),
-      table, evidence);
+    return el('div', {class: 'crop-panel', role: 'region', 'aria-label': crop}, table, evidence);
   }
 
-  /* A compact tile: the crop name and how many of its three stages have measurements. */
-  function cropTile(rows, crop) {
-    const open = crop === state.crop;
-    const measured = STAGES.filter(s => { const r = stageRow(rows, crop, s); return r && /measured/i.test(r.basis); }).length;
-    const dots = el('span', {class: 'dots', title: `${measured} of 3 stages measured`},
-      ...STAGES.map((s, i) => el('i', {class: i < measured ? 'on' : ''})));
-    return el('button', {
-      type: 'button', class: 'tile', 'aria-expanded': String(open), 'aria-controls': slug(crop) + '-panel',
-      'aria-label': `${crop}, ${measured} of 3 stages measured`,
-      onclick: () => selectCrop(open ? null : crop)
-    }, el('span', {class: 'tile-name', text: crop}), dots);
+  /* The picker: every crop as a compact tile in a sheet; choosing one closes it. */
+  let picker = null;
+  function openPicker() {
+    const rows = data.lifecycle;
+    if (!rows) return;
+    if (!picker) {
+      picker = el('dialog', {class: 'sheet picker', 'aria-labelledby': 'picker-title'});
+      picker.addEventListener('click', e => { if (e.target === picker) picker.close(); });
+      document.body.append(picker);
+    }
+    picker.replaceChildren(
+      el('h2', {id: 'picker-title', text: 'Choose a crop'}),
+      el('p', {class: 'note', text: 'Dots show how many of the three stages have measurements.'}),
+      el('div', {class: 'tiles'}, ...cropOrder(rows).map(crop => {
+        const n = measuredStages(rows, crop);
+        return el('button', {
+          type: 'button', class: 'tile', 'aria-pressed': String(crop === state.crop), 'aria-label': `${crop}, ${n} of 3 stages measured`,
+          onclick: () => { picker.close(); selectCrop(crop); }
+        }, el('span', {class: 'tile-name', text: crop}), dots(n));
+      })),
+      el('button', {type: 'button', class: 'sheet-close', text: 'Cancel', onclick: () => picker.close()}));
+    picker.showModal();
+    const current = picker.querySelector('[aria-pressed="true"]');
+    if (current) current.focus();
   }
 
   function drawCropCard() {
     const rows = data.lifecycle;
-    const grid = document.getElementById('crop-tiles');
-    if (rows === null) return failed('crop-tiles');
+    if (rows === null) return failed('crop-detail');
     if (!rows) return;
     const crops = cropOrder(rows);
-    const tiles = crops.map(c => cropTile(rows, c));
-    grid.replaceChildren(...tiles);
+    if (!crops.includes(state.crop)) state.crop = crops[0];
     const i = crops.indexOf(state.crop);
-    if (i < 0) return;
-    /* Put the panel right after the last tile in the open tile's row, spanning the full width. */
-    const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').length || 1;
-    const rowEnd = Math.min(crops.length - 1, Math.floor(i / cols) * cols + cols - 1);
-    tiles[rowEnd].after(cropPanel(rows, state.crop));
+    const n = measuredStages(rows, state.crop);
+    const step = d => selectCrop(crops[(i + d + crops.length) % crops.length]);
+    document.getElementById('crop-bar').replaceChildren(
+      el('button', {type: 'button', class: 'crop-pick', 'aria-haspopup': 'dialog', 'aria-label': `${state.crop}, ${n} of 3 stages measured. Change crop`, onclick: openPicker},
+        el('span', {class: 'crop-pick-name', text: state.crop}), dots(n), el('span', {class: 'caret', 'aria-hidden': 'true', text: '▾'})),
+      el('span', {class: 'crop-count', text: `${i + 1} of ${crops.length}`}),
+      el('span', {class: 'stepper'},
+        el('button', {type: 'button', 'aria-label': `Previous crop: ${crops[(i - 1 + crops.length) % crops.length]}`, text: '‹', onclick: () => step(-1)}),
+        el('button', {type: 'button', 'aria-label': `Next crop: ${crops[(i + 1) % crops.length]}`, text: '›', onclick: () => step(1)})));
+    document.getElementById('crop-detail').replaceChildren(cropPanel(rows, state.crop));
   }
 
   function selectCrop(crop, scroll) {
     state.crop = crop;
     drawCropCard();
     drawMatrix();
-    const target = crop && document.getElementById(slug(crop) + '-panel');
-    if (scroll && target) target.scrollIntoView({behavior: 'smooth', block: 'center'});
+    if (scroll) document.getElementById('crop-card').scrollIntoView({behavior: 'smooth', block: 'start'});
   }
 
   /* ---------- overview: map of all crops ---------- */
