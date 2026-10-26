@@ -1,0 +1,7 @@
+id,crop,cultivar,hormone,comparison,fold,qualifier,verification,source,source_url
+litchi-d2,Litchi,Wuye,Ethylene,"Girdling + defoliation vs control, day 2",15,about,FT,Li et al. 2015,https://www.frontiersin.org/articles/10.3389/fpls.2015.00439/full
+litchi-d7,Litchi,Wuye,Ethylene,"Girdling + defoliation vs control, day 7",6,about,FT,Li et al. 2015,https://www.frontiersin.org/articles/10.3389/fpls.2015.00439/full
+citrus-def,Citrus,Satsuma Okitsu,ABA and ACC,"Defoliation, before fruitlet drop",20,up to,ABS,Gómez-Cadenas et al. 2000,https://buscador.una.edu.ni/Record/ReDivia5295
+citrus-uni,Citrus,Satsuma Ozaki,ABA,Uniconazole-P vs control,4,about,SEC,JARQ 31(4),https://www.jircas.go.jp/sites/default/files/publication/jarq/31-4-271-280_0.pdf
+citrus-aba,Citrus,Satsuma Okitsu,ACC,ABA applied to defoliated plants,2,about,ABS,Gómez-Cadenas et al. 2000,https://buscador.una.edu.ni/Record/ReDivia5295
+citrus-ga1,Citrus (sweet orange),Seeded,GA1,"Ovary, pre-anthesis to anthesis (5.0 to 9.5 ng/g DW)",1.9,,ABS,Ben-Cheikh et al. 1997,https://pmc.ncbi.nlm.nih.gov/articles/PMC158336
