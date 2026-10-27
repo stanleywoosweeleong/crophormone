@@ -214,7 +214,7 @@ h2 { font-size: 18px; font-weight: 600; margin: 0; text-wrap: balance; }
 /* Compact table: hormone names down the side, one column per stage. */
 .ct { display: grid; grid-template-columns: minmax(5.5rem, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 4px 6px; align-items: center; font-size: 14px; }
 .ct-row { display: contents; }
-.ct-stage { display: flex; flex-direction: column; align-items: center; gap: 3px; font-weight: 600; font-size: 14px; text-align: center; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.ct-stage { display: flex; flex-direction: column; align-items: center; gap: 3px; font-weight: 600; font-size: 14px; text-align: center; padding-bottom: 4px; }
 .ct-stage .pill { font-size: 12px; padding: 0 7px; }
 .ct-h { color: var(--fg); line-height: 1.2; }
 .ct .c { height: 30px; gap: 4px; font-size: 13px; font-weight: 600; white-space: nowrap; }
