@@ -4,7 +4,7 @@
    and only those are deleted freely. Unprefixed names this app used before could belong to another app too, so one
    is deleted only when every entry in it lies under this app's own address. */
 const PREFIX = 'crophormone-';
-const APP_CACHE = PREFIX + 'app-v1';
+const APP_CACHE = PREFIX + 'app-v2';
 const CDN_CACHE = PREFIX + 'cdn-v1';
 const META_CACHE = PREFIX + 'meta-v1';
 const OLD_CACHES = ['app-v1', 'cdn-v1', 'cdn-v2', 'meta-v1'];
