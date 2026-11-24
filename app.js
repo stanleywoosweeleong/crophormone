@@ -377,7 +377,8 @@
     [/triclopyr|3,5,6-tpa/, 'triclopyr'], [/dichlorprop|2,4-dp/, 'dichlorprop'], [/forchlorfenuron|cppu/, 'cppu'],
     [/benzyladenine|6-ba\b/, 'ba'], [/potassium nitrate|kno3|kno₃/, 'kno3'], [/chlorate|kclo3|kclo₃/, 'chlorate'], [/thiourea/, 'thiourea'],
     [/cyanamide/, 'cyanamide'], [/calcium carbide/, 'carbide'], [/abscisic|s-aba/, 'sabA'], [/methyl jasmonate|meja/, 'meja'],
-    [/salicyl/, 'sa'], [/brassinolide/, 'br'], [/putrescine|spermidine|spermine/, 'polyamines'], [/melatonin/, 'melatonin'], [/permanganate/, 'kmno4']];
+    [/salicyl/, 'sa'], [/brassinolide/, 'br'], [/putrescine|spermidine|spermine/, 'polyamines'], [/melatonin/, 'melatonin'], [/permanganate/, 'kmno4'],
+    [/chlormequat/, 'chlormequat'], [/triacontanol/, 'triacontanol'], [/chitosan/, 'chitosan']];
   const residueKeys = r => {
     const text = `${r.regulator} ${r.active_ingredient}`.toLowerCase();
     return RESIDUE_KEYS.filter(([re]) => re.test(text)).map(([, k]) => k);
