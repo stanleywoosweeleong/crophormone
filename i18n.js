@@ -76,7 +76,7 @@
     'hs.ABA': ['ABA', '脱落酸', 'ABA'],
     'hs.BR': ['BR', '油菜素甾醇', 'BR'],
     'hs.JA': ['JA', '茉莉酸', 'JA'],
-    'hs.SA': ['SA', '水杨酸', 'SA'],
+    'hs.SA': ['salicylic acid', '水杨酸', 'asid salisilik'],
     'hs.Polyamines': ['Polyamines', '多胺', 'Poliamina'],
     'hs.Several': ['Several', '多种激素', 'Pelbagai'],
     'group.Classic hormones': ['Classic hormones', '经典激素', 'Hormon klasik'],
