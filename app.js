@@ -45,7 +45,7 @@
     'Low': {glyph: '▽', cls: 'low', key: 'low'},
     'Mixed': {glyph: '◆', cls: 'mix', key: 'mix'},
     'Conflicting': {glyph: '◆', cls: 'mix', key: 'conflict'},
-    'Not a driver': {glyph: '○', cls: 'nod', key: 'nod'},
+    'Not established': {glyph: '○', cls: 'nod', key: 'nod'},
     'Applied': {glyph: '◇', cls: 'trt', key: 'trt'},
     'No data': {glyph: '·', cls: 'nd', key: 'nd'}
   };
@@ -309,7 +309,7 @@
     if (head) head.replaceChildren(t('cmp.head', {stage: L.stageL(stage), crop: cropN(state.crop)}),
       el('a', {href: '#overview', text: t('cmp.link', {crop: cropN(state.crop)})}), L.lang === 'zh' ? '。' : '.');
     /* One card per hormone; inside, crops grouped by direction, in this order. */
-    const ORDER = ['Up', 'Up in drop', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not a driver', 'Applied', 'No data'];
+    const ORDER = ['Up', 'Up in drop', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not established', 'Applied', 'No data'];
     let group = null;
     const cards = [];
     /* Hormones no crop has any data for at this stage get one summary line per group, not a card each. */
@@ -347,7 +347,7 @@
             el('button', {type: 'button', class: 'name' + (g.crop === state.crop ? ' on' : ''), text: cropN(g.crop), onclick: () => selectCrop(g.crop)}),
             ' ' + L.field(cell(g.crop, state.stage, h.key), 'direction_note')))) : null,
           k === 'Applied' ? el('span', {class: 'why', text: t('why.applied')}) : null,
-          k === 'Not a driver' ? el('span', {class: 'why', text: t('why.nod')}) : null,
+          k === 'Not established' ? el('span', {class: 'why', text: t('why.nod')}) : null,
           k === 'Mixed' ? null : el('span', {class: 'names'}, ...groups.get(k).map(g => el('button', {
             type: 'button', class: 'name' + (g.inferred && k !== 'No data' ? ' inferred' : '') + (g.crop === state.crop ? ' on' : ''),
             'aria-label': t('cmp.open', {crop: cropN(g.crop), dir: word(d), inf: g.inferred ? t('inferredShort') : ''}),
@@ -617,6 +617,13 @@
     });
   }
 
+  /* An upper limit ("below 0.04"): a tick at the limit with an arrow pointing down the scale, never a point at the limit. */
+  function limitMark(g, px, y, col) {
+    g.append('line').attr('x1', px).attr('x2', px).attr('y1', y - 7).attr('y2', y + 7).style('stroke', col).style('stroke-width', 2.5);
+    g.append('line').attr('x1', px).attr('x2', px - 15).attr('y1', y).attr('y2', y).style('stroke', col).style('stroke-width', 2.5);
+    g.append('path').attr('d', `M${px - 22},${y} l8,-5 l0,10 z`).style('fill', col);
+  }
+
   function placeValue(g, text, xEnd, xStart, y, limit) {
     const t = muted(g.append('text').attr('y', y + 4).text(text));
     const w = t.node().getComputedTextLength();
@@ -641,7 +648,7 @@
       const peaks = items.filter(d => d.role === 'peak');
       const harvest = items.find(d => d.role === 'harvest');
       const top = peaks.length ? d3.max(peaks, d => d.hi) : null;
-      return {crop, items, peaks, harvest, top, others: items.filter(d => d.role === 'other')};
+      return {crop, items, peaks, harvest, top, others: items.filter(d => d.role !== 'peak' && d.role !== 'harvest')};
     }).sort((a, b) => (b.top ?? 0) - (a.top ?? 0));
     const summary = c => {
       if (!c.peaks.length) return t('ripe.harvestOnly', {v: value(c.harvest)});
@@ -650,6 +657,8 @@
       /* Sources more than 10 times apart are shown separately, not merged into one range. */
       if (new Set(c.peaks.map(d => d.source)).size > 1 && hi / Math.max(lo, 1e-6) > 10)
         return t('ripe.disagree', {v: c.peaks.map(value).join(t('or')), from});
+      /* An upper limit ("< 0.04") is never folded into a range as if it were a measured value. */
+      if (c.peaks.some(d => d.bound)) return t('ripe.peak', {v: c.peaks.map(value).join(t('or')), from});
       return t('ripe.peak', {v: lo === hi ? fmt(hi) : fmt(lo) + '–' + fmt(hi), from});
     };
     const ripeHas = crops.some(c => c.crop === state.crop);
@@ -672,16 +681,18 @@
             .style('stroke', 'var(--axis)').style('stroke-width', 2).style('stroke-dasharray', '4 3');
           g.append('path').attr('d', `M${x(d3.min(c.peaks, d => d.lo)) - 9},${y} l-7,-4 l0,8 z`).style('fill', 'var(--axis)');
         }
-        if (h) g.append('circle').attr('cx', x(h.hi)).attr('cy', y).attr('r', 5.5).style('fill', 'var(--panel)').style('stroke', 'var(--muted)').style('stroke-width', 2);
+        if (h && h.bound) limitMark(g, x(h.hi), y, 'var(--muted)');
+        else if (h) g.append('circle').attr('cx', x(h.hi)).attr('cy', y).attr('r', 5.5).style('fill', 'var(--panel)').style('stroke', 'var(--muted)').style('stroke-width', 2);
         c.peaks.forEach(d => {
           const col = (VERIFY[d.verification] || VERIFY.SNIP).color;
-          if (d.hi > d.lo) g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).style('stroke', col).style('stroke-width', 10).style('stroke-linecap', 'round');
+          if (d.bound) limitMark(g, x(d.hi), y, col);
+          else if (d.hi > d.lo) g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).style('stroke', col).style('stroke-width', 10).style('stroke-linecap', 'round');
           else g.append('circle').attr('cx', x(d.hi)).attr('cy', y).attr('r', 6).style('fill', col);
         });
       },
       select(c) {
         const lines = c.items.map(d => ({
-          text: `${t('role.' + (d.role === 'harvest' || d.role === 'peak' ? d.role : 'other'))}${t('colon')}${value(d)} µL/kg/h — ${d.crop !== c.crop ? cropN(d.crop) + ', ' : ''}${F(d, 'condition')}${d.cultivar && !/^(not stated|general)$/i.test(d.cultivar) ? ` (${F(d, 'cultivar')})` : ''}`,
+          text: `${t('role.' + (['harvest', 'peak', 'mean'].includes(d.role) ? d.role : 'other'))}${t('colon')}${value(d)} µL/kg/h — ${d.crop !== c.crop ? cropN(d.crop) + ', ' : ''}${F(d, 'condition')}${d.cultivar && !/^(not stated|general)$/i.test(d.cultivar) ? ` (${F(d, 'cultivar')})` : ''}`,
           source: source(d)
         }));
         readoutList('ripe-readout', cropN(c.crop), lines);
@@ -791,8 +802,10 @@
       padR: 64,
       label: d => `${cropN(d.crop)} · ${F(d, 'hormone')} · ${F(d, 'comparison')}`,
       mark(g, d, x, y) {
+        const col = (VERIFY[d.verification] || VERIFY.SNIP).color, most = /^up to$/i.test(d.qualifier || '');
         g.append('rect').attr('x', x(1)).attr('y', y - 7).attr('width', Math.max(2, x(d.f) - x(1))).attr('height', 14).attr('rx', 5)
-          .style('fill', (VERIFY[d.verification] || VERIFY.SNIP).color);
+          .style('fill', col).style('opacity', most ? 0.4 : 1);
+        if (most) g.append('line').attr('x1', x(d.f)).attr('x2', x(d.f)).attr('y1', y - 9).attr('y2', y + 9).style('stroke', col).style('stroke-width', 2.5);
         muted(g.append('text').attr('x', x(d.f) + 8).attr('y', y + 4).text(value(d)));
       },
       select: d => readout('fold-readout', `${cropN(d.crop)} · ${F(d, 'cultivar')}`, [`${F(d, 'hormone')}${t('colon')}${F(d, 'comparison')}`, value(d)], source(d))

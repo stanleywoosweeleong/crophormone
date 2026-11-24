@@ -152,7 +152,7 @@
 | 木瓜 | Golden | 23 °C，1 级（≤15% 转黄） | 峰值，第 6 天 | ~1.3 | GC | FT | 同上 |
 | 木瓜 | Golden | 23 °C，2–3 级 | 平均值，无上升 | ~0.57 | GC | FT | 同上 |
 | 山地木瓜（*Vasconcellea pubescens*，近缘种） | 未说明 | 未说明 | 最大值 | ≈40–72（由 1.8–3.2 µmol kg⁻¹ h⁻¹ × 22.4 推算） | 未说明 | SNIP | [AGRIS](https://agris.fao.org/search/en/records/65df7cf7b766d82b1801f1dc) |
-| 百香果（黄色） | *P. edulis* f. *flavicarpa* | 成熟度 I 组（青果） | 最高平均值 | 7.25 | GC | ABS | [Winkler et al. 2002](https://www.scielo.br/j/rbf/a/Q3G4TBpYvkLYvLHF4Pdnb9G/abstract/?lang=en) |
+| 百香果（黄色） | *P. edulis* f. *flavicarpa* | 成熟度 I 组（青果） | 组平均值（非峰值） | 7.25 | GC | ABS | [Winkler et al. 2002](https://www.scielo.br/j/rbf/a/Q3G4TBpYvkLYvLHF4Pdnb9G/abstract/?lang=en) |
 | 百香果 | 未说明（夏威夷指南） | 20 °C | 呼吸跃变峰 | 160–400 | 未说明 | SNIP | [CTAHR PDF](https://mail.growables.org/information/TropicalFruit/documents/PassHawaii2.pdf) |
 | 荔枝 | Wuye | 幼果对照（35 DAA） | 供比较 | <2 | GC-FID | FT | [Li 2015](https://www.frontiersin.org/articles/10.3389/fpls.2015.00439/full) |
 | 红毛丹 | 一般 | 25 °C | 采后 | 0.1–0.7 | 未说明 | SEC（推广指南） | [UC Davis](https://postharvest.ucdavis.edu/node/7981) |
@@ -212,7 +212,7 @@ Chomba et al. 论文的一个版本印作 mL kg⁻¹ h⁻¹；全文表格使用
 
 最大的未解决冲突涉及 KClO3 处理下龙眼的赤霉素。LC-ESI-MS 研究报告，处理过的梢尖中 GA1、GA3、GA19 和 GA20 *上升*，并将开花归因于它们（[Susawaengsup 2011](https://www.sigmaaldrich.com/PL/pl/tech-docs/paper/101842)）。ELISA 和生物测定时代的文献则报告 GA *下降*（[Huang 2021](https://pmc.ncbi.nlm.nih.gov/articles/PMC8215610/)；[‘Fenglisui’，Acta Hort Sinica 2015](https://www.ahs.ac.cn/CN/Y2015/V42/I2/332)）。一项针对高空压条‘Daw’的研究则完全没有发现差异（[TCI-ThaiJo](https://li01.tci-thaijo.org/index.php/joacmu/article/view/246243)）。组织（梢尖对比顶芽）、时间（第 1 周对比更晚）和方法各不相同，因此这并非一个干净的矛盾。尽管如此，“GA 下降”的共识建立在较弱的方法之上。同一项‘Fenglisui’研究还发现，芽中玉米素与开花率**并非**正相关，这削弱了细胞分裂素上升的模型。芒果在诱导期的乙烯问题与此类似。佛罗里达的 Tommy Atkins 未出现高于基础水平的上升（[Davenport & Núñez-Elisea 1991](https://ishs.org/ishs-article/291_11/)）。印度的研究报告开花枝梢中乙烯高 3–5×，一篇关于 KNO3 处理 Carabao 的菲律宾学位论文发现茎尖乙烯上升（[SEARCA 摘要](https://www.searca.org/pubs/abstracts-theses-dissertations/database/view?absid=747)）。在柑橘中，该领域自身的文献承认，内源 GA 在开花中的作用“从未被证明过”；这一论点依赖外源 GA3 和抑制剂试验（[UPV RiuNet](https://riunet.upv.es/handle/10251/33154?show=full)）。
 
-单位和数量级的不一致对绘图同样影响重大。用 LC-MS/MS 测得的芒果 GA3 约为 0.1–1.4 ng g⁻¹ FM，而在综述所引的 Upreti 系列中则为数百。菲律宾枝梢“赤霉素”数值**约 750 µg g⁻¹ 降至检测不到**，作为真实 GA 浓度高得不合理，可能反映的是生物测定中的类 GA 活性。一个被引为“3.01 g g⁻¹ FW”的生长素数值，其单位是错乱的（[Cavalcante 2022](https://www.mango.org/wp-content/uploads/2022/12/Mango-Flowering-Review_Italo-Cavalcante-atual.pdf)）。百香果峰值 **7.25 µL kg⁻¹ h⁻¹**（巴西黄色类型，摘要）与 **160–400 µL kg⁻¹ h⁻¹**（夏威夷指南，搜索摘录）相差 20–55×。物种类型、成熟度分组或单位错误都可能解释这一差距，而且两个数值都未在原始表格中得到确认。在澳大利亚的研究中，木瓜表现为呼吸跃变型，乙烯峰约比呼吸峰晚一天（[CSIRO EA9951173](https://publish.csiro.au/an/EA9951173)），但在转色后采收的‘Golden’完全没有出现呼吸跃变。番石榴因品种不同分为呼吸跃变型和非呼吸跃变型，因此没有一条曲线能代表这一作物。在荔枝中，一条关于无籽品种的搜索摘录报告，在主要脱落高峰时 ACC *下降*，这与有籽‘Wuye’中观察到的乙烯激增相反（[PMC12604164](https://pmc.ncbi.nlm.nih.gov/articles/PMC12604164)）。关于柑橘着色：采前 ABA 可提前脐橙着色，但‘Valencia’外果皮 ABA 上升却不引发转色，而缺乏 ABA 的‘Pinalate’在乙烯作用下仍能正常褪绿（[Sci. Rep. 2019](https://link.springer.com/10.1038/s41598-019-46365-8)；[ISHS 463_8](https://ishs.org/ishs-article/463_8/)）。
+单位和数量级的不一致对绘图同样影响重大。用 LC-MS/MS 测得的芒果 GA3 约为 0.1–1.4 ng g⁻¹ FM，而在综述所引的 Upreti 系列中则为数百。菲律宾枝梢“赤霉素”数值**约 750 µg g⁻¹ 降至检测不到**，作为真实 GA 浓度高得不合理，可能反映的是生物测定中的类 GA 活性。一个被引为“3.01 g g⁻¹ FW”的生长素数值，其单位是错乱的（[Cavalcante 2022](https://www.mango.org/wp-content/uploads/2022/12/Mango-Flowering-Review_Italo-Cavalcante-atual.pdf)）。百香果的 **7.25 µL kg⁻¹ h⁻¹**（巴西黄色类型，摘要）与 **160–400 µL kg⁻¹ h⁻¹**（夏威夷指南，搜索摘录）不是同一类测量值。前者是一组以绿色为主的果实的平均值（7.25 nL g⁻¹ h⁻¹，与 µL kg⁻¹ h⁻¹ 等值）；后者描述的是跃变峰值。不应把它们看作两个来源对峰值的分歧，而且两个数值都未在原始表格中得到确认。在澳大利亚的研究中，木瓜表现为呼吸跃变型，乙烯峰约比呼吸峰晚一天（[CSIRO EA9951173](https://publish.csiro.au/an/EA9951173)），但在转色后采收的‘Golden’完全没有出现呼吸跃变。番石榴因品种不同分为呼吸跃变型和非呼吸跃变型，因此没有一条曲线能代表这一作物。在荔枝中，一条关于无籽品种的搜索摘录报告，在主要脱落高峰时 ACC *下降*，这与有籽‘Wuye’中观察到的乙烯激增相反（[PMC12604164](https://pmc.ncbi.nlm.nih.gov/articles/PMC12604164)）。关于柑橘着色：采前 ABA 可提前脐橙着色，但‘Valencia’外果皮 ABA 上升却不引发转色，而缺乏 ABA 的‘Pinalate’在乙烯作用下仍能正常褪绿（[Sci. Rep. 2019](https://link.springer.com/10.1038/s41598-019-46365-8)；[ISHS 463_8](https://ishs.org/ishs-article/463_8/)）。
 
 一些归属问题也影响到具体数值。尚不清楚综述中的芒果 ABA 数值（85.7–106.3 和 52.3–65.5 ng g⁻¹）以及 GA3 系列属于 Upreti 2013 还是 Burondkar 2016。Shivashankara 表格中环剥各行的标签是错乱的。‘Kan Yao’和‘Mon Tong’的榴莲内部乙烯数值无法区分。Chomba 芒果乙烯的单位在论文的一个版本中显示为 mL。菠萝 ABA 的搜索摘录将 ABA 在花芽起始后同时列为上升和下降。
 
@@ -230,7 +230,7 @@ Chomba et al. 论文的一个版本印作 mL kg⁻¹ h⁻¹；全文表格使用
 | 木瓜 | 未找到 | 未找到 | 乙烯和呼吸绝对值（Golden） |
 | 菠萝 | 定性（乙烯利）+ 乙烯时间 | 未找到 | 数值位于补充材料中（未获取） |
 | 番石榴 | 未找到 | 未找到 | 单位不明的乙烯 |
-| 百香果 | 未找到 | 落果时间；测定了 ACC，数值未获取 | 速率相互矛盾 |
+| 百香果 | 未找到 | 落果时间；测定了 ACC，数值未获取 | 一个组平均值和一个指南峰值范围（不可比较） |
 | 牛油果 | 未找到（仅农艺试验） | 仅比值趋势 | 仅时间和倍数变化 |
 | 柑橘（含青柠） | 定性；柠檬数值仅见于图中 | GA1 绝对值（DW）+ 倍数变化 | 仅倍数变化 |
 
@@ -323,16 +323,16 @@ Chomba et al. 论文的一个版本印作 mL kg⁻¹ h⁻¹；全文表格使用
 
 **主要空缺。** 在这些作物中，独脚金内酯和油菜素甾醇类几乎没有任何内源测定。茉莉酸类和水杨酸主要在芒果、柑橘、牛油果和龙眼中有测定；在其他作物中，它们以采后喷施或浸果的形式出现。除经典的五类激素之外，榴莲、山竹和红毛丹在每个类别中的数据都最少。
 
-## 已解决的冲突
+## 已复核的冲突
 
-有两个单元格因研究结论不一致而被标为“相互矛盾”。两者都已与原始文献核对：
+有两个单元格因研究结论不一致而被标为“相互矛盾”。两者都已对照原始研究的摘要进行核对，但都没有完全定论：
 
-- **芒果，开花，乙烯：不是驱动因素。** 在佛罗里达，芽和叶片中的乙烯保持在基础水平，乙烯利虽提高了乙烯却未引起开花（Davenport & Núñez-Elisea 1991）。在菲律宾，阻断乙烯并未阻止 KNO3 诱导的开花（Protacio 2003, 2009）。印度和菲律宾报告的上升与正在发育的花芽相伴出现，因此是结果而非原因。
-- **龙眼，KClO3 处理后开花，赤霉素：下降**（中等可信度）。两个使用生物测定和免疫测定的实验室发现，梢尖和芽中 GA 下降、细胞分裂素上升（Wangsin & Pankasemsuk 2005；Hegele et al. 2010；Huang et al. 2021 综述）。一项 LC-MS 研究（Susawaengsup 2011）发现 GA 在第 1 周上升，但其其他激素结果也与所有其他实验室不一致。
+- **芒果，开花，乙烯：尚未证实为成花诱导所必需。** 在佛罗里达（'Tommy Atkins'），芽和叶片中的乙烯保持在基础水平，乙烯利虽提高了乙烯却未引起开花（[Davenport & Núñez-Elisea 1991](https://ishs.org/ishs-article/291_11/)）。在菲律宾（'Carabao'），乙烯抑制剂 AOA 和 STS 未能阻止 KNO3 诱导的开花，作者认为这种开花是已形成花芽的萌发（[Protacio et al.](https://agris.fao.org/search/en/providers/122430/records/647246bc2c1d629bc9798549)）。印度和菲律宾曾报告开花枝梢中乙烯较高；这是开花的原因还是结果，尚未经过检验。该结论仅适用于所试验的品种和条件。
+- **龙眼，KClO3 处理后开花，赤霉素：仍相互矛盾。** 两个使用生物测定和免疫测定的实验室发现，梢尖和芽中 GA 下降、细胞分裂素上升（Wangsin & Pankasemsuk 2005；Hegele et al. 2010；Huang et al. 2021 综述）。一项针对梢尖的 LC-MS 研究（[Susawaengsup et al. 2011](https://pubmed.ncbi.nlm.nih.gov/21726716/)）发现 GA1、GA3、GA19 和 GA20 在第一周内分别升至约 25、50、20 和 60 ng g⁻¹ DW，均显著高于未处理树。各研究所测组织、取样时间和方法不同，因此应用中该单元格显示为“相互矛盾”，而不是“下降”。
 
 ## 商用调节剂
 
-“调节剂”视图列出 116 个产品 × 作物条目：42 个测定了处理后的激素变化，61 个仅报告可见效果，13 个来自标签或推广指导。每个条目遵循以下链条：产品 → 其促进或阻断的激素 → 实测激素变化 → 可见效果 → 副作用。
+“调节剂”视图列出 123 个产品 × 作物条目：43 个测定了处理后的激素变化，67 个仅报告可见效果，13 个来自标签或推广指导。每个条目遵循以下链条：产品 → 其促进或阻断的激素 → 实测激素变化 → 可见效果 → 副作用。
 
 | 作物 | 条目数 | 测定了激素的条目 |
 |---|---|---|

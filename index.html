@@ -35,8 +35,8 @@
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&family=Noto+Sans+SC:wght@500;700&display=swap">
 <link rel="stylesheet" href="styles.css?v=8264bcb584">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" integrity="sha512-M7nHCiNUOwFt6Us3r8alutZLm9qMt4s9951uo8jqO4UwJ1hziseL6O3ndFyigx6+LREfZqnhHxYjKRJ8ZQ69DQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-<script src="i18n.js?v=7884b70918" defer></script>
-<script src="app.js?v=0c9d4ada6d" defer></script>
+<script src="i18n.js?v=71e1e0b7c4" defer></script>
+<script src="app.js?v=93d49b5916" defer></script>
 <script src="update.js?v=0bbce73020" defer></script>
 <script src="settings.js?v=19d5d1dfa1" defer></script>
 <script src="share.js?v=5796cbb24a" defer></script>
@@ -133,7 +133,7 @@
     </div>
     <div class="card">
       <h2 data-i18n="ripe.h2chart">Ethylene production: all crops compared</h2>
-      <p class="note" data-i18n="ripe.note">One row per crop. Hollow dot: ethylene at harvest. Filled mark: the ripening peak (a bar is a reported range; two marks mean two sources). The dashed arrow shows the rise. µL ethylene per kg of fruit per hour, log scale; each gridline is 10 times the last. Tap a crop for every measurement and its source.</p>
+      <p class="note" data-i18n="ripe.note">One row per crop. Hollow dot: ethylene at harvest. Filled mark: the ripening peak (a bar is a reported range; two marks mean two sources). The dashed arrow shows the rise. A tick with an arrow pointing left is an upper limit: the source reports only that the value is below it. µL ethylene per kg of fruit per hour, log scale; each gridline is 10 times the last. Tap a crop for every measurement and its source.</p>
       <div class="key"><span><i class="sw ring"></i><span data-i18n="role.harvest">At harvest</span></span></div>
       <div class="key" id="ver-key"></div>
       <p class="crop-note" id="ripe-crop-note" hidden></p>
@@ -185,7 +185,7 @@
     </div>
     <div class="card">
       <h2 data-i18n="fold.h2">Fold change: all crops with data</h2>
-      <p class="note" data-i18n="fold.note">Fold change: how many times higher the hormone was than in the comparison (untreated fruit or an earlier stage). 2× means double, 10× ten times as much, 1× no change. Log scale, so each step to the right multiplies. Colour shows how the value was checked.</p>
+      <p class="note" data-i18n="fold.note">Fold change: how many times higher the hormone was than in the comparison (untreated fruit or an earlier stage). 2× means double, 10× ten times as much, 1× no change. Log scale, so each step to the right multiplies. Colour shows how the value was checked. A pale bar ending in a tick is a reported maximum ("up to"), not a typical value.</p>
       <p class="crop-note" id="fold-crop-note" hidden></p>
       <div class="chart" id="fold-chart"><div class="loading"></div></div>
       <div class="readout" id="fold-readout" aria-live="polite" data-hint="hint.row"><span class="hint" data-i18n="hint.row">Tap a row for its details and source.</span></div>
