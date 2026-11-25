@@ -19,20 +19,20 @@ The absolute numbers behind this pattern are sparse and come in units that canno
 
 ### Table 1A: Flowering stage, LC-MS/MS, ng g⁻¹ fresh mass (mango leaf, one month after girdling, pre-flowering)
 
-| Crop | Cultivar | Tissue | Treatment / stage | Hormone | Value (ng g⁻¹ FM) | Method | Verification | Source |
+| Crop | Cultivar | Tissue | Hormone | Control (not girdled) | Girdled, 50 / 100 / 150 leaves kept | Method | Verification | Source |
 |---|---|---|---|---|---|---|---|---|
-| Mango | Alphonso | Leaf | Control, pre-flowering | ABA | 102.15 | LC-MS/MS | FT | [Shivashankara 2019](https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf) |
-| Mango | Alphonso | Leaf | Control | IAA | 1.09 | LC-MS/MS | FT | same |
-| Mango | Alphonso | Leaf | Control | GA4 | 1.39 | LC-MS/MS | FT | same |
-| Mango | Alphonso | Leaf | Control | GA3 | 0.51 | LC-MS/MS | FT | same |
-| Mango | Alphonso | Leaf | Control | Zeatin | 2.65 | LC-MS/MS | FT | same |
-| Mango | Alphonso/Totapuri (row labels uncertain) | Leaf | Girdled branches | ABA | 192–282 | LC-MS/MS | FT, table layout scrambled | same |
-| Mango | as above | Leaf | Girdled | IAA | 2.85–3.79 | LC-MS/MS | FT, scrambled | same |
-| Mango | as above | Leaf | Girdled | GA4 | 0.74–1.20 | LC-MS/MS | FT, scrambled | same |
-| Mango | as above | Leaf | Girdled | GA3 | 0.09–0.31 | LC-MS/MS | FT, scrambled | same |
-| Mango | as above | Leaf | Girdled | Zeatin | 1.1–1.9 | LC-MS/MS | FT, scrambled | same |
+| Mango | Alphonso | Leaf | ABA | 102.15 | 152.39 / 192.36 / 263.26 | LC-MS/MS | FT | [Shivashankara 2019](https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf) |
+| Mango | Totapuri | Leaf | ABA | 151.32 | 181.32 / 221.52 / 282.21 | LC-MS/MS | FT | same |
+| Mango | Alphonso | Leaf | IAA | 1.09 | 1.95 / 2.86 / 3.79 | LC-MS/MS | FT | same |
+| Mango | Totapuri | Leaf | IAA | 1.89 | 2.01 / 2.85 / 3.59 | LC-MS/MS | FT | same |
+| Mango | Alphonso | Leaf | GA4 | 1.39 | 1.28 / 0.98 / 0.74 | LC-MS/MS | FT | same |
+| Mango | Totapuri | Leaf | GA4 | 1.98 | 1.68 / 1.20 / 1.12 | LC-MS/MS | FT | same |
+| Mango | Alphonso | Leaf | GA3 | 0.51 | 0.39 / 0.21 / 0.09 | LC-MS/MS | FT | same |
+| Mango | Totapuri | Leaf | GA3 | 0.56 | 0.48 / 0.31 / 0.22 | LC-MS/MS | FT | same |
+| Mango | Alphonso | Leaf | Zeatin | 2.65 | 2.00 / 1.90 / 1.20 | LC-MS/MS | FT | same |
+| Mango | Totapuri | Leaf | Zeatin | 2.00 | 1.80 / 1.20 / 1.10 | LC-MS/MS | FT | same |
 
-The full-text table in the source PDF was scrambled on extraction. Only the first (control Alphonso) row has unambiguous labels; check the girdled rows against Table 1 of the PDF before charting them. The authors report that girdling more than doubles auxin and ABA and lowers GA4, GA3 and zeatin by a similar factor.
+Values are read from Table 1 of the source PDF, which gives each cultivar its own control and three girdling treatments (50, 100 or 150 leaves kept above the girdle). In both cultivars auxin and ABA rise, and GA4, GA3 and zeatin fall, as more leaves are kept. Each cultivar should be compared with its own control: Totapuri starts from higher ABA, IAA and GA4 than Alphonso.
 
 ### Table 1B: Flowering stage, mango buds and shoots, ng g⁻¹ with mass basis and method unstated (do not co-plot with 1A)
 
@@ -62,7 +62,7 @@ The cytokinin values in this table come from vegetative controls, so they cannot
 | Crop | Cultivar | Tissue | Comparison / window | Hormone | Change | Verification | Source |
 |---|---|---|---|---|---|---|---|
 | Mango | Alphonso | Shoot | PBZ vs control, at bud break | Total GAs | −51.71% | SNIP | [ICAR 5472](https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full) |
-| Mango | Alphonso | Shoot | PBZ vs control, 15 d before bud break | Total GAs | −55.6% | SNIP | same |
+| Mango | Alphonso | Shoot | PBZ-treated trees, 15 d before bud break to bud break (change over time, not vs control) | Total GAs | −55.6% | SNIP | same |
 | Mango | Alphonso | Leaf / bud | PBZ vs control, 15 d before bud break | Total cytokinins | −25.93% / −37.54% | SNIP | same |
 | Mango | Alphonso | Leaf / bud | PBZ vs control, bud break to 15 d after | Total cytokinins | about +32% / +36% | SNIP | same |
 | Mango | Alphonso | Leaf / bud | PBZ vs control, flowering | ABA | +59.85% / +41.11% | SNIP | same |
@@ -214,7 +214,7 @@ The biggest unresolved conflict concerns longan gibberellins under KClO3. The LC
 
 Unit and magnitude inconsistencies are just as consequential for charting. Mango GA3 is about 0.1–1.4 ng g⁻¹ FM by LC-MS/MS but in the hundreds in the review-quoted Upreti series. The Philippine shoot "gibberellin" value of **about 750 µg g⁻¹ falling to undetectable** is implausibly high for a true GA concentration and probably reflects bioassay GA-like activity. An auxin value quoted as "3.01 g g⁻¹ FW" is a garbled unit ([Cavalcante 2022](https://www.mango.org/wp-content/uploads/2022/12/Mango-Flowering-Review_Italo-Cavalcante-atual.pdf)). Passion fruit values of **7.25 µL kg⁻¹ h⁻¹** (Brazilian yellow form, abstract) and **160–400 µL kg⁻¹ h⁻¹** (Hawaii guideline, snippet) are not equivalent measurements. The first is the mean for a group of predominantly green fruit (7.25 nL g⁻¹ h⁻¹, which is the same as µL kg⁻¹ h⁻¹); the second describes climacteric peaks. They should not be read as two sources disagreeing about the peak, and neither value has been confirmed in a primary table. Papaya behaves as climacteric in Australian work, with an ethylene peak about a day after the respiratory peak ([CSIRO EA9951173](https://publish.csiro.au/an/EA9951173)), but 'Golden' harvested past colour break showed no climacteric at all. Guava splits by cultivar into climacteric and non-climacteric types, so no single curve can represent the crop. In litchi, a seedless-cultivar snippet reports ACC *declining* at the main abscission wave, against the ethylene surge seen in seeded 'Wuye' ([PMC12604164](https://pmc.ncbi.nlm.nih.gov/articles/PMC12604164)). On citrus colour, pre-harvest ABA advances colour in Navel orange, but flavedo ABA in 'Valencia' rises without triggering colour break, and ABA-deficient 'Pinalate' still degreens normally with ethylene ([Sci. Rep. 2019](https://link.springer.com/10.1038/s41598-019-46365-8); [ISHS 463_8](https://ishs.org/ishs-article/463_8/)).
 
-Several attribution problems also affect specific values. It is unclear whether the review's mango ABA values (85.7–106.3 and 52.3–65.5 ng g⁻¹) and the GA3 series belong to Upreti 2013 or Burondkar 2016. The girdled-row labels in the Shivashankara table are scrambled. The durian internal-ethylene values for 'Kan Yao' and 'Mon Tong' cannot be separated. The Chomba mango ethylene unit appears as mL in one version of the paper. The pineapple ABA snippet lists ABA as both rising and falling after initiation.
+Several attribution problems also affect specific values. It is unclear whether the review's mango ABA values (85.7–106.3 and 52.3–65.5 ng g⁻¹) and the GA3 series belong to Upreti 2013 or Burondkar 2016. The durian internal-ethylene values for 'Kan Yao' and 'Mon Tong' cannot be separated. The Chomba mango ethylene unit appears as mL in one version of the paper. The pineapple ABA snippet lists ABA as both rising and falling after initiation.
 
 ### Table 4: Coverage matrix of measured data by crop and stage
 
@@ -292,13 +292,13 @@ The app covers ten hormone classes for each of the 13 crops at flowering, fruit 
 
 | Hormone | Measured or partly | Inferred | Applied only | No data |
 |---|---|---|---|---|
-| GA | 10 | 23 | 0 | 6 |
+| GA | 9 | 23 | 1 | 6 |
 | Cytokinin | 9 | 22 | 0 | 8 |
 | ABA | 15 | 15 | 0 | 9 |
 | IAA | 9 | 21 | 0 | 9 |
 | Ethylene | 18 | 6 | 0 | 15 |
-| JA | 7 | 0 | 6 | 26 |
-| SA | 6 | 0 | 9 | 24 |
+| JA | 6 | 0 | 6 | 27 |
+| SA | 5 | 0 | 9 | 25 |
 | BR | 1 | 0 | 4 | 34 |
 | Polyamines | 12 | 0 | 2 | 25 |
 | Strigolactones | 1 | 0 | 1 | 37 |
@@ -308,7 +308,7 @@ The app covers ten hormone classes for each of the 13 crops at flowering, fruit 
 | Durian | 4 | 9 | 0 | 17 |
 | Avocado | 8 | 5 | 0 | 17 |
 | Banana | 3 | 6 | 2 | 19 |
-| Citrus | 16 | 2 | 3 | 9 |
+| Citrus | 13 | 2 | 4 | 11 |
 | Guava | 2 | 9 | 2 | 17 |
 | Litchi | 10 | 3 | 4 | 13 |
 | Longan | 12 | 5 | 0 | 13 |
@@ -338,12 +338,12 @@ The Regulators view lists 123 product × crop entries: 43 with hormone changes m
 |---|---|---|
 | Durian | 4 | 1 |
 | Avocado | 8 | 1 |
-| Banana | 6 | 1 |
+| Banana | 7 | 1 |
 | Citrus | 19 | 7 |
 | Guava | 8 | 1 |
 | Litchi | 14 | 5 |
 | Longan | 6 | 3 |
-| Mango | 28 | 17 |
+| Mango | 34 | 18 |
 | Mangosteen | 4 | 2 |
 | Papaya | 2 | 1 |
 | Passion fruit | 3 | 1 |

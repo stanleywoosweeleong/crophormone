@@ -19,20 +19,20 @@ Nombor mutlak di sebalik corak ini jarang dan datang dalam unit yang tidak boleh
 
 ### Jadual 1A: Peringkat pembungaan, LC-MS/MS, ng g⁻¹ jisim segar (daun mangga, sebulan selepas kelar gelang, sebelum pembungaan)
 
-| Tanaman | Kultivar | Tisu | Rawatan / peringkat | Hormon | Nilai (ng g⁻¹ FM) | Kaedah | Pengesahan | Sumber |
+| Tanaman | Kultivar | Tisu | Hormon | Kawalan (tidak dikelar) | Dikelar gelang, 50 / 100 / 150 daun dikekalkan | Kaedah | Pengesahan | Sumber |
 |---|---|---|---|---|---|---|---|---|
-| Mangga | Alphonso | Daun | Kawalan, sebelum pembungaan | ABA | 102.15 | LC-MS/MS | FT | [Shivashankara 2019](https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf) |
-| Mangga | Alphonso | Daun | Kawalan | IAA | 1.09 | LC-MS/MS | FT | sama |
-| Mangga | Alphonso | Daun | Kawalan | GA4 | 1.39 | LC-MS/MS | FT | sama |
-| Mangga | Alphonso | Daun | Kawalan | GA3 | 0.51 | LC-MS/MS | FT | sama |
-| Mangga | Alphonso | Daun | Kawalan | Zeatin | 2.65 | LC-MS/MS | FT | sama |
-| Mangga | Alphonso/Totapuri (label baris tidak pasti) | Daun | Dahan dikelar gelang | ABA | 192–282 | LC-MS/MS | FT, susun atur jadual bercelaru | sama |
-| Mangga | seperti di atas | Daun | Dikelar gelang | IAA | 2.85–3.79 | LC-MS/MS | FT, bercelaru | sama |
-| Mangga | seperti di atas | Daun | Dikelar gelang | GA4 | 0.74–1.20 | LC-MS/MS | FT, bercelaru | sama |
-| Mangga | seperti di atas | Daun | Dikelar gelang | GA3 | 0.09–0.31 | LC-MS/MS | FT, bercelaru | sama |
-| Mangga | seperti di atas | Daun | Dikelar gelang | Zeatin | 1.1–1.9 | LC-MS/MS | FT, bercelaru | sama |
+| Mangga | Alphonso | Daun | ABA | 102.15 | 152.39 / 192.36 / 263.26 | LC-MS/MS | FT | [Shivashankara 2019](https://bp.ueb.cas.cz/pdfs/bpl/2019/01/55.pdf) |
+| Mangga | Totapuri | Daun | ABA | 151.32 | 181.32 / 221.52 / 282.21 | LC-MS/MS | FT | sama |
+| Mangga | Alphonso | Daun | IAA | 1.09 | 1.95 / 2.86 / 3.79 | LC-MS/MS | FT | sama |
+| Mangga | Totapuri | Daun | IAA | 1.89 | 2.01 / 2.85 / 3.59 | LC-MS/MS | FT | sama |
+| Mangga | Alphonso | Daun | GA4 | 1.39 | 1.28 / 0.98 / 0.74 | LC-MS/MS | FT | sama |
+| Mangga | Totapuri | Daun | GA4 | 1.98 | 1.68 / 1.20 / 1.12 | LC-MS/MS | FT | sama |
+| Mangga | Alphonso | Daun | GA3 | 0.51 | 0.39 / 0.21 / 0.09 | LC-MS/MS | FT | sama |
+| Mangga | Totapuri | Daun | GA3 | 0.56 | 0.48 / 0.31 / 0.22 | LC-MS/MS | FT | sama |
+| Mangga | Alphonso | Daun | Zeatin | 2.65 | 2.00 / 1.90 / 1.20 | LC-MS/MS | FT | sama |
+| Mangga | Totapuri | Daun | Zeatin | 2.00 | 1.80 / 1.20 / 1.10 | LC-MS/MS | FT | sama |
 
-Jadual teks penuh dalam PDF sumber menjadi bercelaru semasa pengekstrakan. Hanya baris pertama (kawalan Alphonso) mempunyai label yang jelas; semak baris yang dikelar gelang dengan Jadual 1 dalam PDF sebelum mencartakannya. Penulis melaporkan bahawa kelar gelang meningkatkan auksin dan ABA lebih daripada dua kali ganda dan menurunkan GA4, GA3 dan zeatin dengan faktor yang serupa.
+Nilai dibaca daripada Jadual 1 dalam PDF sumber, yang memberikan setiap kultivar kawalannya sendiri dan tiga rawatan kelar gelang (50, 100 atau 150 daun dikekalkan di atas kelaran). Dalam kedua-dua kultivar, auksin dan ABA meningkat, manakala GA4, GA3 dan zeatin menurun, apabila lebih banyak daun dikekalkan. Setiap kultivar wajar dibandingkan dengan kawalannya sendiri: Totapuri bermula dengan ABA, IAA dan GA4 yang lebih tinggi daripada Alphonso.
 
 ### Jadual 1B: Peringkat pembungaan, tunas dan pucuk mangga, ng g⁻¹ dengan asas jisim dan kaedah tidak dinyatakan (jangan diplot bersama 1A)
 
@@ -62,7 +62,7 @@ Nilai sitokinin dalam jadual ini datang daripada kawalan vegetatif, jadi nilai i
 | Tanaman | Kultivar | Tisu | Perbandingan / tempoh | Hormon | Perubahan | Pengesahan | Sumber |
 |---|---|---|---|---|---|---|---|
 | Mangga | Alphonso | Pucuk | PBZ berbanding kawalan, semasa tunas pecah | Jumlah GA | −51.71% | SNIP | [ICAR 5472](https://krishi.icar.gov.in/jspui/handle/123456789/5472?mode=full) |
-| Mangga | Alphonso | Pucuk | PBZ berbanding kawalan, 15 d sebelum tunas pecah | Jumlah GA | −55.6% | SNIP | sama |
+| Mangga | Alphonso | Pucuk | Pokok dirawat PBZ, 15 d sebelum tunas pecah hingga tunas pecah (perubahan mengikut masa, bukan berbanding kawalan) | Jumlah GA | −55.6% | SNIP | sama |
 | Mangga | Alphonso | Daun / tunas | PBZ berbanding kawalan, 15 d sebelum tunas pecah | Jumlah sitokinin | −25.93% / −37.54% | SNIP | sama |
 | Mangga | Alphonso | Daun / tunas | PBZ berbanding kawalan, tunas pecah hingga 15 d selepasnya | Jumlah sitokinin | kira-kira +32% / +36% | SNIP | sama |
 | Mangga | Alphonso | Daun / tunas | PBZ berbanding kawalan, pembungaan | ABA | +59.85% / +41.11% | SNIP | sama |
@@ -214,7 +214,7 @@ Percanggahan terbesar yang belum diselesaikan melibatkan giberelin longan di baw
 
 Ketidakkonsistenan unit dan magnitud sama pentingnya untuk pencartaan. GA3 mangga adalah kira-kira 0.1–1.4 ng g⁻¹ FM melalui LC-MS/MS tetapi mencecah ratusan dalam siri Upreti yang dipetik oleh ulasan. Nilai "giberelin" pucuk Filipina iaitu **kira-kira 750 µg g⁻¹ menurun kepada tidak dapat dikesan** adalah terlalu tinggi untuk dipercayai sebagai kepekatan GA sebenar dan mungkin mencerminkan aktiviti seperti GA dalam bioasai. Nilai auksin yang dipetik sebagai "3.01 g g⁻¹ FW" ialah unit yang bercelaru ([Cavalcante 2022](https://www.mango.org/wp-content/uploads/2022/12/Mango-Flowering-Review_Italo-Cavalcante-atual.pdf)). Nilai markisa **7.25 µL kg⁻¹ h⁻¹** (bentuk kuning Brazil, abstrak) dan **160–400 µL kg⁻¹ h⁻¹** (garis panduan Hawaii, petikan carian) bukan ukuran yang setara. Yang pertama ialah min bagi sekumpulan buah yang kebanyakannya hijau (7.25 nL g⁻¹ h⁻¹, sama dengan µL kg⁻¹ h⁻¹); yang kedua menghuraikan puncak klimakterik. Kedua-duanya tidak wajar dibaca sebagai dua sumber yang bercanggah tentang puncak, dan kedua-dua nilai belum disahkan dalam jadual primer. Betik berkelakuan sebagai klimakterik dalam kajian Australia, dengan puncak etilena kira-kira sehari selepas puncak respirasi ([CSIRO EA9951173](https://publish.csiro.au/an/EA9951173)), tetapi 'Golden' yang dituai selepas pecah warna tidak menunjukkan klimakterik langsung. Jambu batu terbahagi mengikut kultivar kepada jenis klimakterik dan bukan klimakterik, jadi tiada satu lengkung pun boleh mewakili tanaman ini. Pada laici, satu petikan carian bagi kultivar tanpa biji melaporkan ACC *menurun* semasa gelombang absisi utama, bertentangan dengan lonjakan etilena yang dilihat pada 'Wuye' berbiji ([PMC12604164](https://pmc.ncbi.nlm.nih.gov/articles/PMC12604164)). Mengenai warna sitrus, ABA sebelum tuaian mempercepat perubahan warna pada oren Navel, tetapi ABA flavedo dalam 'Valencia' meningkat tanpa mencetuskan pecah warna, dan 'Pinalate' yang kekurangan ABA masih mengalami penyahhijauan secara normal dengan etilena ([Sci. Rep. 2019](https://link.springer.com/10.1038/s41598-019-46365-8); [ISHS 463_8](https://ishs.org/ishs-article/463_8/)).
 
-Beberapa masalah atribusi juga menjejaskan nilai tertentu. Tidak jelas sama ada nilai ABA mangga dalam ulasan (85.7–106.3 dan 52.3–65.5 ng g⁻¹) dan siri GA3 milik Upreti 2013 atau Burondkar 2016. Label baris yang dikelar gelang dalam jadual Shivashankara bercelaru. Nilai etilena dalaman durian bagi 'Kan Yao' dan 'Mon Tong' tidak dapat diasingkan. Unit etilena mangga Chomba muncul sebagai mL dalam satu versi kertas tersebut. Petikan carian ABA nanas menyenaraikan ABA sebagai meningkat dan juga menurun selepas inisiasi.
+Beberapa masalah atribusi juga menjejaskan nilai tertentu. Tidak jelas sama ada nilai ABA mangga dalam ulasan (85.7–106.3 dan 52.3–65.5 ng g⁻¹) dan siri GA3 milik Upreti 2013 atau Burondkar 2016. Nilai etilena dalaman durian bagi 'Kan Yao' dan 'Mon Tong' tidak dapat diasingkan. Unit etilena mangga Chomba muncul sebagai mL dalam satu versi kertas tersebut. Petikan carian ABA nanas menyenaraikan ABA sebagai meningkat dan juga menurun selepas inisiasi.
 
 ### Jadual 4: Matriks liputan data yang diukur mengikut tanaman dan peringkat
 
@@ -292,13 +292,13 @@ Aplikasi ini merangkumi sepuluh kelas hormon bagi setiap satu daripada 13 tanama
 
 | Hormon | Diukur atau sebahagian | Disimpulkan | Digunakan sahaja | Tiada data |
 |---|---|---|---|---|
-| GA | 10 | 23 | 0 | 6 |
+| GA | 9 | 23 | 1 | 6 |
 | Sitokinin | 9 | 22 | 0 | 8 |
 | ABA | 15 | 15 | 0 | 9 |
 | IAA | 9 | 21 | 0 | 9 |
 | Etilena | 18 | 6 | 0 | 15 |
-| JA | 7 | 0 | 6 | 26 |
-| SA | 6 | 0 | 9 | 24 |
+| JA | 6 | 0 | 6 | 27 |
+| SA | 5 | 0 | 9 | 25 |
 | BR | 1 | 0 | 4 | 34 |
 | Poliamina | 12 | 0 | 2 | 25 |
 | Strigolakton | 1 | 0 | 1 | 37 |
@@ -308,7 +308,7 @@ Aplikasi ini merangkumi sepuluh kelas hormon bagi setiap satu daripada 13 tanama
 | Durian | 4 | 9 | 0 | 17 |
 | Avokado | 8 | 5 | 0 | 17 |
 | Pisang | 3 | 6 | 2 | 19 |
-| Sitrus | 16 | 2 | 3 | 9 |
+| Sitrus | 13 | 2 | 4 | 11 |
 | Jambu batu | 2 | 9 | 2 | 17 |
 | Laici | 10 | 3 | 4 | 13 |
 | Longan | 12 | 5 | 0 | 13 |
@@ -338,12 +338,12 @@ Tab Pengawal atur menyenaraikan 123 entri produk × tanaman: 43 dengan perubahan
 |---|---|---|
 | Durian | 4 | 1 |
 | Avokado | 8 | 1 |
-| Pisang | 6 | 1 |
+| Pisang | 7 | 1 |
 | Sitrus | 19 | 7 |
 | Jambu batu | 8 | 1 |
 | Laici | 14 | 5 |
 | Longan | 6 | 3 |
-| Mangga | 28 | 17 |
+| Mangga | 34 | 18 |
 | Manggis | 4 | 2 |
 | Betik | 2 | 1 |
 | Markisa | 3 | 1 |

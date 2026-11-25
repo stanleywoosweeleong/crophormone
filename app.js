@@ -709,12 +709,12 @@
       title: t('leaf.aria'),
       scale: r => d3.scaleLog([0.05, 500], r),
       axis: (svg, x, y0, y1) => gridX(svg, x, [0.1, 1, 10, 100], y0, y1, fmt),
-      label: d => F(d, 'hormone'),
+      label: d => `${F(d, 'hormone')} · ${d.cultivar}`,
       mark(g, d, x, y) {
         g.append('line').attr('x1', x(d.lo)).attr('x2', x(d.hi)).attr('y1', y).attr('y2', y).style('stroke', 'var(--down)').style('stroke-width', 10).style('stroke-linecap', 'round');
         g.append('circle').attr('cx', x(d.c)).attr('cy', y).attr('r', 6).style('fill', 'var(--up)').style('stroke', 'var(--panel)').style('stroke-width', 2);
       },
-      select: d => readout('leaf-readout', F(d, 'hormone'), [t('leaf.control', {v: fmt(d.c)}), t('leaf.girdled', {v: `${fmt(d.lo)}–${fmt(d.hi)}`})], source(d))
+      select: d => readout('leaf-readout', `${F(d, 'hormone')} · ${d.cultivar}`, [t('leaf.control', {v: fmt(d.c)}), t('leaf.girdled', {v: [d.g50, d.g100, d.g150].map(v => fmt(+v)).join(' / ')})], source(d))
     });
   }
 
