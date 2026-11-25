@@ -1,6 +1,6 @@
 # Etilena pemasakan mendominasi rekod hormon yang terhad
 
-Nilai hormon yang diukur dan boleh dicartakan bagi pokok buah-buahan tropika wujud terutamanya untuk **satu hormon pada satu peringkat: penghasilan etilena semasa pemasakan lepas tuai**. Mangga, durian, betik, markisa, rambutan dan buah muda laici semuanya mempunyai kadar dalam µL C2H4 kg⁻¹ h⁻¹. Bagi **aruhan pembungaan**, kepekatan mutlak yang boleh diakses datang daripada tiga sumber sahaja: profil daun LC-MS/MS pada mangga (Shivashankara et al. 2019, ng g⁻¹ FM), profil hujung pucuk LC-ESI-MS pada longan (Susawaengsup et al. 2011, ng g⁻¹ DW), dan nilai tunas mangga daripada Upreti et al. (2013) yang hanya diketahui melalui satu ulasan. Bagi **pembentukan buah dan perkembangan awal buah**, satu-satunya kepekatan mutlak yang ditemui ialah GA1 ovari sitrus (5.0 → 9.5 ng g⁻¹ DW semasa antesis). Semua yang lain dilaporkan sebagai perubahan kali ganda, perubahan peratusan atau masa. Corak kualitatif berulang merentas spesies. Sebelum pembungaan, GA dan IAA dalam tunas menurun manakala sitokinin (terutamanya zeatin/zeatin ribosida) dan ABA meningkat; paklobutrazol (PBZ), KNO3 dan KClO3 menguatkan anjakan ini. Semasa keguguran buah muda, IAA menurun manakala ABA dan etilena/ACC meningkat. Semasa pemasakan, ABA memuncak bersama atau sebelum klimakterik etilena. Namun, rekod ini tidak sekata. Durian, manggis, rambutan, jambu batu, betik, markisa, pisang dan avokado pada dasarnya **tidak mempunyai kepekatan hormon pembungaan atau pembentukan buah yang diukur** dalam sumber yang boleh dicapai. Dua percanggahan paling penting: GA longan semasa aruhan KClO3 meningkat dalam kajian LC-MS tetapi menurun dalam kajian imunoasai dan bioasai, dan nilai GA3 mangga berbeza sebanyak dua hingga tiga tertib magnitud antara kaedah. Hanya siri dalam kajian yang sama patut diletakkan pada paksi yang dikongsi.
+Nilai hormon yang diukur dan boleh dicartakan bagi pokok buah-buahan tropika wujud terutamanya untuk **satu hormon pada satu peringkat: penghasilan etilena semasa pemasakan lepas tuai**. Mangga, durian, betik, markisa, rambutan dan buah muda laici semuanya mempunyai kadar dalam µL C2H4 kg⁻¹ h⁻¹. Bagi **aruhan pembungaan**, kepekatan mutlak yang boleh diakses datang daripada tiga sumber sahaja: profil daun LC-MS/MS pada mangga (Shivashankara et al. 2019, ng g⁻¹ FM), profil hujung pucuk LC-ESI-MS pada longan (Susawaengsup et al. 2011, ng g⁻¹ DW), dan nilai tunas mangga daripada Upreti et al. (2013) yang hanya diketahui melalui satu ulasan. Bagi **pembentukan buah dan perkembangan awal buah**, satu-satunya kepekatan mutlak yang ditemui bagi hormon klasik ialah GA1 ovari sitrus (5.0 → 9.5 ng g⁻¹ DW semasa antesis). Semua yang lain dilaporkan sebagai perubahan kali ganda, perubahan peratusan atau masa. Corak kualitatif berulang merentas spesies. Sebelum pembungaan, GA dan IAA dalam tunas menurun manakala sitokinin (terutamanya zeatin/zeatin ribosida) dan ABA meningkat; paklobutrazol (PBZ), KNO3 dan KClO3 menguatkan anjakan ini. Semasa keguguran buah muda, IAA menurun manakala ABA dan etilena/ACC meningkat. Semasa pemasakan, ABA memuncak bersama atau sebelum klimakterik etilena. Namun, rekod ini tidak sekata. Durian, manggis, rambutan, jambu batu, betik, markisa, pisang dan avokado pada dasarnya **tidak mempunyai kepekatan hormon pembungaan atau pembentukan buah yang diukur** dalam sumber yang boleh dicapai. Dua percanggahan paling penting: GA longan semasa aruhan KClO3 meningkat dalam kajian LC-MS tetapi menurun dalam kajian imunoasai dan bioasai, dan nilai GA3 mangga berbeza sebanyak dua hingga tiga tertib magnitud antara kaedah. Hanya siri dalam kajian yang sama patut diletakkan pada paksi yang dikongsi.
 
 Laporan ini berdasarkan empat fail nota penyelidikan, yang disusun daripada kira-kira 75 carian dan pengambilan halaman. Banyak kertas primer memerlukan langganan berbayar atau disekat: repositori ICAR tidak dapat dicapai, dan PMC kadangkala memaparkan halaman pengesahan yang menghalang akses. Oleh itu, setiap nilai di bawah membawa **tahap pengesahan**:
 
@@ -87,7 +87,7 @@ Nilai sitokinin dalam jadual ini datang daripada kawalan vegetatif, jadi nilai i
 
 Petunjuk: n.r. = tidak dilaporkan; n.m. = tidak diukur. Entri ABA nanas mengikut petikan carian, yang juga menyenaraikan ABA antara hormon yang menurun selepas inisiasi.
 
-Tiada pengukuran hormon peringkat pembungaan ditemui untuk rambutan, manggis, pisang, betik, jambu batu, markisa atau avokado. Percubaan PBZ dan unikonazol pada avokado melaporkan hasil dan pembungaan, bukan tahap hormon ([Frontiers 2025](https://public-pages-files-2025.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2025.1668625/pdf)).
+Tiada pengukuran hormon peringkat pembungaan ditemui untuk rambutan, pisang, betik, jambu batu, markisa atau avokado. Manggis mempunyai satu keputusan rawatan dan tiada data musim semula jadi: penjerutan batang dan paklobutrazol, yang merangsang pembungaan, menurunkan kandungan asid giberelik ([Rai et al. 2004](https://journal.ipb.ac.id/jurnalagronomi/article/view/1438), abstrak; tiada tisu, kaedah atau nilai diberikan). Percubaan PBZ dan unikonazol pada avokado melaporkan hasil dan pembungaan, bukan tahap hormon ([Frontiers 2025](https://public-pages-files-2025.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2025.1668625/pdf)).
 
 ## Keguguran buah muda mengikuti auksin yang menurun serta lonjakan ABA dan etilena
 
@@ -292,7 +292,7 @@ Aplikasi ini merangkumi sepuluh kelas hormon bagi setiap satu daripada 13 tanama
 
 | Hormon | Diukur atau sebahagian | Disimpulkan | Digunakan sahaja | Tiada data |
 |---|---|---|---|---|
-| GA | 9 | 23 | 1 | 6 |
+| GA | 10 | 22 | 1 | 6 |
 | Sitokinin | 9 | 22 | 0 | 8 |
 | ABA | 15 | 15 | 0 | 9 |
 | IAA | 9 | 21 | 0 | 9 |
@@ -313,7 +313,7 @@ Aplikasi ini merangkumi sepuluh kelas hormon bagi setiap satu daripada 13 tanama
 | Laici | 10 | 3 | 4 | 13 |
 | Longan | 12 | 5 | 0 | 13 |
 | Mangga | 21 | 0 | 4 | 5 |
-| Manggis | 1 | 11 | 2 | 16 |
+| Manggis | 2 | 10 | 2 | 16 |
 | Betik | 2 | 9 | 2 | 17 |
 | Markisa | 1 | 9 | 0 | 20 |
 | Nanas | 7 | 6 | 2 | 15 |
@@ -332,7 +332,7 @@ Dua sel ditandakan Bercanggah kerana kajian tidak sependapat. Kedua-duanya telah
 
 ## Pengawal atur komersial
 
-Tab Pengawal atur menyenaraikan 123 entri produk × tanaman: 43 dengan perubahan hormon yang diukur selepas rawatan, 67 yang melaporkan kesan yang kelihatan sahaja, dan 13 daripada label atau panduan pengembangan. Setiap entri mengikut rantaian produk → hormon yang dirangsang atau disekatnya → perubahan hormon yang diukur → kesan yang kelihatan → kesan sampingan.
+Tab Pengawal atur menyenaraikan 123 entri produk × tanaman: 42 dengan perubahan hormon yang diukur selepas rawatan, 68 yang melaporkan kesan yang kelihatan sahaja, dan 13 daripada label atau panduan pengembangan. Setiap entri mengikut rantaian produk → hormon yang dirangsang atau disekatnya → perubahan hormon yang diukur → kesan yang kelihatan → kesan sampingan.
 
 | Tanaman | Entri | Dengan hormon diukur |
 |---|---|---|
@@ -343,11 +343,11 @@ Tab Pengawal atur menyenaraikan 123 entri produk × tanaman: 43 dengan perubahan
 | Jambu batu | 8 | 1 |
 | Laici | 14 | 5 |
 | Longan | 6 | 3 |
-| Mangga | 34 | 18 |
+| Mangga | 34 | 17 |
 | Manggis | 4 | 2 |
 | Betik | 2 | 1 |
 | Markisa | 3 | 1 |
 | Nanas | 9 | 1 |
 | Rambutan | 5 | 1 |
 
-Tiada kajian yang mengukur hormon buah muda atau zon absisi selepas semburan pencegah gugur buah yang biasa (NAA, 2,4-D, AVG, CPPU) pada tanaman ini; hanya kesan yang kelihatan dilaporkan. Kadar dan masa dalam aplikasi ini diambil daripada kajian yang dipetik dan bukan cadangan; pendaftaran produk berbeza mengikut negara.
+Tiada kajian ditemui yang mengukur hormon buah muda atau zon absisi pada awal pembentukan buah selepas semburan pencegah gugur buah yang biasa (NAA, 2,4-D, AVG, CPPU) pada tanaman ini; hanya kesan yang kelihatan dilaporkan. Satu kajian laici 2026 melaporkan perubahan hormon perikarp selepas CPPU, tetapi pada buah hampir matang, bukan semasa pembentukan buah. Kadar dan masa dalam aplikasi ini diambil daripada kajian yang dipetik dan bukan cadangan; pendaftaran produk berbeza mengikut negara.

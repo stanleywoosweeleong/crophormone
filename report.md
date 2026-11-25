@@ -1,6 +1,6 @@
 # Ripening ethylene dominates a thin hormone record
 
-Measured, chartable hormone values for tropical fruit trees exist mainly for **one hormone at one stage: ethylene production during postharvest ripening**. Mango, durian, papaya, passion fruit, rambutan and litchi fruitlets all have rates in µL C2H4 kg⁻¹ h⁻¹. For **flowering induction**, the accessible absolute concentrations come from just three sources: an LC-MS/MS leaf profile in mango (Shivashankara et al. 2019, ng g⁻¹ FM), an LC-ESI-MS shoot-tip profile in longan (Susawaengsup et al. 2011, ng g⁻¹ DW), and mango bud values from Upreti et al. (2013) that are known only through a review. For **fruit set and early fruit development**, the only absolute concentration found is citrus ovary GA1 (5.0 → 9.5 ng g⁻¹ DW at anthesis). Everything else is reported as fold-changes, percentage changes or timing. The qualitative pattern repeats across species. Before flowering, bud GA and IAA fall while cytokinins (especially zeatin/zeatin riboside) and ABA rise; paclobutrazol (PBZ), KNO3 and KClO3 amplify these shifts. During fruitlet drop, IAA falls and ABA and ethylene/ACC rise. During ripening, ABA peaks with or before the ethylene climacteric. The record is uneven, though. Durian, mangosteen, rambutan, guava, papaya, passion fruit, banana and avocado have essentially **no measured flowering or fruit-set hormone concentrations** in reachable sources. Two conflicts are central: longan GA during KClO3 induction goes up in the LC-MS study and down in the immunoassay and bioassay studies, and mango GA3 values differ by two to three orders of magnitude between methods. Only within-study series should be put on a shared axis.
+Measured, chartable hormone values for tropical fruit trees exist mainly for **one hormone at one stage: ethylene production during postharvest ripening**. Mango, durian, papaya, passion fruit, rambutan and litchi fruitlets all have rates in µL C2H4 kg⁻¹ h⁻¹. For **flowering induction**, the accessible absolute concentrations come from just three sources: an LC-MS/MS leaf profile in mango (Shivashankara et al. 2019, ng g⁻¹ FM), an LC-ESI-MS shoot-tip profile in longan (Susawaengsup et al. 2011, ng g⁻¹ DW), and mango bud values from Upreti et al. (2013) that are known only through a review. For **fruit set and early fruit development**, the only absolute concentration found for a classic hormone is citrus ovary GA1 (5.0 → 9.5 ng g⁻¹ DW at anthesis). Everything else is reported as fold-changes, percentage changes or timing. The qualitative pattern repeats across species. Before flowering, bud GA and IAA fall while cytokinins (especially zeatin/zeatin riboside) and ABA rise; paclobutrazol (PBZ), KNO3 and KClO3 amplify these shifts. During fruitlet drop, IAA falls and ABA and ethylene/ACC rise. During ripening, ABA peaks with or before the ethylene climacteric. The record is uneven, though. Durian, mangosteen, rambutan, guava, papaya, passion fruit, banana and avocado have essentially **no measured flowering or fruit-set hormone concentrations** in reachable sources. Two conflicts are central: longan GA during KClO3 induction goes up in the LC-MS study and down in the immunoassay and bioassay studies, and mango GA3 values differ by two to three orders of magnitude between methods. Only within-study series should be put on a shared axis.
 
 This report draws on four research-note files, compiled from roughly 75 searches and page fetches. Many primary papers were paywalled or blocked: the ICAR repository was unreachable, and PMC sometimes showed a verification wall. Each value below therefore carries a **verification level**:
 
@@ -87,7 +87,7 @@ The cytokinin values in this table come from vegetative controls, so they cannot
 
 Key: n.r. = not reported; n.m. = not measured. The pineapple ABA entry follows the snippet, which also lists ABA among the hormones that fall after initiation.
 
-No flowering-stage hormone measurements were found for rambutan, mangosteen, banana, papaya, guava, passion fruit or avocado. The avocado PBZ and uniconazole trials report yield and flowering, not hormone levels ([Frontiers 2025](https://public-pages-files-2025.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2025.1668625/pdf)).
+No flowering-stage hormone measurements were found for rambutan, banana, papaya, guava, passion fruit or avocado. Mangosteen has one treatment result and no natural seasonal data: strangulation and paclobutrazol, which stimulated flowering, lowered gibberellic acid content ([Rai et al. 2004](https://journal.ipb.ac.id/jurnalagronomi/article/view/1438), abstract; no tissue, method or values given). The avocado PBZ and uniconazole trials report yield and flowering, not hormone levels ([Frontiers 2025](https://public-pages-files-2025.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2025.1668625/pdf)).
 
 ## Fruitlet drop tracks falling auxin and surging ABA and ethylene
 
@@ -292,7 +292,7 @@ The app covers ten hormone classes for each of the 13 crops at flowering, fruit 
 
 | Hormone | Measured or partly | Inferred | Applied only | No data |
 |---|---|---|---|---|
-| GA | 9 | 23 | 1 | 6 |
+| GA | 10 | 22 | 1 | 6 |
 | Cytokinin | 9 | 22 | 0 | 8 |
 | ABA | 15 | 15 | 0 | 9 |
 | IAA | 9 | 21 | 0 | 9 |
@@ -313,7 +313,7 @@ The app covers ten hormone classes for each of the 13 crops at flowering, fruit 
 | Litchi | 10 | 3 | 4 | 13 |
 | Longan | 12 | 5 | 0 | 13 |
 | Mango | 21 | 0 | 4 | 5 |
-| Mangosteen | 1 | 11 | 2 | 16 |
+| Mangosteen | 2 | 10 | 2 | 16 |
 | Papaya | 2 | 9 | 2 | 17 |
 | Passion fruit | 1 | 9 | 0 | 20 |
 | Pineapple | 7 | 6 | 2 | 15 |
@@ -332,7 +332,7 @@ Two cells were marked Conflicting because studies disagreed. Both were checked a
 
 ## Commercial regulators
 
-The Regulators view lists 123 product × crop entries: 43 with hormone changes measured after treatment, 67 reporting only the visible effect, and 13 from label or extension guidance. Each entry follows the chain product → hormone it boosts or blocks → measured hormone changes → visible effect → side effects.
+The Regulators view lists 123 product × crop entries: 42 with hormone changes measured after treatment, 68 reporting only the visible effect, and 13 from label or extension guidance. Each entry follows the chain product → hormone it boosts or blocks → measured hormone changes → visible effect → side effects.
 
 | Crop | Entries | With hormones measured |
 |---|---|---|
@@ -343,11 +343,11 @@ The Regulators view lists 123 product × crop entries: 43 with hormone changes m
 | Guava | 8 | 1 |
 | Litchi | 14 | 5 |
 | Longan | 6 | 3 |
-| Mango | 34 | 18 |
+| Mango | 34 | 17 |
 | Mangosteen | 4 | 2 |
 | Papaya | 2 | 1 |
 | Passion fruit | 3 | 1 |
 | Pineapple | 9 | 1 |
 | Rambutan | 5 | 1 |
 
-No study measured fruitlet or abscission-zone hormones after the common anti-drop sprays (NAA, 2,4-D, AVG, CPPU) in these crops; only their visible effects are reported. Rates and timings in the app come from the cited studies and are not recommendations; product registration differs by country.
+No study was found that measured fruitlet or abscission-zone hormones at early fruit set after the common anti-drop sprays (NAA, 2,4-D, AVG, CPPU) in these crops; only their visible effects are reported. One 2026 litchi study reports pericarp hormone changes after CPPU, but on fruit near maturity, not at fruit set. Rates and timings in the app come from the cited studies and are not recommendations; product registration differs by country.

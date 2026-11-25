@@ -349,6 +349,7 @@ a.doi { overflow-wrap: anywhere; }
 .bottom-nav a { font-size: 12px; }
 
 .c.nod { color: var(--muted); background: var(--grid); }
+.c.meas { color: var(--fg); background: var(--grid); }
 .ct .c { height: auto; min-height: 30px; padding-block: 3px; white-space: normal; text-align: center; line-height: 1.1; }
 
 /* Inline crop list under the crop button */

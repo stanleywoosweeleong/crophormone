@@ -46,6 +46,7 @@
     'Mixed': {glyph: '◆', cls: 'mix', key: 'mix'},
     'Conflicting': {glyph: '◆', cls: 'mix', key: 'conflict'},
     'Not established': {glyph: '○', cls: 'nod', key: 'nod'},
+    'Measured': {glyph: '■', cls: 'meas', key: 'meas'},
     'Applied': {glyph: '◇', cls: 'trt', key: 'trt'},
     'No data': {glyph: '·', cls: 'nd', key: 'nd'}
   };
@@ -92,7 +93,10 @@
   }
   /* Source link plus its DOI, shown only for DOIs confirmed at doi.org when the data was built. */
   function cite(text, url, doi) {
-    const link = safeLink(text, url);
+    /* A source cell may name several studies, with their links separated by semicolons: the first carries the text, the rest are numbered. */
+    const urls = (url || '').split(/;\s*/).filter(Boolean);
+    const more = urls.slice(1).flatMap((u, i) => [' ', safeLink(`[${i + 2}]`, u)]);
+    const link = more.length ? el('span', {}, safeLink(text, urls[0]), ...more) : safeLink(text, urls[0]);
     if (!doi || !/^10\.\d{4,9}\/\S+$/.test(doi)) return link;
     return el('span', {}, link, ' · ', el('a', {class: 'doi', href: 'https://doi.org/' + doi, target: '_blank', rel: 'noopener', text: 'DOI ' + doi}));
   }
@@ -188,10 +192,13 @@
       if (!r || !r.note) return;
       const entry = byNote.get(r.note) || {names: [], r};
       entry.names.push(h.key);
+      if (!entry.src && r.source) entry.src = r;
       byNote.set(r.note, entry);
     });
-    byNote.forEach(({names, r}) => parts.push(byNote.size === 1 ? el('p', {}, el('strong', {text: t('group.Classic hormones') + t('colon')}), F(r, 'note'))
-      : evidenceLine(list(names.map(hName)), r)));
+    /* The hormones sharing a note differ in how they were measured, so the line carries the sources but no single basis label. */
+    const srcSpan = s => s ? el('span', {class: 'src'}, `${verName(s.verification)}${s.verification ? ' · ' : ''}`, cite(s.source, s.source_url, s.doi)) : null;
+    byNote.forEach(({names, r, src}) => parts.push(el('p', {},
+      el('strong', {text: (byNote.size === 1 ? t('group.Classic hormones') : list(names.map(hName))) + t('colon')}), F(r, 'note'), ' ', srcSpan(src))));
     const none = [];
     HORMONES.filter(h => h.group === 'Other hormones').forEach(h => {
       const r = cell(crop, stage, h.key);
@@ -223,7 +230,7 @@
       el('strong', {text: t('cov.count', {m: c.measured})}), t('cov.rest', {i: c.inferred, a: c.applied, n: c.none}));
     const ev = el('details', {class: 'ev'}, el('summary', {text: t('ev.summary')}), ...STAGES.map(s => stageEvidence(crop, s)), closer());
     const marks = STAGES.flatMap(s => HORMONES.map(h => cell(crop, s, h.key)))
-      .filter(r => r && r.direction_note && ['Mixed', 'Up in drop'].includes(shown(r)));
+      .filter(r => r && r.direction_note && ['Mixed', 'Measured', 'Up in drop'].includes(shown(r)));
     /* One line for all At-drop cells (they share a reason), one per Mixed cell. */
     const drops = marks.filter(r => r.direction === 'Up in drop');
     const why = el('div', {class: 'mark-why'},
@@ -232,8 +239,8 @@
         /* Inferred cells borrow the pattern from other fruit, so say that before stating it. */
         drops.every(r => r.basis === 'Inferred') ? el('em', {text: t('why.inferred', {crop: cropN(crop)})}) : null,
         t(drops.every(r => r.basis === 'Inferred') ? 'why.dropInferred' : drops.length > 1 ? 'why.drop2' : 'why.drop1')) : null,
-      ...marks.filter(r => r.direction === 'Mixed').map(r => el('p', {},
-        el('span', {class: 'c mix'}, el('span', {'aria-hidden': 'true', text: '◆'}), t('short.mix')), ' ',
+      ...marks.filter(r => r.direction === 'Mixed' || r.direction === 'Measured').map(r => el('p', {},
+        el('span', {class: 'c ' + DIRECTION[r.direction].cls}, el('span', {'aria-hidden': 'true', text: DIRECTION[r.direction].glyph}), shortWord(DIRECTION[r.direction])), ' ',
         el('strong', {text: t('why.head', {hormones: hName(r.hormone), stage: L.stageL(r.stage)})}), L.field(r, 'direction_note'))));
     const gaps = empty.length ? el('p', {class: 'gaps'}, el('strong', {text: t('gaps.label')}), list(empty.map(h => hName(h.key))),
       t('gaps.rest')) : null;
@@ -309,7 +316,7 @@
     if (head) head.replaceChildren(t('cmp.head', {stage: L.stageL(stage), crop: cropN(state.crop)}),
       el('a', {href: '#overview', text: t('cmp.link', {crop: cropN(state.crop)})}), L.lang === 'zh' ? '。' : '.');
     /* One card per hormone; inside, crops grouped by direction, in this order. */
-    const ORDER = ['Up', 'Up in drop', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Not established', 'Applied', 'No data'];
+    const ORDER = ['Up', 'Up in drop', 'Peak', 'Down', 'Low', 'Mixed', 'Conflicting', 'Measured', 'Not established', 'Applied', 'No data'];
     let group = null;
     const cards = [];
     /* Hormones no crop has any data for at this stage get one summary line per group, not a card each. */
@@ -348,6 +355,7 @@
             ' ' + L.field(cell(g.crop, state.stage, h.key), 'direction_note')))) : null,
           k === 'Applied' ? el('span', {class: 'why', text: t('why.applied')}) : null,
           k === 'Not established' ? el('span', {class: 'why', text: t('why.nod')}) : null,
+          k === 'Measured' ? el('span', {class: 'why', text: t('why.meas')}) : null,
           k === 'Mixed' ? null : el('span', {class: 'names'}, ...groups.get(k).map(g => el('button', {
             type: 'button', class: 'name' + (g.inferred && k !== 'No data' ? ' inferred' : '') + (g.crop === state.crop ? ' on' : ''),
             'aria-label': t('cmp.open', {crop: cropN(g.crop), dir: word(d), inf: g.inferred ? t('inferredShort') : ''}),
@@ -388,7 +396,6 @@
     const m = mrlCrop.toLowerCase();
     return /^all|all tropical/.test(m) || (MRL_CROPS[crop] || [crop.toLowerCase()]).some(c => m.includes(c));
   };
-  const firstUrl = u => (u || '').split(/;\s*/)[0];
   /* Persistence band from the class text; "very persistent" or leading "Persistent" is high, any "moderate" is mid. */
   const persistClass = t => /very persistent/i.test(t) || /^\s*persistent/i.test(t) ? 'high' : /moderate/i.test(t) ? 'mid' : /non-persistent/i.test(t) ? 'low' : 'unknown';
 
@@ -403,6 +410,16 @@
   }
   function closer() {
     return el('button', {type: 'button', class: 'closer', text: t('closer'), onclick: e => closeSection(e.currentTarget)});
+  }
+  /* One residue-limit record: market, value, what the limit is measured as, caveats, and when and where it was checked. */
+  function mrlItem(m) {
+    return el('li', {},
+      F(m, 'market') + t('colon'), el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : m.note ? t('res.seeNote') : t('res.noValue')}),
+      `${m.crop && !/^all/i.test(m.crop) ? ` (${F(m, 'crop')})` : ''}${m.limit_type ? ' · ' + F(m, 'limit_type') : ''}${m.residue_definition ? ' · ' + t('res.def') + m.residue_definition : ''}${m.measured_fruit_residues ? t('res.measured') + F(m, 'measured_fruit_residues') : ''}`,
+      /* The note carries caveats such as a superseded or unchecked limit, so it is shown with every value. */
+      m.note ? el('span', {class: 'mrl-note', text: F(m, 'note')}) : null,
+      el('span', {class: 'src mrl-src'}, `${verName(m.verification) || m.verification}${m.verification ? ' · ' : ''}`, cite(m.source || t('source'), m.source_url, m.doi),
+        m.retrieved ? ' · ' + t('res.checked', {d: m.retrieved}) : ''));
   }
   function residueSection(r) {
     const keys = residueKeys(r);
@@ -424,20 +441,20 @@
         if (soil.effects_on_trees_and_following_crops && !/^no .*found/i.test(soil.effects_on_trees_and_following_crops)) parts.push(el('p', {}, el('strong', {text: t('res.effects')}), F(soil, 'effects_on_trees_and_following_crops')));
         if (soil.leaching_water_note) parts.push(el('p', {}, el('strong', {text: t('res.water')}), F(soil, 'leaching_water_note')));
         if (soil.restrictions && !/^not found/i.test(soil.restrictions)) parts.push(el('p', {}, el('strong', {text: t('res.restrict')}), F(soil, 'restrictions')));
-        parts.push(el('p', {class: 'src'}, `${verName(soil.verification) || soil.verification} · `, cite(soil.source, firstUrl(soil.source_url), soil.doi)));
+        parts.push(el('p', {class: 'src'}, `${verName(soil.verification) || soil.verification} · `, cite(soil.source, soil.source_url, soil.doi)));
       }
       if (limits.length) {
         parts.push(el('p', {}, el('strong', {text: t('res.limits', {crop: cropN(r.crop)})})));
-        parts.push(el('ul', {class: 'mrl'}, ...limits.map(m => el('li', {},
-          F(m, 'market') + t('colon'), el('strong', {text: m.mrl_mg_per_kg ? `${m.mrl_mg_per_kg} mg/kg` : m.note ? t('res.seeNote') : t('res.noValue')}),
-          `${m.crop && !/^all/i.test(m.crop) ? ` (${F(m, 'crop')})` : ''}${m.limit_type ? ' · ' + F(m, 'limit_type') : ''}${m.measured_fruit_residues ? t('res.measured') + F(m, 'measured_fruit_residues') : ''}`,
-          /* The note carries caveats such as a superseded or unchecked limit, so it is shown with every value. */
-          m.note ? el('span', {class: 'mrl-note', text: F(m, 'note')}) : null,
-          el('span', {class: 'src mrl-src'}, `${verName(m.verification) || m.verification}${m.verification ? ' · ' : ''}`, cite(m.source || t('source'), firstUrl(m.source_url), m.doi))))));
+        parts.push(el('ul', {class: 'mrl'}, ...limits.map(mrlItem)));
       } else {
         parts.push(el('p', {class: 'none', text: t('res.noLimit', {crop: cropN(r.crop)})}));
       }
     });
+    const general = (data.mrls || []).filter(x => x.key === 'default');
+    if (general.length) {
+      parts.push(el('p', {}, el('strong', {text: t('res.defaults')})));
+      parts.push(el('ul', {class: 'mrl'}, ...general.map(mrlItem)));
+    }
     return el('details', {class: 'res'}, el('summary', {text: t('res.summary')}), ...parts, closer());
   }
 
@@ -478,7 +495,7 @@
       r.effects_on_trees_and_following_crops ? el('p', {}, el('strong', {text: t('res.effects')}), F(r, 'effects_on_trees_and_following_crops')) : null,
       r.leaching_water_note ? el('p', {}, el('strong', {text: t('res.water')}), F(r, 'leaching_water_note')) : null,
       r.restrictions && !/^not found/i.test(r.restrictions) ? el('p', {}, el('strong', {text: t('res.restrict')}), F(r, 'restrictions')) : null,
-      el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, cite(r.source, firstUrl(r.source_url), r.doi)), closer());
+      el('p', {class: 'src'}, `${verName(r.verification) || r.verification} · `, cite(r.source, r.source_url, r.doi)), closer());
     /* Three groups so fertilisers and natural compounds are not read as harmful residues; synthetic regulators open first. */
     const GROUPS = [
       {key: 'synthetic', open: true}, {key: 'natural'}, {key: 'other'}
